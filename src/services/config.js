@@ -5,7 +5,7 @@
 import axios from 'axios';
 
 // export const API_URL = 'http://localhost:3000/api';
-export const API_URL = 'https://backend-doantotnghiep-on18.onrender.com/api';
+export const API_URL = 'https://backend-doantotnghiep-wy5h.onrender.com/api';
 
 // Create axios instance
 const axiosInstance = axios.create({
