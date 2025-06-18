@@ -1,0 +1,61 @@
+.sales-chart-container {
+    width: 100%;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    height: 500px;
+    /* Tăng chiều cao container */
+    margin-bottom: 30px;
+}
+
+.date-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.date-picker {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    background: white;
+}
+
+.date-picker:focus {
+    outline: none;
+    border-color: #4285f4;
+}
+
+.chart-container {
+    height: calc(100% - 70px);
+    /* Trừ đi chiều cao của date picker */
+    position: relative;
+    width: 100%;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    color: #666;
+}
+
+/* Dark mode styles */
+.dark-mode .sales-chart-container {
+    background: #1a1a1a;
+}
+
+.dark-mode .date-picker {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: white;
+}
+
+.dark-mode .date-picker:focus {
+    border-color: #4285f4;
+}

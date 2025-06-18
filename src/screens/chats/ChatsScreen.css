@@ -1,0 +1,140 @@
+.chats-container {
+    height: calc(100vh - 80px);
+    padding: 24px;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 24px;
+}
+
+.chats-content {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.chat-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: calc(100% - 60px);
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chat-sidebar {
+    border-right: 1px solid #eee;
+    height: 100%;
+    overflow: hidden;
+    /* Thêm dòng này */
+    position: sticky;
+    /* Thêm dòng này */
+    top: 0;
+    /* Thêm dòng này */
+}
+
+.chat-main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    /* Thêm dòng này */
+}
+
+.no-chat-selected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-size: 16px;
+}
+
+/* Dark mode */
+.dark-mode .page-title {
+    color: #fff;
+}
+
+.dark-mode .chats-content {
+    background: #1a1a1a;
+}
+
+.dark-mode .chat-layout {
+    background: #1a1a1a;
+    border-color: #333;
+}
+
+.dark-mode .chat-sidebar {
+    border-color: #333;
+}
+
+.dark-mode .chat-item:hover {
+    background-color: #2d2d2d;
+}
+
+.dark-mode .chat-item.active {
+    background-color: #1e3a5f;
+}
+
+.dark-mode .message.received {
+    background-color: #2d2d2d;
+    color: #fff;
+}
+
+.dark-mode .message-input {
+    border-color: #333;
+}
+
+.dark-mode .message-input input {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #fff;
+}
+
+.dark-mode .no-chat-selected {
+    color: #999;
+}
+
+.chat-list .chat-email {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+body.dark-mode .chat-list .chat-email {
+    color: #888;
+}
+
+.chat-list-content {
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.chat-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.chat-item.active {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .chat-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .chat-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+}

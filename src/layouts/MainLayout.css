@@ -1,0 +1,36 @@
+/* src/layouts/MainLayout.css */
+:root {
+  --background-color: #f5f6fa;
+  /* Light mode background */
+}
+
+body.dark-mode {
+  --background-color: #1e1e1e;
+  /* Dark grey for dark mode */
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: 280px;
+  transition: margin-left 0.3s ease;
+}
+
+/* Điều chỉnh margin khi sidebar được thu gọn */
+.layout.collapsed .main-wrapper {
+  margin-left: 70px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: var(--background-color);
+  overflow-y: auto;
+}

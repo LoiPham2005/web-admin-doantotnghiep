@@ -1,0 +1,287 @@
+.posts-container {
+    padding: 24px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* Dark mode cho tiêu đề */
+body.dark-mode .page-header h1 {
+    color: white;
+}
+
+.add-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.posts-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--background-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.posts-table th,
+.posts-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.posts-table th {
+    background-color: var(--header-background);
+    color: var(--header-text);
+    font-weight: 600;
+}
+
+.media-cell {
+    width: 100px;
+}
+
+.post-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Dark mode cho bảng */
+body.dark-mode .posts-table {
+    background-color: #2d3748;
+    color: white;
+}
+
+body.dark-mode .posts-table th {
+    background-color: #4a5568;
+}
+
+body.dark-mode .posts-table td {
+    border-color: #4a5568;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-button,
+.delete-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: #3498db;
+    color: white;
+}
+
+.delete-button {
+    background-color: #e74c3c;
+    color: white;
+}
+
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Dark mode cho modal */
+body.dark-mode .modal {
+    background-color: #2d3748;
+    color: white;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modal-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-buttons button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.modal-buttons button[type="button"] {
+    background-color: #ccc;
+    color: #333;
+}
+
+/* Dark mode inputs */
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group textarea {
+    background-color: #1a1a1a;
+    color: white;
+    border-color: #444;
+}
+
+body.dark-mode .form-group label {
+    color: white;
+}
+
+body.dark-mode .modal-buttons button[type="button"] {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+.current-media {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.current-media p {
+    margin: 0 0 10px 0;
+    font-weight: 500;
+}
+
+.media-preview {
+    margin: 10px 0;
+}
+
+.media-preview img,
+.media-preview video {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: contain;
+}
+
+/* Dark mode support */
+body.dark-mode .current-media {
+    border-color: #444;
+}
+
+body.dark-mode .current-media p {
+    color: white;
+}
+
+/* Add these styles for image previews */
+.image-previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.preview-item {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.preview-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0;
+}
+
+.remove-image:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* Dark mode support */
+body.dark-mode .preview-item {
+    background: #2d2d2d;
+}
+
+body.dark-mode .remove-image {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .remove-image:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

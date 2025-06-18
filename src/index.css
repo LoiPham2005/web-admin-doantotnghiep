@@ -1,0 +1,202 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Light theme */
+  --background-color: #ffffff;
+  --text-color: #333333;
+  --border-color: #eee;
+  --secondary-bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --header-bg: #ffffff;
+  --input-bg: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme */
+body.dark-mode {
+  --background-color: #1a1a1a;
+  --text-color: #ffffff;
+  --border-color: #333;
+  --secondary-bg: #2d2d2d;
+  --card-bg: #2d2d2d;
+  --sidebar-bg: #2d2d2d;
+  --header-bg: #2d2d2d;
+  --input-bg: #333333;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Apply theme variables */
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 100%;
+  min-height: 100vh;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  border-color: #646cff;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Headers */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-color);
+}
+
+/* Tables */
+.products-table,
+.categories-table {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.products-table th,
+.categories-table th {
+  background-color: var(--secondary-bg);
+  color: var(--text-color);
+}
+
+.products-table td,
+.categories-table td {
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Cards & Modals */
+.modal {
+  background-color: var(--card-bg);
+}
+
+.stat-card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: var(--sidebar-bg);
+}
+
+.nav-link {
+  color: var(--text-color);
+}
+
+/* Header */
+.header {
+  background-color: var(--header-bg);
+}
+
+.search-input {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+/* Buttons */
+.button {
+  background-color: var(--secondary-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Other elements */
+.loading-spinner {
+  border-color: var(--text-color);
+}
+
+/* Icons */
+.theme-icon.sun {
+  color: #ffd700;
+}
+
+.theme-icon.moon {
+  color: #4a90e2;
+}
+
+/* Dark mode transitions */
+* {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}

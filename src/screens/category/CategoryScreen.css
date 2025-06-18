@@ -1,0 +1,290 @@
+/* Light mode (default) */
+.categories-container {
+  padding: 24px;
+}
+
+/* Light mode */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* Dark mode cho tiêu đề */
+body.dark-mode .page-header h1 {
+  color: white;
+}
+
+.add-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.categories-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--background-color);
+  box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.categories-table th,
+.categories-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.categories-table th {
+  background-color: var(--secondary-bg);
+  font-weight: 600;
+}
+
+/* Dark mode cho bảng */
+body.dark-mode .categories-table {
+  background-color: #1a1a1a;
+  color: white;
+  border-color: #333;
+}
+
+body.dark-mode .categories-table th {
+  background-color: #2d2d2d;
+  color: white;
+  border-color: #333;
+}
+
+body.dark-mode .categories-table td {
+  border-color: #333;
+  color: white;
+}
+
+/* Dark mode cho modal */
+body.dark-mode .modal {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+body.dark-mode .form-group label {
+  color: white;
+}
+
+body.dark-mode .form-group input {
+  background-color: #2d2d2d;
+  color: white;
+  border-color: #444;
+}
+
+/* Dark mode cho buttons */
+body.dark-mode .close-button {
+  color: white;
+}
+
+body.dark-mode .modal-buttons button[type="button"] {
+  background-color: #2d2d2d;
+  color: white;
+  border: 1px solid #444;
+}
+
+body.dark-mode .modal-buttons button[type="button"]:hover {
+  background-color: #3d3d3d;
+}
+
+/* Dark mode cho placeholder */
+body.dark-mode .form-group input::placeholder {
+  color: #888;
+}
+
+/* Animation cho modal */
+.modal {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Transitions */
+.categories-table,
+.modal,
+.form-group input,
+.modal-buttons button {
+  transition: all 0.3s ease;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button,
+.delete-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button {
+  background-color: #2196F3;
+  color: white;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-group input[type="file"] {
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  width: 100%;
+  background-color: var(--input-background);
+  color: var(--text-color);
+}
+
+/* Dark mode cho input file */
+body.dark-mode .form-group input[type="file"] {
+  background-color: #2d2d2d;
+  color: white;
+  border-color: #444;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-buttons button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.modal-buttons button[type="button"] {
+  background-color: #f44336;
+  color: white;
+}
+
+.image-cell {
+  width: 100px;
+  padding: 8px;
+}
+
+.category-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.media-upload-container {
+  position: relative;
+  margin-top: 8px;
+}
+
+.media-preview {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 12px;
+}
+
+.media-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.remove-media {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f44336;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* Dark mode styles */
+body.dark-mode .media-preview img {
+  border: 1px solid #444;
+}
+
+body.dark-mode .remove-media {
+  background: #d32f2f;
+}

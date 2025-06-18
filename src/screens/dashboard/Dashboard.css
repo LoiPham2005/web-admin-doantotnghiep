@@ -1,0 +1,415 @@
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.sidebar {
+  width: 280px;
+  background: white;
+  border-right: 1px solid #eee;
+  padding: 20px 0;
+}
+
+.logo {
+  padding: 0 24px;
+  margin-bottom: 30px;
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.logo-highlight {
+  color: #4285f4;
+}
+
+.nav-menu {
+  padding: 0 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: #666;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.nav-item.active {
+  background-color: #4285f4;
+  color: white;
+}
+
+.nav-item i {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px 30px;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.search-bar {
+  position: relative;
+  width: 300px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 40px;
+  border: none;
+  border-radius: 8px;
+  background: #f1f3f4;
+}
+
+.search-bar i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.notifications {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff4757;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.language {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.language img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.role {
+  font-size: 12px;
+  color: #666;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stat-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.stat-change.up {
+  color: #4caf50;
+}
+
+.stat-change.down {
+  color: #ff5722;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.period-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+}
+
+.period-selector i {
+  font-size: 12px;
+  color: #999;
+}
+
+.chart-section,
+.deals-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.chart-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.chart-section h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.deals-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.deals-table th {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  color: #666;
+  font-weight: 500;
+}
+
+.deals-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.product-cell img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.status.delivered {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+
+.sales-chart {
+  height: 350px;
+  width: 100%;
+  position: relative;
+}
+
+.sales-chart canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Custom styles for chart tooltips */
+.chart-tooltip {
+  background: white !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.chart-tooltip-header {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+  margin-bottom: 4px !important;
+}
+
+.chart-tooltip-body {
+  font-size: 12px !important;
+  color: #666 !important;
+}
+
+/* Dark mode styles */
+body.dark-mode .chart-section {
+  background: #1a1a1a;
+}
+
+body.dark-mode .chart-section h2 {
+  color: white;
+}
+
+body.dark-mode .period-selector {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+body.dark-mode .period-selector i {
+  color: #999;
+}
+
+/* Thêm vào Dashboard.css */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  color: var(--text-color);
+}
+
+.language-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.language-selector button {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.language-selector button.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Dark mode styles */
+.dashboard-content.dark {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.dark .stat-card {
+  background-color: #2d2d2d;
+  color: white;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

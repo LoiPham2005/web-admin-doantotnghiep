@@ -1,0 +1,173 @@
+.top-products-container {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 48px;
+    /* Tăng margin-top để tạo khoảng cách với biểu đồ trên */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
+}
+
+.date-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.date-picker {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    min-width: 1000px;
+    /* Đảm bảo bảng có độ rộng tối thiểu */
+}
+
+.products-table th,
+.products-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.products-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.products-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.rank-cell {
+    width: 60px;
+    text-align: center;
+    font-weight: bold;
+    color: #666;
+}
+
+.image-cell {
+    width: 80px;
+}
+
+.product-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.title-cell {
+    max-width: 300px;
+}
+
+.quantity-cell {
+    width: 150px;
+    text-align: center;
+}
+
+.revenue-cell {
+    width: 150px;
+    text-align: right;
+    color: #2196F3;
+    font-weight: 500;
+}
+
+.loading {
+    text-align: center;
+    padding: 24px;
+    color: #666;
+}
+
+/* Thêm styles cho các cột mới */
+.author-cell,
+.category-cell,
+.price-cell {
+    min-width: 120px;
+}
+
+.price-cell {
+    text-align: right;
+    color: #f57c00;
+    /* Màu cam cho giá */
+    font-weight: 500;
+}
+
+.category-cell {
+    color: #7e57c2;
+    /* Màu tím nhạt cho danh mục */
+}
+
+.author-cell {
+    color: #616161;
+    /* Màu xám cho tác giả */
+}
+
+/* Dark mode styles */
+.dark-mode .top-products-container {
+    background: #1a1a1a;
+}
+
+.dark-mode .products-table th {
+    background-color: #2d2d2d;
+    color: #fff;
+}
+
+.dark-mode .products-table td {
+    border-bottom-color: #333;
+    color: #fff;
+}
+
+.dark-mode .products-table tr:hover {
+    background-color: #2d2d2d;
+}
+
+.dark-mode .rank-cell {
+    color: #ccc;
+}
+
+.dark-mode .revenue-cell {
+    color: #64b5f6;
+}
+
+/* Cập nhật dark mode cho các cột mới */
+.dark-mode .author-cell {
+    color: #bdbdbd;
+}
+
+.dark-mode .category-cell {
+    color: #b39ddb;
+}
+
+.dark-mode .price-cell {
+    color: #ffb74d;
+}
+
+.top-products-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Dark mode cho tiêu đề */
+.dark-mode .top-products-title {
+    color: #fff;
+    border-bottom-color: #333;
+}

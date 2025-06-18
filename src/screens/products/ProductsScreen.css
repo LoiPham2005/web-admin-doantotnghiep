@@ -1,0 +1,739 @@
+.products-container {
+    padding: 24px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* Light mode */
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Dark mode cho tiêu đề */
+body.dark-mode h1 {
+    color: white;
+}
+
+.add-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Light mode (default) */
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--background-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.products-table th,
+.products-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.products-table th {
+    background-color: var(--secondary-bg);
+    font-weight: 600;
+}
+
+/* Dark mode */
+body.dark-mode .products-table {
+    background-color: #1a1a1a;
+    color: white;
+    border-color: #333;
+}
+
+body.dark-mode .products-table th {
+    background-color: #2d2d2d;
+    color: white;
+    border-color: #333;
+}
+
+body.dark-mode .products-table td {
+    border-color: #333;
+    color: white;
+}
+
+.product-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-button,
+.delete-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: #2196F3;
+    color: white;
+}
+
+.delete-button {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal */
+.modal {
+    position: relative;
+    /* Changed from fixed */
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalFadeIn 0.3s ease;
+}
+
+/* Animation */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Modal trong dark mode */
+body.dark-mode .modal {
+    background-color: #1a1a1a;
+    color: white;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    /* background-color: #f44336; */
+    color: black;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.close-button:hover {
+    background-color: red;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Dark mode */
+body.dark-mode .form-group label {
+    color: white;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Dark mode */
+body.dark-mode .form-input,
+body.dark-mode .form-select,
+body.dark-mode textarea {
+    background-color: #2d2d2d;
+    color: white;
+    border-color: #444;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modal-buttons button {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-buttons button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.modal-buttons button[type="button"] {
+    background-color: #f44336;
+    color: white;
+}
+
+.modal-buttons button:hover {
+    opacity: 0.9;
+}
+
+.selected-files-container {
+    margin-top: 16px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* Dark mode */
+body.dark-mode .selected-files-container {
+    background-color: #2d2d2d;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    margin: 4px 0;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode */
+body.dark-mode .file-item {
+    background-color: #1a1a1a;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-icon {
+    color: #666;
+    width: 20px;
+}
+
+.file-name {
+    font-size: 14px;
+    color: #333;
+    word-break: break-all;
+}
+
+/* Dark mode */
+body.dark-mode .file-name {
+    color: white;
+}
+
+.remove-file {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.remove-file:hover {
+    background-color: #dc35451a;
+}
+
+.file-input-button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #2196F3;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.file-input-button:hover {
+    background-color: #1976D2;
+}
+
+.existing-media {
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.existing-media h4 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.existing-media-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.existing-media-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.existing-media-item .fa-video {
+    font-size: 24px;
+    color: #666;
+}
+
+/* Dark mode cho tất cả các input, select và textarea trong modal */
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+    background-color: #2d2d2d;
+    color: white;
+    border-color: #444;
+}
+
+/* Dark mode cho modal */
+body.dark-mode .modal {
+    background-color: #1a1a1a;
+    color: white;
+}
+
+/* Dark mode cho labels trong form */
+body.dark-mode .form-group label {
+    color: white;
+}
+
+/* Dark mode cho placeholder text */
+body.dark-mode .form-group input::placeholder,
+body.dark-mode .form-group textarea::placeholder {
+    color: #888;
+}
+
+/* Dark mode cho select options */
+body.dark-mode .form-group select option {
+    background-color: #2d2d2d;
+}
+
+/* Dark mode cho file input buttons */
+body.dark-mode .file-input-button {
+    background-color: #2d2d2d;
+    color: white;
+    border: 1px solid #444;
+}
+
+body.dark-mode .file-input-button:hover {
+    background-color: #3d3d3d;
+}
+
+/* Dark mode cho close button */
+body.dark-mode .close-button {
+    color: white;
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .close-button:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Dark mode cho modal buttons */
+body.dark-mode .modal-buttons button[type="button"] {
+    background-color: #2d2d2d;
+    color: white;
+    border: 1px solid #444;
+}
+
+body.dark-mode .modal-buttons button[type="button"]:hover {
+    background-color: #3d3d3d;
+}
+
+.modal.large {
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.form-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.form-section h3 {
+    margin-bottom: 16px;
+    color: #333;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.media-inputs {
+    display: grid;
+    gap: 16px;
+}
+
+.selected-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.selected-file {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.selected-file img,
+.selected-file video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.selected-file button {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.variant-input {
+    margin-bottom: 16px;
+}
+
+.input-with-button {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.input-with-button button {
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.selected-variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.variant-tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.variant-tag button {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+/* Dark mode styles */
+body.dark-mode .form-section {
+    background: #2d3748;
+}
+
+body.dark-mode .form-section h3 {
+    color: white;
+}
+
+body.dark-mode .variant-tag {
+    background: #4a5568;
+    color: white;
+}
+
+.variant-form {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.variants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.variant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.variant-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.variant-info span {
+    font-size: 14px;
+}
+
+/* Dark mode */
+body.dark-mode .variants-list {
+    border-color: #444;
+}
+
+body.dark-mode .variant-item {
+    background: #2d2d2d;
+    border-bottom-color: #444;
+}
+
+.color-select-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-preview {
+    display: inline-block;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-color-button {
+    padding: 4px 8px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.new-color-form {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.color-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-picker-popover {
+    position: absolute;
+    z-index: 2;
+}
+
+.color-picker-cover {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.new-color-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.new-color-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.new-color-buttons .add-button {
+    background: #4CAF50;
+    color: white;
+}
+
+.new-color-buttons .cancel-button {
+    background: #f44336;
+    color: white;
+}
+
+/* Dark mode */
+body.dark-mode .new-color-form {
+    background: #2d3748;
+}
+
+body.dark-mode .color-preview {
+    border-color: #444;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+}
+
+/* Dark mode */
+body.dark-mode .form-group select {
+    background-color: #2d3748;
+    color: white;
+    border-color: #4a5568;
+}
+
+.form-group select:hover {
+    border-color: #2196F3;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+/* Styles cho options trong select */
+.form-group select option {
+    padding: 8px;
+}
+
+body.dark-mode .form-group select option {
+    background-color: #2d3748;
+}

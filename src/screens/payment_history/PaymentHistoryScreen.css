@@ -1,0 +1,168 @@
+.payment-history-container {
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 400px;
+    /* Thêm chiều cao tối thiểu */
+}
+
+/* Thêm styles cho dark mode */
+body.dark-mode .payment-history-container {
+    background: #1a1a1a;
+    color: white;
+}
+
+body.dark-mode .payment-table th {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+body.dark-mode .payment-table td {
+    border-color: #333;
+}
+
+.page-title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.payment-table th,
+.payment-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.payment-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.payment-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status.completed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status.cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.pagination button.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+/* Thêm vào PaymentHistoryScreen.css */
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+.payment-table td {
+    vertical-align: middle;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.export-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-button.excel {
+    background-color: #217346;
+    color: white;
+}
+
+.export-button.excel:hover {
+    background-color: #1a5c38;
+}
+
+.export-button.pdf {
+    background-color: #ff4444;
+    color: white;
+}
+
+.export-button.pdf:hover {
+    background-color: #cc3333;
+}
+
+/* Print styles */
+@media print {
+    .export-buttons {
+        display: none;
+    }
+
+    .payment-table {
+        width: 100%;
+    }
+}
