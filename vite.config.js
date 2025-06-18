@@ -9,7 +9,7 @@ export default defineConfig({
     cors: true,
     proxy: {
       '/socket.io': {
-        target: 'http://localhost:3000',
+        target: "https://web-admin-doantotnghiep.onrender.com",
         ws: true
       }
     }
