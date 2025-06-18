@@ -16,6 +16,7 @@
     "html2pdf.js": "^0.10.3",
     "i18next": "^24.2.2",
     "i18next-browser-languagedetector": "^8.0.4",
+    "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-color": "^2.19.3",
