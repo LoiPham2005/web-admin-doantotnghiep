@@ -17,7 +17,8 @@ const WindowChat = ({ chat, userId }) => {
 
   useEffect(() => {
     // Khởi tạo kết nối socket
-    const socket = io('http://localhost:3000', {
+    // const socket = io('http://localhost:3000', {
+    const socket = io('wss://backend-doantotnghiep-wy5h.onrender.com', {
       transports: ['websocket', 'polling'], // Thêm polling để backup
       withCredentials: true
     });
