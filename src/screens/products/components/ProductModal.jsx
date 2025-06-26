@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChromePicker } from 'react-color';
-import { colorService } from '../../../services/ColorService'; // Thêm dòng này
+import { colorService } from '../../../services/ColorService';
 
 const ProductModal = ({
     isOpen,
@@ -13,7 +13,7 @@ const ProductModal = ({
     brands,
     categories,
     colors,
-    setColors,        // Thêm prop này
+    setColors,
     sizes,
     selectedImages,
     selectedVideos,
@@ -32,23 +32,23 @@ const ProductModal = ({
     handleRemoveColor,
     handleRemoveSize,
     currentVariant,
+    setCurrentVariant, // Đảm bảo nhận prop này
     handleVariantChange,
-    handleAddVariant,
+    onAddVariant,
     variantsList,
+    setVariantsList,
     handleRemoveVariant,
-    statusOptions,  // Thêm dòng này
+    statusOptions
 }) => {
     const { t } = useTranslation();
-
-    // Thêm state trong component
     const [showColorPicker, setShowColorPicker] = useState(false);
     const [newColor, setNewColor] = useState({ name: '', value: '#000000' });
     const [showNewColorForm, setShowNewColorForm] = useState(false);
+    const [isEditingVariant, setIsEditingVariant] = useState(false);
+    const [editingVariantIndex, setEditingVariantIndex] = useState(null);
 
-    // Thêm hàm kiểm tra variants
     const hasVariants = variantsList && variantsList.length > 0;
 
-    // Thêm các hàm xử lý màu
     const handleColorPickerChange = (color) => {
         setNewColor(prev => ({ ...prev, value: color.hex }));
     };
@@ -56,17 +56,15 @@ const ProductModal = ({
     const handleAddNewColor = async () => {
         try {
             if (!newColor.name || !newColor.value) {
-                alert('Vui lòng nhập đầy đủ thông tin màu');
+                alert(t('products.modal.fillAllColor'));
                 return;
             }
 
             const result = await colorService.addColor(newColor);
             if (result.status === 200) {
-                // Cập nhật danh sách màu
                 const updatedColors = [...colors, result.data];
                 setColors(updatedColors);
 
-                // Chọn màu mới thêm vào variant
                 handleVariantChange({
                     target: {
                         name: 'color_id',
@@ -74,24 +72,99 @@ const ProductModal = ({
                     }
                 });
 
-                // Reset form
                 setNewColor({ name: '', value: '#000000' });
                 setShowNewColorForm(false);
                 setShowColorPicker(false);
+
+                alert(t('products.modal.addColorSuccess'));
             }
         } catch (error) {
-            alert('Lỗi khi thêm màu mới: ' + error.message);
+            alert(t('products.modal.addColorError') + error.message);
         }
+    };
+
+    const handleClose = () => {
+        if (window.confirm(t('products.modal.confirmCancel'))) {
+            setNewColor({ name: '', value: '#000000' });
+            setShowNewColorForm(false);
+            setShowColorPicker(false);
+            onClose();
+        }
+    };
+
+    // Sửa lại hàm handleEditVariant
+    const handleEditVariant = (variant, index) => {
+        // Cập nhật form với dữ liệu của variant được chọn
+        setCurrentVariant({
+            color_id: variant.color_id || variant.color?._id,
+            size_id: variant.size_id || variant.size?._id,
+            price: variant.price,
+            quantity_in_stock: variant.quantity_in_stock,
+            status: variant.status || 'available'
+        });
+        setEditingVariantIndex(index);
+        setIsEditingVariant(true);
+    };
+
+    // Thêm hàm handleUpdateVariant
+    const handleUpdateVariant = () => {
+        if (currentVariant.color_id && currentVariant.size_id &&
+            currentVariant.price && currentVariant.quantity_in_stock) {
+
+            const selectedColor = colors.find(c => c._id === currentVariant.color_id);
+            const selectedSize = sizes.find(s => s._id === currentVariant.size_id);
+
+            const updatedVariants = [...variantsList];
+            updatedVariants[editingVariantIndex] = {
+                ...currentVariant,
+                color: selectedColor,
+                size: selectedSize
+            };
+
+            setVariantsList(updatedVariants);
+            setEditingVariantIndex(null);
+            setIsEditingVariant(false);
+
+            // Reset form
+            resetVariantForm();
+        } else {
+            alert(t('products.modal.fillAllVariant'));
+        }
+    };
+
+    const resetVariantForm = () => {
+        setCurrentVariant({
+            color_id: '',
+            size_id: '',
+            price: '',
+            quantity_in_stock: '',
+            status: 'available' // Default status
+        });
+        setIsEditingVariant(false);
+        setEditingVariantIndex(null);
     };
 
     if (!isOpen) return null;
 
+    // Thêm options cho trạng thái biến thể
+    const variantStatusOptions = [
+        { value: 'available', label: t('products.modal.variantStatus.available') },
+        { value: 'out_of_stock', label: t('products.modal.variantStatus.out_of_stock') },
+        { value: 'discontinued', label: t('products.modal.variantStatus.discontinued') }
+    ];
+
+    // Thêm hàm để lấy label của trạng thái
+    const getVariantStatusLabel = (status) => {
+        const option = variantStatusOptions.find(opt => opt.value === status);
+        return option ? option.label : status;
+    };
+
     return (
         <div className="modal-overlay">
-            <div className="modal large">
+            <div className="modal">
                 <div className="modal-header">
                     <h2>{editingProduct ? t('products.editProduct') : t('products.addProduct')}</h2>
-                    <button className="close-button" onClick={onClose}>×</button>
+                    <button className="close-button" onClick={handleClose}>×</button>
                 </div>
 
                 <form onSubmit={handleSubmit}>
@@ -300,6 +373,13 @@ const ProductModal = ({
                                         value={currentVariant.price}
                                         onChange={handleVariantChange}
                                         placeholder={t('products.modal.price')}
+                                        min="0"
+                                        step="1000"
+                                        onKeyDown={(e) => {
+                                            if (e.key === '-' || e.key === 'e') {
+                                                e.preventDefault();
+                                            }
+                                        }}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -310,56 +390,96 @@ const ProductModal = ({
                                         value={currentVariant.quantity_in_stock}
                                         onChange={handleVariantChange}
                                         placeholder={t('products.modal.quantity')}
+                                        min="0"
+                                        onKeyDown={(e) => {
+                                            if (e.key === '-' || e.key === 'e') {
+                                                e.preventDefault();
+                                            }
+                                        }}
                                     />
                                 </div>
                             </div>
 
-                            <button type="button" onClick={handleAddVariant} className="add-variant-button">
-                                {t('products.modal.addVariant')}
-                            </button>
+                            {/* Thêm select cho trạng thái biến thể */}
+                            <div className="form-group">
+                                <label>{t('products.modal.variantStatus.title')}</label>
+                                <select
+                                    name="status"
+                                    value={currentVariant.status}
+                                    onChange={handleVariantChange}
+                                >
+                                    {variantStatusOptions.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="variant-buttons">
+                                <button
+                                    type="button"
+                                    onClick={isEditingVariant ? handleUpdateVariant : onAddVariant}
+                                    className={`variant-button ${isEditingVariant ? 'update' : 'add'}`}
+                                >
+                                    {isEditingVariant ? t('products.modal.update') : t('products.modal.addVariant')}
+                                </button>
+                                {isEditingVariant && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            resetVariantForm();
+                                        }}
+                                        className="variant-button cancel"
+                                    >
+                                        {t('products.modal.cancel')}
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         {/* Variants List */}
                         {variantsList && variantsList.length > 0 && (
                             <div className="variants-list">
                                 <h4>{t('products.modal.variantList')}</h4>
-                                {variantsList.map((variant, index) => {
-                                    // Find color and size objects using ID
-                                    const color = colors.find(c => c._id === variant.color_id);
-                                    const size = sizes.find(s => s._id === variant.size_id);
-
-                                    return (
-                                        <div key={variant._id || index} className="variant-item">
-                                            <div className="variant-info">
-                                                <span>Màu: {color?.name || 'N/A'}</span>
-                                                <span>Size: {size?.size_value || 'N/A'}</span>
-                                                <span>Giá: {variant.price?.toLocaleString('vi-VN')}đ</span>
-                                                <span>Số lượng: {variant.quantity_in_stock}</span>
-
-                                                {/* Color preview */}
-                                                {color && (
-                                                    <div
-                                                        className="color-preview"
-                                                        style={{
-                                                            backgroundColor: color.value,
-                                                            width: '20px',
-                                                            height: '20px',
-                                                            borderRadius: '50%',
-                                                            border: '1px solid #ddd'
-                                                        }}
-                                                    />
-                                                )}
-                                            </div>
+                                {variantsList.map((variant, index) => (
+                                    <div key={variant._id || index} className="variant-item">
+                                        <div className="variant-info">
+                                            <span>Màu: {
+                                                variant.color?.name ||
+                                                colors.find(c => c._id === variant.color_id)?.name ||
+                                                'N/A'
+                                            }</span>
+                                            <span>Size: {
+                                                variant.size?.size_value ||
+                                                sizes.find(s => s._id === variant.size_id)?.size_value ||
+                                                'N/A'
+                                            }</span>
+                                            <span>Giá: {variant.price?.toLocaleString('vi-VN')}đ</span>
+                                            <span>Số lượng: {variant.quantity_in_stock}</span>
+                                            <span className={`variant-status ${variant.status || 'available'}`}>
+                                                {getVariantStatusLabel(variant.status)}
+                                            </span>
+                                        </div>
+                                        <div className="variant-actions">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditVariant(variant, index)}
+                                                className="edit-variant-btn"
+                                                title={t('products.modal.editVariant')}
+                                            >
+                                                <i className="fas fa-edit"></i>
+                                            </button>
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveVariant(index)}
                                                 className="remove-variant-btn"
                                             >
-                                                {t('products.modal.remove')}
+                                                <i className="fas fa-trash"></i>
                                             </button>
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
@@ -431,7 +551,7 @@ const ProductModal = ({
                     )}
 
                     <div className="modal-buttons">
-                        <button type="button" onClick={onClose}>{t('products.modal.cancel')}</button>
+                        <button type="button" onClick={handleClose}>{t('products.modal.cancel')}</button>
                         <button type="submit">{editingProduct ? t('products.modal.update') : t('products.modal.add')}</button>
                     </div>
                 </form>
@@ -440,4 +560,4 @@ const ProductModal = ({
     );
 };
 
-export default React.memo(ProductModal); // Thêm React.memo để tối ưu hiệu năng
+export default React.memo(ProductModal);

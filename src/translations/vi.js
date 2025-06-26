@@ -25,6 +25,7 @@ export const vi = {
         products: "Sản phẩm",
         category: "Danh mục",
         brand: "Thương hiệu",
+        banner: "Banner",
         voucher: "Mã giảm giá",
         notification: "Thông báo",
         account: "Tài khoản người dùng",
@@ -92,6 +93,7 @@ export const vi = {
       title: "Sản phẩm",
       addProduct: "Thêm sản phẩm",
       editProduct: "Sửa sản phẩm",
+      searchPlaceholder: "Tìm kiếm sản phẩm...",
       // add: {
       //   title: "Thêm sản phẩm mới",
       //   button: "Thêm sản phẩm",
@@ -108,7 +110,8 @@ export const vi = {
       status: {
         active: "Còn hàng",
         'out of stock': "Hết hàng",
-        'importing goods': "Đang nhập hàng"
+        'importing goods': "Đang nhập hàng",
+        'hidden': "Ẩn sản phẩm"  // Thêm translation cho hidden
       },
       messages: {
         confirmDelete: "Bạn có chắc chắn muốn xóa sản phẩm này?",
@@ -156,7 +159,15 @@ export const vi = {
         fillAllVariant: "Vui lòng điền đầy đủ thông tin biến thể",
         fillAllColor: "Vui lòng nhập đầy đủ thông tin màu",
         addColorSuccess: "Thêm màu thành công",
-        addColorError: "Lỗi khi thêm màu mới: "
+        addColorError: "Lỗi khi thêm màu mới: ",
+        update: "Cập nhật biến thể",
+        editVariant: "Sửa biến thể",
+        variantStatus: {
+          title: "Trạng thái biến thể",
+          available: "Còn hàng",
+          out_of_stock: "Hết hàng",
+          discontinued: "Ngừng kinh doanh"
+        }
       }
     },
 
@@ -169,14 +180,20 @@ export const vi = {
       form: {
         name: "Tên danh mục",
         image: "Hình ảnh",
-        media: "Ảnh danh mục"
+        media: "Ảnh danh mục",
+        status: "Trạng thái"
       },
+      activate: "Bật danh mục",
+      deactivate: "Tắt danh mục",
       messages: {
         confirmDelete: "Bạn có chắc chắn muốn xóa danh mục này?",
         deleteSuccess: "Xóa danh mục thành công",
         updateSuccess: "Cập nhật danh mục thành công",
-        addSuccess: "Thêm danh mục thành công"
-      }
+        addSuccess: "Thêm danh mục thành công",
+        activated: "Đã bật danh mục thành công",
+        deactivated: "Đã tắt danh mục thành công"
+      },
+      searchPlaceholder: "Tìm kiếm danh mục..."
     },
 
     // Thêm section mới cho vouchers
@@ -214,7 +231,8 @@ export const vi = {
         deleteSuccess: "Xóa mã giảm giá thành công",
         updateSuccess: "Cập nhật mã giảm giá thành công",
         addSuccess: "Thêm mã giảm giá thành công"
-      }
+      },
+      searchPlaceholder: "Tìm kiếm theo tên hoặc mã voucher..."
     },
 
     // Accounts section
@@ -231,7 +249,16 @@ export const vi = {
       },
       noPhone: "Chưa cập nhật",
       noGender: "Chưa cập nhật",
-      noBirthDate: "Chưa cập nhật"
+      noBirthDate: "Chưa cập nhật",
+      searchPlaceholder: "Tìm kiếm theo tên, email hoặc số điện thoại...",
+      status: {
+        active: "Đang hoạt động",
+        inactive: "Đã vô hiệu hóa"
+      },
+      activate: "Kích hoạt",
+      deactivate: "Vô hiệu hóa",
+      confirmToggle: "Bạn có chắc chắn muốn thay đổi trạng thái tài khoản này?",
+      toggleSuccess: "Thay đổi trạng thái tài khoản thành công"
     },
 
     // Thêm section mới cho product stock
@@ -246,7 +273,8 @@ export const vi = {
         view: "Xem chi tiết",
         edit: "Chỉnh sửa",
         delete: "Xóa"
-      }
+      },
+      searchPlaceholder: "Tìm kiếm sản phẩm..."
     },
 
     // Thêm section mới cho order list
@@ -280,7 +308,8 @@ export const vi = {
       },
       actions: "Thao tác",
       confirmStatusChange: "Xác nhận thay đổi trạng thái đơn hàng?",
-      statusUpdateSuccess: "Cập nhật trạng thái thành công"
+      statusUpdateSuccess: "Cập nhật trạng thái thành công",
+      searchPlaceholder: "Tìm kiếm theo mã đơn, khách hàng hoặc trạng thái..."
     },
 
     // Thêm section mới cho notifications
@@ -305,12 +334,13 @@ export const vi = {
       },
       messages: {
         createSuccess: "Tạo thông báo thành công",
-        updateSuccess: "Cập nhật thông báo thành công", 
+        updateSuccess: "Cập nhật thông báo thành công",
         deleteSuccess: "Xóa thông báo thành công",
         createUserSuccess: "Tạo thông báo cho người dùng thành công",
         updateUserSuccess: "Cập nhật thông báo người dùng thành công",
         deleteUserSuccess: "Xóa thông báo người dùng thành công"
-      }
+      },
+      searchPlaceholder: "Tìm kiếm theo tiêu đề, nội dung hoặc thể loại..."
     },
 
     // Thêm section mới cho brands
@@ -323,12 +353,17 @@ export const vi = {
         name: "Tên thương hiệu",
         image: "Hình ảnh"
       },
+      activate: "Bật thương hiệu",
+      deactivate: "Tắt thương hiệu",
       messages: {
         confirmDelete: "Bạn có chắc chắn muốn xóa thương hiệu này?",
         deleteSuccess: "Xóa thương hiệu thành công",
         updateSuccess: "Cập nhật thương hiệu thành công",
-        addSuccess: "Thêm thương hiệu thành công"
-      }
+        addSuccess: "Thêm thương hiệu thành công",
+        activated: "Đã bật thương hiệu thành công",
+        deactivated: "Đã tắt thương hiệu thành công"
+      },
+      searchPlaceholder: "Tìm kiếm thương hiệu..."
     },
 
     // Thêm section mới cho posts
@@ -344,9 +379,10 @@ export const vi = {
       confirmDelete: "Bạn có chắc chắn muốn xóa bài viết này?",
       messages: {
         createSuccess: "Tạo bài viết thành công",
-        updateSuccess: "Cập nhật bài viết thành công", 
+        updateSuccess: "Cập nhật bài viết thành công",
         deleteSuccess: "Xóa bài viết thành công"
-      }
+      },
+      searchPlaceholder: "Tìm kiếm theo tiêu đề hoặc nội dung..."
     },
 
     // Thêm section thống kê
@@ -356,7 +392,7 @@ export const vi = {
         title: "Biểu đồ chi tiết doanh số",
         dateRange: "Khoảng thời gian",
         from: "Từ",
-        to: "đến", 
+        to: "đến",
         revenue: "Doanh thu",
         noData: "Không có dữ liệu"
       },
@@ -364,7 +400,7 @@ export const vi = {
         title: "Top 10 sản phẩm bán chạy",
         rank: "Thứ hạng",
         image: "Hình ảnh",
-        name: "Tên sản phẩm", 
+        name: "Tên sản phẩm",
         brand: "Thương hiệu",
         category: "Danh mục",
         price: "Giá",
@@ -377,7 +413,7 @@ export const vi = {
         avatar: "Ảnh đại diện",
         name: "Tên khách hàng",
         email: "Email",
-        phone: "Số điện thoại", 
+        phone: "Số điện thoại",
         birthDate: "Ngày sinh",
         orders: "Số đơn hàng",
         spent: "Tổng chi tiêu",
@@ -389,7 +425,7 @@ export const vi = {
       title: "Tin nhắn",
       userList: {
         title: "Danh sách người dùng",
-        search: "Tìm kiếm người dùng",
+        search: "Tìm kiếm người dùng...",
         noUsers: "Không tìm thấy người dùng",
         loading: "Đang tải danh sách..."
       },
@@ -431,7 +467,7 @@ export const vi = {
         date: "Ngày thanh toán",
         paymentMethod: "Phương thức thanh toán",
         orderId: "Mã đơn hàng",
-        customer: "Khách hàng", 
+        customer: "Khách hàng",
         amount: "Số tiền",
         time: "Thời gian",
         method: "Phương thức",
@@ -439,11 +475,30 @@ export const vi = {
       },
       status: {
         pending: "Chờ xử lý",
-        completed: "Đã hoàn thành", 
+        completed: "Đã hoàn thành",
         cancelled: "Đã hủy"
       },
       noData: "Không có dữ liệu thanh toán",
-      loading: "Đang tải lịch sử thanh toán..."
+      loading: "Đang tải lịch sử thanh toán...",
+      searchPlaceholder: "Tìm kiếm theo mã đơn hàng hoặc người dùng..."
+    },
+
+    // Thêm section mới cho banners
+    banners: {
+      title: "Quản lý banner",
+      addBanner: "Thêm banner",
+      editBanner: "Sửa banner",
+      deleteBanner: "Xóa banner",
+      form: {
+        image: "Hình ảnh banner"
+      },
+      messages: {
+        confirmDelete: "Bạn có chắc chắn muốn xóa banner này?",
+        deleteSuccess: "Xóa banner thành công",
+        updateSuccess: "Cập nhật banner thành công",
+        addSuccess: "Thêm banner thành công",
+        maxBanners: "Chỉ cho phép tối đa 3 banner"
+      }
     }
   }
 };

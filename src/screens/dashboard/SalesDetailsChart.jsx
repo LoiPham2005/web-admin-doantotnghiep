@@ -174,7 +174,7 @@ const SalesDetailsChart = () => {
   // Component JSX
   return (
     <div className="sales-chart-container">
-      <h2>{t('statistics.salesChart.title')}</h2>
+      <h2 style={{ fontSize: 25, fontWeight: 'bold', marginBottom: 10 }}>{t('statistics.salesChart.title')}</h2>
       <div className="date-picker-container">
         <DatePicker
           selected={dateRange.startDate}

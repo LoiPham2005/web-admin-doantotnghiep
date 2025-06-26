@@ -225,3 +225,83 @@ body.dark-mode .selected-user-item {
     background-color: #2d2d2d;
     color: white;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 24px 0;
+}
+
+.pagination button {
+    padding: 6px 12px;
+    border: 1px solid #2196F3;
+    background: white;
+    color: #2196F3;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+}
+
+.pagination button.active,
+.pagination button:hover {
+    background: #2196F3;
+    color: white;
+}
+
+.pagination button:disabled {
+    background: #eee;
+    color: #aaa;
+    border-color: #ccc;
+    cursor: not-allowed;
+}
+
+.header-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+    width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+/* Dark mode */
+body.dark-mode .search-input {
+    background-color: #2d2d2d;
+    color: white;
+    border-color: #444;
+}
+
+body.dark-mode .search-icon {
+    color: #666;
+}

@@ -24,16 +24,29 @@ const TopProductsChart = () => {
                 dateRange.startDate,
                 dateRange.endDate
             );
-            console.log('Response:', response); // Debug log
 
             if (response.status === 200 && response.data) {
-                setTopProducts(response.data);
+                setTopProducts(response.data.products); // Sửa lại ở đây
+                console.log('Fetched products:', response.data.products);
             }
         } catch (error) {
             console.error('Error fetching top products:', error);
         } finally {
             setLoading(false);
         }
+    };
+
+    const formatPrice = (price) => {
+        if (!price) return "0 đ";
+        return price.toLocaleString('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        });
+    };
+
+    const calculateMinPrice = (variants) => {
+        if (!variants || variants.length === 0) return 0;
+        return Math.min(...variants.map(v => v.price));
     };
 
     return (
@@ -76,7 +89,7 @@ const TopProductsChart = () => {
                                 <th>{t('statistics.topProducts.name')}</th>
                                 <th>{t('statistics.topProducts.brand')}</th>
                                 <th>{t('statistics.topProducts.category')}</th>
-                                <th>{t('statistics.topProducts.price')}</th>
+                                {/* <th>{t('statistics.topProducts.price')}</th> */}
                                 <th>{t('statistics.topProducts.quantity')}</th>
                                 <th>{t('statistics.topProducts.revenue')}</th>
                             </tr>
@@ -95,9 +108,9 @@ const TopProductsChart = () => {
                                     <td className="title-cell">{product.name}</td>
                                     <td className="brand-cell">{product.brand_id?.name}</td>
                                     <td className="category-cell">{product.category_id?.name}</td>
-                                    <td className="price-cell">
-                                        {product.price?.toLocaleString('vi-VN')}đ
-                                    </td>
+                                    {/* <td className="price-cell">
+                                        {formatPrice(calculateMinPrice(product.variants))}
+                                    </td> */}
                                     <td className="quantity-cell">{product.totalSold}</td>
                                     <td className="revenue-cell">
                                         {product.totalRevenue?.toLocaleString('vi-VN')}đ

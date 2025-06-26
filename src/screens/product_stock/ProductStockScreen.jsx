@@ -9,6 +9,14 @@ function ProductStockScreen() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Thêm state cho phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 16;
+
+  // Thêm state cho search
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -46,15 +54,67 @@ function ProductStockScreen() {
     return variants.reduce((total, variant) => total + variant.quantity_in_stock, 0);
   };
 
+  // Tính toán phân trang
+  const totalPages = Math.ceil(products.length / pageSize);
+  const paginatedProducts = products.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Thêm hàm xử lý search
+  const handleSearch = async (keyword) => {
+    try {
+      setLoading(true);
+      const response = await productService.searchProducts(keyword);
+      if (response.success) {
+        setProducts(response.data.shoes);
+        setCurrentPage(1); // Reset về trang 1 khi search
+      }
+    } catch (error) {
+      console.error('Error searching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Thêm hàm debounce search
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const timeoutId = setTimeout(() => {
+      if (value.trim()) {
+        handleSearch(value);
+      } else {
+        fetchProducts(); // Fetch lại toàn bộ products nếu search rỗng
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+  };
+
   return (
     <MainLayout>
       <div className="stock-container">
         <div className="page-header">
           <h1>{t('productStock.title')}</h1>
+          <div className="header-actions">
+            <div className="search-box">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={t('productStock.searchPlaceholder')}
+                className="search-input"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+          </div>
         </div>
 
         <div className="stock-grid">
-          {products.map(product => {
+          {paginatedProducts.map(product => {
             const totalStock = calculateTotalStock(product.variants);
             return (
               <div key={product._id} className="stock-card">
@@ -102,6 +162,49 @@ function ProductStockScreen() {
               </div>
             );
           })}
+        </div>
+
+        {/* PHÂN TRANG */}
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            First
+          </button>
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(page =>
+              page === 1 ||
+              page === totalPages ||
+              (page >= currentPage - 1 && page <= currentPage + 1)
+            )
+            .map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={page === currentPage ? 'active' : ''}
+              >
+                {page}
+              </button>
+            ))}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            Last
+          </button>
         </div>
 
         {loading && (

@@ -21,6 +21,14 @@ export default function PostsScreen() {
   // Add new state for image previews
   const [imagePreviews, setImagePreviews] = useState([]);
 
+  // Thêm state cho phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  // Add search states
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -42,7 +50,7 @@ export default function PostsScreen() {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles(prev => [...prev, ...files]);
-    
+
     // Create previews for new files
     const newPreviews = files.map(file => ({
       file,
@@ -54,7 +62,7 @@ export default function PostsScreen() {
   const handleRemoveFile = (index) => {
     // Remove file from selectedFiles
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-    
+
     // Remove preview and revoke object URL
     const removedPreview = imagePreviews[index];
     if (removedPreview?.url) {
@@ -76,7 +84,7 @@ export default function PostsScreen() {
       isExisting: true // Flag to identify existing media
     })) || [];
     setImagePreviews(previews);
-    
+
     setIsModalOpen(true);
   };
 
@@ -103,7 +111,7 @@ export default function PostsScreen() {
           message: formData.message,
           files: selectedFiles
         });
-        
+
         response = await postsService.updatePost(editingPost._id, formDataToSend);
       } else {
         response = await postsService.createPost(formDataToSend);
@@ -153,15 +161,69 @@ export default function PostsScreen() {
     setIsModalOpen(false);
   };
 
+  // Tính toán phân trang
+  const totalPages = Math.ceil(posts.length / pageSize);
+  const paginatedPosts = posts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Add search handler
+  const handleSearch = async (keyword) => {
+    try {
+      setLoading(true);
+      const response = await postsService.searchPosts(keyword);
+      if (response.data.status === 200) {
+        setPosts(response.data.data);
+        setCurrentPage(1); // Reset to first page
+      }
+    } catch (error) {
+      console.error('Error searching posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add debounce search
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set new timeout
+    const timeoutId = setTimeout(() => {
+      if (value.trim()) {
+        handleSearch(value);
+      } else {
+        fetchPosts(); // Fetch all posts if search is empty
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+  };
+
   return (
     <MainLayout>
       <div className="posts-container">
         <div className="page-header">
           <h1>{t('posts.title')}</h1>
-          <button onClick={() => setIsModalOpen(true)} className="add-button">
-            <i className="fas fa-plus"></i>
-            {t('posts.add')}
-          </button>
+          <div className="header-actions">
+            <div className="search-box">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={t('posts.searchPlaceholder')}
+                className="search-input"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+            <button className="add-button" onClick={() => setIsModalOpen(true)}>
+              <i className="fas fa-plus"></i>
+              {t('posts.add')}
+            </button>
+          </div>
         </div>
 
         <table className="posts-table">
@@ -174,7 +236,7 @@ export default function PostsScreen() {
             </tr>
           </thead>
           <tbody>
-            {posts.map(post => (
+            {paginatedPosts.map(post => (
               <tr key={post._id}>
                 <td className="media-cell">
                   {post.media && post.media.length > 0 && (
@@ -193,13 +255,15 @@ export default function PostsScreen() {
                       className="edit-button"
                       onClick={() => handleEdit(post)}
                     >
-                      <FaEdit />
+                      {/* <FaEdit /> */}
+                      <i className="fas fa-edit"></i>
                     </button>
                     <button
                       className="delete-button"
                       onClick={() => handleDelete(post._id)}
                     >
-                      <FaTrash />
+                      {/* <FaTrash /> */}
+                      <i className="fas fa-trash"></i>
                     </button>
                   </div>
                 </td>
@@ -207,6 +271,49 @@ export default function PostsScreen() {
             ))}
           </tbody>
         </table>
+
+        {/* PHÂN TRANG */}
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            First
+          </button>
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(page =>
+              page === 1 ||
+              page === totalPages ||
+              (page >= currentPage - 1 && page <= currentPage + 1)
+            )
+            .map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={page === currentPage ? 'active' : ''}
+              >
+                {page}
+              </button>
+            ))}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            Last
+          </button>
+        </div>
 
         {isModalOpen && (
           <div className="modal-overlay">

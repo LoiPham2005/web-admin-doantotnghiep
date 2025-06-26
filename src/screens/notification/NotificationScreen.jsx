@@ -20,6 +20,12 @@ export default function NotificationScreen() {
     message: '',
     type: 'system'
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  // Thêm state cho search
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   useEffect(() => {
     fetchNotifications();
@@ -57,7 +63,7 @@ export default function NotificationScreen() {
   const handleEdit = async (notification) => {
     try {
       setEditingNotification(notification);
-      
+
       // Set form data
       setFormData({
         title: notification.title,
@@ -69,7 +75,7 @@ export default function NotificationScreen() {
       if (notification.type === 'order') {
         const response = await notificationUserService.getUsersByNotificationId(notification._id);
         console.log('Selected users response:', response); // Debug log
-        
+
         if (response.status === 200 && response.data.notifications) {
           // Map để lấy thông tin user từ notification_users
           const selectedUsersData = response.data.notifications
@@ -100,7 +106,7 @@ export default function NotificationScreen() {
       try {
         // Đầu tiên xóa notification để tránh race condition
         const response = await notificationService.deleteNotification(id);
-        
+
         if (response.status === 200) {
           alert(t('notifications.messages.deleteSuccess'));
           fetchNotifications();
@@ -115,54 +121,54 @@ export default function NotificationScreen() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const notificationData = {
-            title: formData.title,
-            content: formData.message,
-            type: formData.type,
-            selectedUsers: selectedUsers.map(user => user._id)
-        };
+      const notificationData = {
+        title: formData.title,
+        content: formData.message,
+        type: formData.type,
+        selectedUsers: selectedUsers.map(user => user._id)
+      };
 
-        console.log('Submitting notification data:', notificationData);
+      console.log('Submitting notification data:', notificationData);
 
-        let response;
-        if (editingNotification) {
-            // Cập nhật thông báo
-            response = await notificationService.updateNotification(
-                editingNotification._id,
-                notificationData
-            );
+      let response;
+      if (editingNotification) {
+        // Cập nhật thông báo
+        response = await notificationService.updateNotification(
+          editingNotification._id,
+          notificationData
+        );
 
-            if (response.status === 200) {
-                alert(t('notifications.messages.updateSuccess'));
-                setIsModalOpen(false);
-                setEditingNotification(null);
-                setSelectedUsers([]);
-                setFormData({
-                    title: '',
-                    message: '',
-                    type: 'system'
-                });
-                fetchNotifications();
-            }
-        } else {
-            // Tạo thông báo mới
-            response = await notificationService.createNotification(notificationData);
-            
-            if (response.status === 200) {
-                alert(t('notifications.messages.createSuccess'));
-                setIsModalOpen(false);
-                setSelectedUsers([]);
-                setFormData({
-                    title: '',
-                    message: '',
-                    type: 'system'
-                });
-                fetchNotifications();
-            }
+        if (response.status === 200) {
+          alert(t('notifications.messages.updateSuccess'));
+          setIsModalOpen(false);
+          setEditingNotification(null);
+          setSelectedUsers([]);
+          setFormData({
+            title: '',
+            message: '',
+            type: 'system'
+          });
+          fetchNotifications();
         }
+      } else {
+        // Tạo thông báo mới
+        response = await notificationService.createNotification(notificationData);
+
+        if (response.status === 200) {
+          alert(t('notifications.messages.createSuccess'));
+          setIsModalOpen(false);
+          setSelectedUsers([]);
+          setFormData({
+            title: '',
+            message: '',
+            type: 'system'
+          });
+          fetchNotifications();
+        }
+      }
     } catch (error) {
-        console.error('Error submitting notification:', error);
-        alert(t('common.error'));
+      console.error('Error submitting notification:', error);
+      alert(t('common.error'));
     }
   };
 
@@ -172,7 +178,7 @@ export default function NotificationScreen() {
       ...prev,
       type
     }));
-    
+
     // Clear selected users when changing from order type
     if (type !== 'order') {
       setSelectedUsers([]);
@@ -192,7 +198,7 @@ export default function NotificationScreen() {
     if (selectedUser && !selectedUsers.some(u => u._id === userId)) {
       setSelectedUsers(prev => [...prev, selectedUser]);
     }
-    
+
     // Reset select value
     e.target.value = '';
   };
@@ -208,52 +214,153 @@ export default function NotificationScreen() {
     setIsModalOpen(true);
   };
 
+  // Thêm hàm xử lý search
+  const handleSearch = async (keyword) => {
+    try {
+      setLoading(true);
+      const result = await notificationService.searchNotifications(keyword);
+      if (result.status === 200) {
+        setNotifications(result.data);
+        setCurrentPage(1); // Reset về trang 1 khi search
+      }
+    } catch (error) {
+      console.error('Error searching notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Thêm hàm debounce search
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+
+    // Clear timeout cũ
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set timeout mới
+    const timeoutId = setTimeout(() => {
+      if (value.trim()) {
+        handleSearch(value);
+      } else {
+        fetchNotifications(); // Fetch lại toàn bộ notifications nếu search rỗng
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+  };
+
+  // Tính toán phân trang
+  const totalPages = Math.ceil(notifications.length / pageSize);
+  const paginatedNotifications = notifications.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <MainLayout>
       <div className="notifications-container">
         <div className="page-header">
           <h1>{t('notifications.title')}</h1>
-          <button onClick={handleAdd} className="add-button">
-            {t('notifications.add')}
-          </button>
+          <div className="header-actions">
+            <div className="search-box">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={t('notifications.searchPlaceholder')}
+                className="search-input"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+            <button className="add-button" onClick={() => setIsModalOpen(true)}>
+              <i className="fas fa-plus"></i>
+              {t('notifications.add')}
+            </button>
+          </div>
         </div>
 
         {loading ? (
           <div className="loading">{t('common.loading')}</div>
         ) : (
-          <table className="notifications-table">
-            <thead>
-              <tr>
-                <th>{t('notifications.titleColumn')}</th>
-                <th>{t('notifications.message')}</th>
-                <th>{t('notifications.type')}</th>
-                <th>{t('notifications.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {notifications.map((notification) => (
-                <tr key={notification._id}>
-                  <td>{notification.title}</td>
-                  <td>{notification.content}</td>
-                  <td>{t(`notifications.types.${notification.type}`)}</td>
-                  <td>
-                    <button
-                      onClick={() => handleEdit(notification)}
-                      className="edit-button"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(notification._id)}
-                      className="delete-button"
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
+          <>
+            <table className="notifications-table">
+              <thead>
+                <tr>
+                  <th>{t('notifications.titleColumn')}</th>
+                  <th>{t('notifications.message')}</th>
+                  <th>{t('notifications.type')}</th>
+                  <th>{t('notifications.actions')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedNotifications.map((notification) => (
+                  <tr key={notification._id}>
+                    <td>{notification.title}</td>
+                    <td>{notification.content}</td>
+                    <td>{t(`notifications.types.${notification.type}`)}</td>
+                    <td style={{ display: 'flex', alignItems: 'center' }}>
+                      <button
+                        onClick={() => handleEdit(notification)}
+                        className="edit-button"
+                      >
+                        {/* <FaEdit size={20}/> */}
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(notification._id)}
+                        className="delete-button"
+                      >
+                        {/* <FaTrash /> */}
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* PHÂN TRANG */}
+            <div className="pagination">
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                First
+              </button>
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(page =>
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+                )
+                .map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={page === currentPage ? 'active' : ''}
+                  >
+                    {page}
+                  </button>
+                ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                Last
+              </button>
+            </div>
+          </>
         )}
 
         {/* Modal Form */}
@@ -301,8 +408,8 @@ export default function NotificationScreen() {
                 {formData.type === 'order' && (
                   <div className="form-group">
                     <label>{t('notifications.selectUsers')}</label>
-                    <select 
-                      onChange={handleSelectUser} 
+                    <select
+                      onChange={handleSelectUser}
                       className="user-select"
                       value=""
                     >

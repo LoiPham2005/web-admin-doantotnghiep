@@ -29,6 +29,10 @@ function VoucherScreen() {
     minimum_order_value: '', // Sửa tên field
     maximum_discount: '' // Sửa tên field
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   useEffect(() => {
     fetchVouchers();
@@ -128,12 +132,11 @@ function VoucherScreen() {
         response = await voucherService.updateVoucher(editingVoucher._id, voucherData);
 
         if (response.status === 200) {
-          // Xử lý user vouchers nếu có thay đổi loại voucher
-          if (voucherType === 'specific') {
-            // Xóa tất cả user vouchers cũ
-            await userVoucherService.removeAllUserVouchers(editingVoucher._id);
+          // Xử lý user vouchers
+          await userVoucherService.removeAllUserVouchers(editingVoucher._id);
 
-            // Thêm lại user vouchers mới
+          if (voucherType === 'specific') {
+            // Thêm cho users được chọn
             if (selectedUsers.length > 0) {
               await Promise.all(selectedUsers.map(user =>
                 userVoucherService.saveVoucherToUser({
@@ -142,25 +145,46 @@ function VoucherScreen() {
                 })
               ));
             }
+          } else {
+            // Thêm cho tất cả users
+            const allUsers = await userService.getAllUsers();
+            const regularUsers = allUsers.filter(user => user.role === 'user');
+            await Promise.all(regularUsers.map(user =>
+              userVoucherService.saveVoucherToUser({
+                user_id: user._id,
+                voucher_id: editingVoucher._id
+              })
+            ));
           }
         }
       } else {
         // Xử lý thêm mới
         response = await voucherService.addVoucher(voucherData);
 
-        if (response.status === 200 && voucherType === 'specific' && selectedUsers.length > 0) {
-          // Log để debug
-          console.log('Adding voucher to users:', {
-            voucher_id: response.data._id,
-            users: selectedUsers
-          });
+        if (response.status === 200) {
+          const voucherId = response.data._id || response.data.data._id;
 
-          await Promise.all(selectedUsers.map(user =>
-            userVoucherService.saveVoucherToUser({
-              user_id: user._id,
-              voucher_id: response.data._id || response.data.data._id // Kiểm tra nested data
-            })
-          ));
+          if (voucherType === 'specific') {
+            // Thêm cho users được chọn
+            if (selectedUsers.length > 0) {
+              await Promise.all(selectedUsers.map(user =>
+                userVoucherService.saveVoucherToUser({
+                  user_id: user._id,
+                  voucher_id: voucherId
+                })
+              ));
+            }
+          } else {
+            // Thêm cho tất cả users
+            const allUsers = await userService.getAllUsers();
+            const regularUsers = allUsers.filter(user => user.role === 'user');
+            await Promise.all(regularUsers.map(user =>
+              userVoucherService.saveVoucherToUser({
+                user_id: user._id,
+                voucher_id: voucherId
+              })
+            ));
+          }
         }
       }
 
@@ -168,6 +192,7 @@ function VoucherScreen() {
       setIsModalOpen(false);
       resetForm();
       fetchVouchers();
+
     } catch (error) {
       console.error('Submit error:', error);
       alert(error?.response?.data?.message || t('common.error'));
@@ -177,41 +202,45 @@ function VoucherScreen() {
   };
 
   const handleEdit = async (voucher) => {
-    if (!voucher) return;
-
-    setEditingVoucher(voucher);
-
     try {
-      // Lấy danh sách user_vouchers cho voucher này
+      setEditingVoucher(voucher);
+
+      // Lấy danh sách users của voucher
       const response = await userVoucherService.getUsersByVoucherId(voucher._id);
 
       if (response.status === 200) {
-        if (response.data && response.data.length > 0) {
-          // Nếu có user được chỉ định, set voucherType là 'specific'
+        // So sánh số lượng user_vouchers với tổng số users
+        const allUsers = await userService.getAllUsers();
+        const regularUsers = allUsers.filter(user => user.role === 'user');
+
+        // Nếu số lượng user_vouchers bằng với số lượng regular users 
+        // thì đây là voucher cho tất cả người dùng
+        if (response.data.length === regularUsers.length) {
+          setVoucherType('all');
+          setSelectedUsers([]); // Reset selected users
+        } else {
           setVoucherType('specific');
           // Map để lấy thông tin user từ data
           const users = response.data.map(uv => uv.user_id);
           setSelectedUsers(users);
-        } else {
-          setVoucherType('all');
-          setSelectedUsers([]);
         }
-
-        // Set form data với đúng tên field
-        setFormData({
-          name: voucher.name || '',
-          code: voucher.code || '',
-          discount_type: voucher.discount_type || 'percentage',
-          discount_value: voucher.discount_value || '',
-          start_date: voucher.start_date ? new Date(voucher.start_date).toISOString().split('T')[0] : '',
-          end_date: voucher.end_date ? new Date(voucher.end_date).toISOString().split('T')[0] : '',
-          quantity: voucher.quantity || '',
-          minimum_order_value: voucher.minimum_order_value || '',
-          maximum_discount: voucher.maximum_discount || ''
-        });
-
-        setIsModalOpen(true);
       }
+
+      // Set form data
+      setFormData({
+        name: voucher.name || '',
+        code: voucher.code || '',
+        discount_type: voucher.discount_type || 'percentage',
+        discount_value: voucher.discount_value || '',
+        start_date: voucher.start_date ? new Date(voucher.start_date).toISOString().split('T')[0] : '',
+        end_date: voucher.end_date ? new Date(voucher.end_date).toISOString().split('T')[0] : '',
+        quantity: voucher.quantity || '',
+        minimum_order_value: voucher.minimum_order_value || '',
+        maximum_discount: voucher.maximum_discount || ''
+      });
+
+      setIsModalOpen(true);
+
     } catch (error) {
       console.error('Error getting voucher users:', error);
       alert(t('common.error'));
@@ -238,15 +267,69 @@ function VoucherScreen() {
     }
   };
 
+  // Tính toán phân trang
+  const totalPages = Math.ceil(vouchers.length / pageSize);
+  const paginatedVouchers = vouchers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Thêm hàm xử lý search
+  const handleSearch = async (keyword) => {
+    try {
+      setIsLoading(true);
+      const result = await voucherService.searchVouchers(keyword);
+      if (result.status === 200) {
+        setVouchers(result.data);
+        setCurrentPage(1); // Reset về trang 1 khi search
+      }
+    } catch (error) {
+      console.error('Error searching vouchers:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Thêm hàm debounce search
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+
+    // Clear timeout cũ
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set timeout mới
+    const timeoutId = setTimeout(() => {
+      if (value.trim()) {
+        handleSearch(value);
+      } else {
+        fetchVouchers(); // Fetch lại toàn bộ vouchers nếu search rỗng
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+  };
+
   return (
     <MainLayout>
       <div className="vouchers-container">
         <div className="page-header">
           <h1>{t('vouchers.title')}</h1>
-          <button className="add-button" onClick={() => setIsModalOpen(true)}>
-            <i className="fas fa-plus"></i>
-            {t('vouchers.addVoucher')}
-          </button>
+          <div className="header-actions">
+            <div className="search-box">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={t('vouchers.searchPlaceholder')}
+                className="search-input"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+            <button className="add-button" onClick={() => setIsModalOpen(true)}>
+              <i className="fas fa-plus"></i>
+              {t('vouchers.addVoucher')}
+            </button>
+          </div>
         </div>
 
         <table className="vouchers-table">
@@ -262,7 +345,7 @@ function VoucherScreen() {
             </tr>
           </thead>
           <tbody>
-            {vouchers.map(voucher => (
+            {paginatedVouchers.map(voucher => (
               <tr key={voucher._id}>
                 <td>{voucher.name}</td>
                 <td>{voucher.code}</td>
@@ -284,6 +367,49 @@ function VoucherScreen() {
             ))}
           </tbody>
         </table>
+
+        {/* PHÂN TRANG */}
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            First
+          </button>
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(page =>
+              page === 1 ||
+              page === totalPages ||
+              (page >= currentPage - 1 && page <= currentPage + 1)
+            )
+            .map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={page === currentPage ? 'active' : ''}
+              >
+                {page}
+              </button>
+            ))}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            Last
+          </button>
+        </div>
 
         {isModalOpen && (
           <div className="modal-overlay">

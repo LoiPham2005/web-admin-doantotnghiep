@@ -19,7 +19,8 @@ import {
   FaWarehouse,
   FaMoneyBillWave,
   FaCog,
-  FaPowerOff
+  FaPowerOff,
+  FaImage
 } from 'react-icons/fa';
 
 function Sidebar({ isCollapsed }) {
@@ -79,6 +80,12 @@ function Sidebar({ isCollapsed }) {
             <Link to="/brand" className={`nav-link ${location.pathname === '/brand' ? 'active' : ''}`}>
               <FaTag className="nav-icon" />
               {!isCollapsed && <span>{t('common.nav.brand')}</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/banner" className={`nav-link ${location.pathname === '/banner' ? 'active' : ''}`}>
+              <FaImage className="nav-icon" />
+              {!isCollapsed && <span>{t('common.nav.banner')}</span>}
             </Link>
           </li>
           <li>

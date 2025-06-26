@@ -31,11 +31,13 @@ export const shoesVariantService = {
   // Thêm variant mới
   addVariant: async (variantData) => {
     try {
-      const response = await axios.post(`${API_URL}/variants/add`, variantData,
-        {
-          headers: getAuthHeader()
-        }
-      );
+      // Đảm bảo status được gửi đi
+      const response = await axios.post(`${API_URL}/variants/add`, {
+        ...variantData,
+        status: variantData.status || 'available'
+      }, {
+        headers: getAuthHeader()
+      });
       return response.data;
     } catch (error) {
       console.error("Error adding variant:", error);
@@ -73,11 +75,12 @@ export const shoesVariantService = {
   // Cập nhật variant
   updateVariant: async (id, variantData) => {
     try {
-      const response = await axios.put(`${API_URL}/variants/edit/${id}`, variantData,
-        {
-          headers: getAuthHeader()
-        }
-      );
+      const response = await axios.put(`${API_URL}/variants/edit/${id}`, {
+        ...variantData,
+        status: variantData.status // Đảm bảo status được gửi đi
+      }, {
+        headers: getAuthHeader()
+      });
       return response.data;
     } catch (error) {
       console.error("Error updating variant:", error);

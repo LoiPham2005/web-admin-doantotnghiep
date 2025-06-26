@@ -4,9 +4,10 @@ import { getAuthHeader } from '../config/authHeader';
 
 export const brandService = {
     // Lấy danh sách thương hiệu
-    getBrands: async () => {
+    getBrands: async (isAdmin = false) => {
         try {
             const response = await axios.get(`${API_URL}/brand/list`, {
+                params: { isAdmin },
                 headers: getAuthHeader()
             });
             if (response.data.status === 200) {
@@ -78,6 +79,45 @@ export const brandService = {
         } catch (error) {
             console.error("Error deleting brand:", error);
             throw error.response?.data || error;
+        }
+    },
+
+    // Thêm hàm toggle active
+    toggleBrandActive: async (id) => {
+        try {
+            const response = await axios.put(`${API_URL}/brand/toggle-active/${id}`, {}, {
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error toggling brand:", error);
+            throw error.response?.data || error;
+        }
+    },
+
+    // Thêm hàm search brands
+    searchBrands: async (keyword) => {
+        try {
+            const response = await axios.get(`${API_URL}/brand/search`, {
+                params: { key: keyword },
+                headers: getAuthHeader()
+            });
+            if (response.data.status === 200) {
+                return {
+                    success: true,
+                    data: response.data.data
+                };
+            }
+            return {
+                success: false,
+                message: response.data.message
+            };
+        } catch (error) {
+            console.error("Error searching brands:", error);
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Error searching brands'
+            };
         }
     }
 };

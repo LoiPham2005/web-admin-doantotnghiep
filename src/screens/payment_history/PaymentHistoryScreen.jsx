@@ -15,6 +15,10 @@ const PaymentHistoryScreen = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
+    // Add search states
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [searchTimeout, setSearchTimeout] = useState(null);
+
     useEffect(() => {
         fetchPayments();
     }, [currentPage]);
@@ -73,6 +77,7 @@ const PaymentHistoryScreen = () => {
             { width: 5 },  // STT
             { width: 15 }, // Mã đơn hàng
             { width: 20 }, // Người dùng
+            { width: 10 }, // Người dùng
             { width: 15 }, // Số tiền
             { width: 20 }, // Thời gian
             { width: 15 }, // Phương thức
@@ -97,18 +102,66 @@ const PaymentHistoryScreen = () => {
         html2pdf().set(opt).from(element).save();
     };
 
+    // Add search handler
+    const handleSearch = async (keyword) => {
+        try {
+            setLoading(true);
+            const response = await PaymentHistoryService.searchPayments(keyword);
+            if (response.status === 200) {
+                setPayments(response.data.payments);
+                setCurrentPage(1); // Reset về trang 1
+            }
+        } catch (error) {
+            console.error('Error searching payments:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Add debounce search
+    const handleSearchChange = (e) => {
+        const { value } = e.target;
+        setSearchKeyword(value);
+
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        const timeoutId = setTimeout(() => {
+            if (value.trim()) {
+                handleSearch(value);
+            } else {
+                fetchPayments(); // Fetch lại toàn bộ nếu search rỗng
+            }
+        }, 500);
+
+        setSearchTimeout(timeoutId);
+    };
+
     return (
         <MainLayout>
             <div className="payment-history-container">
                 <div className="header-container">
                     <h2 className="page-title">{t('paymentHistory.title')}</h2>
-                    <div className="export-buttons">
-                        <button onClick={exportToExcel} className="export-button excel">
-                            {t('paymentHistory.export.excel')}
-                        </button>
-                        <button onClick={exportToPDF} className="export-button pdf">
-                            {t('paymentHistory.export.pdf')}
-                        </button>
+                    <div className="header-actions">
+                        <div className="search-box">
+                            <input
+                                type="text"
+                                value={searchKeyword}
+                                onChange={handleSearchChange}
+                                placeholder={t('paymentHistory.searchPlaceholder')}
+                                className="search-input"
+                            />
+                            <i className="fas fa-search search-icon"></i>
+                        </div>
+                        <div className="export-buttons">
+                            <button onClick={exportToExcel} className="export-button excel">
+                                {t('paymentHistory.export.excel')}
+                            </button>
+                            <button onClick={exportToPDF} className="export-button pdf">
+                                {t('paymentHistory.export.pdf')}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -122,6 +175,7 @@ const PaymentHistoryScreen = () => {
                                     <tr>
                                         <th>{t('paymentHistory.table.orderId')}</th>
                                         <th>{t('paymentHistory.table.username')}</th>
+                                        <th>{t('paymentHistory.table.email')}</th>
                                         <th>{t('paymentHistory.table.amount')}</th>
                                         <th>{t('paymentHistory.table.date')}</th>
                                         <th>{t('paymentHistory.table.paymentMethod')}</th>
@@ -134,6 +188,7 @@ const PaymentHistoryScreen = () => {
                                             <tr key={payment._id}>
                                                 <td>{payment.order_id?._id?.slice(-6) || 'N/A'}</td>
                                                 <td>{payment.user_id?.username || 'N/A'}</td>
+                                                <td>{payment.user_id?.email || 'N/A'}</td>
                                                 <td>{payment.amount?.toLocaleString('vi-VN')}đ</td>
                                                 <td>{formatDate(payment.createdAt)}</td>
                                                 <td>{payment.order_id?.payment_method || 'N/A'}</td>
@@ -144,28 +199,74 @@ const PaymentHistoryScreen = () => {
                                                 </td>
                                             </tr>
                                         ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="6" className="no-data">
-                                                {t('paymentHistory.noData')}
-                                            </td>
-                                        </tr>
-                                    )}
+                                    ) : null
+                                        // (
+                                        //     payments.length === 0 && (
+                                        //         <tr>
+                                        //             <td colSpan="6" className="no-data">
+                                        //                 {t('paymentHistory.noData')}
+                                        //             </td>
+                                        //         </tr>
+                                        //     )
+                                        // )
+                                    }
                                 </tbody>
                             </table>
                         </div>
 
-                        {totalPages > 1 && (
+                        {totalPages > 0 && (
                             <div className="pagination">
-                                {Array.from({ length: totalPages }, (_, i) => (
-                                    <button
-                                        key={i + 1}
-                                        onClick={() => setCurrentPage(i + 1)}
-                                        className={currentPage === i + 1 ? 'active' : ''}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    First
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </button>
+                                {Array.from({ length: totalPages - 1 }, (_, i) => i + 1)
+                                    .map(page => {
+                                        // Chỉ hiển thị các trang thỏa mãn điều kiện
+                                        if (
+                                            page === 1 || // Trang đầu
+                                            page === totalPages - 1 || // Trang cuối
+                                            (page >= currentPage - 1 && page <= currentPage + 1) // Các trang xung quanh trang hiện tại
+                                        ) {
+                                            return (
+                                                <button
+                                                    key={page}
+                                                    onClick={() => setCurrentPage(page)}
+                                                    className={page === currentPage ? 'active' : ''}
+                                                >
+                                                    {page}
+                                                </button>
+                                            );
+                                        }
+                                        // Thêm dấu ... nếu có khoảng cách
+                                        if (
+                                            page === currentPage - 2 ||
+                                            page === currentPage + 2
+                                        ) {
+                                            return <span key={page}>...</span>;
+                                        }
+                                        return null;
+                                    })}
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage(totalPages)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Last
+                                </button>
                             </div>
                         )}
                     </>

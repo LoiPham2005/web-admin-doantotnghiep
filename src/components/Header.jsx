@@ -4,6 +4,8 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import NotificationList from './NotificationList';
+import { notificationUserService } from '../services/NotificationUserService';
 import './Header.css';
 
 const Header = ({ onToggleSidebar }) => {
@@ -12,10 +14,60 @@ const Header = ({ onToggleSidebar }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'vi');
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
-    console.log('Current user in Header:', user); // Debug log
-  }, [user]);
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+        const response = await notificationUserService.getAdminNotifications();
+        if (response.status === 200) {
+            setNotifications(response.data.notifications);
+            setUnreadCount(
+                response.data.notifications.filter(n => !n.is_read).length
+            );
+        }
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+    }
+};
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+        await notificationUserService.markAsRead(notificationId);
+        setNotifications(notifications.map(notification => 
+            notification._id === notificationId 
+                ? { ...notification, is_read: true }
+                : notification
+        ));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+    }
+};
+
+const handleMarkAllAsRead = async () => {
+    try {
+        const response = await notificationUserService.markAllAsRead();
+        if (response.status === 200) {
+            // Cập nhật state
+            setNotifications(notifications.map(notification => ({
+                ...notification,
+                is_read: true
+            })));
+            setUnreadCount(0);
+            
+            // Không đóng cửa sổ notification
+            // setShowNotifications(false); // Bỏ dòng này
+        }
+    } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+    }
+};
 
   const handleChangeLanguage = (lang) => {
     i18n.changeLanguage(lang);
@@ -29,18 +81,34 @@ const Header = ({ onToggleSidebar }) => {
       {/* Left Side - Menu Icon & Search */}
       <div className="header-left">
         <FaBars className="menu-icon" onClick={onToggleSidebar} />
-        <div className="search-box">
+        {/* <div className="search-box">
           <FaSearch className="search-icon" />
           <input type="text" placeholder={t('common.search')} className="search-input" />
-        </div>
+        </div> */}
       </div>
 
       {/* Right Side */}
       <div className="header-right">
         {/* Notification Icon */}
-        <div className="notification">
-          <FaBell className="bell-icon" />
-          <span className="badge">6</span>
+        <div className="notification-container">
+          <div
+            className="notification"
+            onClick={() => setShowNotifications(!showNotifications)}
+          >
+            <FaBell className="bell-icon" />
+            {unreadCount > 0 && (
+              <span className="badge">{unreadCount}</span>
+            )}
+          </div>
+
+          {showNotifications && (
+            <NotificationList
+              notifications={notifications}
+              onClose={() => setShowNotifications(false)}
+              onMarkAsRead={handleMarkAsRead}
+              onMarkAllAsRead={handleMarkAllAsRead}
+            />
+          )}
         </div>
 
         {/* Theme Toggle */}
@@ -54,12 +122,12 @@ const Header = ({ onToggleSidebar }) => {
 
         {/* Language Selector */}
         <div className="language-selector">
-          <div 
-            className="language-selected" 
+          <div
+            className="language-selected"
             onClick={() => setIsLanguageOpen(!isLanguageOpen)}
           >
             <img
-              src={currentLanguage === 'vi' 
+              src={currentLanguage === 'vi'
                 ? "https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg"
                 : "https://upload.wikimedia.org/wikipedia/commons/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg"
               }
@@ -72,7 +140,7 @@ const Header = ({ onToggleSidebar }) => {
 
           {isLanguageOpen && (
             <div className="language-dropdown">
-              <div 
+              <div
                 className={`language-option ${currentLanguage === 'vi' ? 'active' : ''}`}
                 onClick={() => handleChangeLanguage('vi')}
               >
@@ -83,7 +151,7 @@ const Header = ({ onToggleSidebar }) => {
                 />
                 <span>Tiếng Việt</span>
               </div>
-              <div 
+              <div
                 className={`language-option ${currentLanguage === 'en' ? 'active' : ''}`}
                 onClick={() => handleChangeLanguage('en')}
               >
@@ -112,7 +180,7 @@ const Header = ({ onToggleSidebar }) => {
             <p className="profile-name">{user?.username || 'Admin'}</p>
             <p className="profile-role">{user?.role || 'Admin'}</p>
           </div>
-          <IoMdArrowDropdown className="dropdown-icon" />
+          {/* <IoMdArrowDropdown className="dropdown-icon" /> */}
         </div>
       </div>
     </header>

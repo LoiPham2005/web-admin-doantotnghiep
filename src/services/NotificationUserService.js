@@ -84,5 +84,55 @@ export const notificationUserService = {
       console.error('Error fetching notification users:', error);
       throw error;
     }
+  },
+
+  // Thêm method getAdminNotifications
+  getAdminNotifications: async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/notifications/admin`,
+        {
+          headers: getAuthHeader()
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching admin notifications:', error);
+      throw error;
+    }
+  },
+
+  // Đánh dấu thông báo đã đọc
+  markAsRead: async (notificationId) => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/notifications/read/${notificationId}`, // Sửa URL này
+        {},
+        {
+          headers: getAuthHeader()
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      throw error;
+    }
+  },
+
+  // Đánh dấu tất cả thông báo đã đọc
+  markAllAsRead: async () => {
+    try {
+      const response = await axios.put(
+        `${API_URL}/notifications/user/mark-all-read`,
+        {},
+        {
+          headers: getAuthHeader()
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      throw error;
+    }
   }
 };

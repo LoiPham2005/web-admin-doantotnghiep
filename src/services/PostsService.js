@@ -68,5 +68,19 @@ export const postsService = {
       console.error('Error deleting post:', error);
       throw error;
     }
+  },
+
+  // Search posts
+  searchPosts: async (keyword) => {
+    try {
+      const response = await axios.get(`${API_URL}/posts/search`, {
+        params: { keyword },
+        headers: getAuthHeader()
+      });
+      return response;
+    } catch (error) {
+      console.error('Error searching posts:', error);
+      throw error;
+    }
   }
 };

@@ -7,7 +7,7 @@ export const productService = {
   // Lấy danh sách sản phẩm
   getProducts: async () => {
     try {
-      const response = await axios.get(`${API_URL}/shoes/list`, {
+      const response = await axios.get(`${API_URL}/shoes/list-web`, {
         headers: getAuthHeader()
       });
       if (response.data.status === 200) {
@@ -99,6 +99,32 @@ export const productService = {
     } catch (error) {
       console.error("Error deleting product:", error);
       throw error.response?.data || error;
+    }
+  },
+
+  // Tìm kiếm sản phẩm
+  searchProducts: async (keyword) => {
+    try {
+      const response = await axios.get(`${API_URL}/shoes/search`, {
+        params: { keyword },
+        headers: getAuthHeader()
+      });
+      if (response.data.status === 200) {
+        return {
+          success: true,
+          data: response.data.data
+        };
+      }
+      return {
+        success: false,
+        message: response.data.message
+      };
+    } catch (error) {
+      console.error("Error searching products:", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Error searching products'
+      };
     }
   }
 };

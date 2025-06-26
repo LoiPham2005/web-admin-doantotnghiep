@@ -74,5 +74,22 @@ export const voucherService = {
             console.error("Error deleting voucher:", error);
             throw error.response?.data || error;
         }
+    },
+
+    // Thêm hàm search vouchers
+    searchVouchers: async (keyword) => {
+        try {
+            const response = await axios.get(`${API_URL}/vouchers/search`, {
+                params: { keyword },
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error searching vouchers:", error);
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Error searching vouchers'
+            };
+        }
     }
 };

@@ -50,11 +50,19 @@ function ProductsScreen() {
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
   const statusOptions = [
     { value: 'active', label: t('products.status.active') },
     { value: 'out of stock', label: t('products.status.out of stock') },
-    { value: 'importing goods', label: t('products.status.importing goods') }
+    { value: 'importing goods', label: t('products.status.importing goods') },
+    { value: 'hidden', label: t('products.status.hidden') } // Thêm option hidden
   ];
+
+  // Thêm state cho search
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -150,22 +158,37 @@ function ProductsScreen() {
     }));
   };
 
+  const [isEditingVariant, setIsEditingVariant] = useState(false);
+  const [editingVariantIndex, setEditingVariantIndex] = useState(null);
+
   const handleAddVariant = () => {
     if (currentVariant.color_id && currentVariant.size_id &&
       currentVariant.price && currentVariant.quantity_in_stock) {
 
-      // Get color and size objects
       const selectedColor = colors.find(c => c._id === currentVariant.color_id);
       const selectedSize = sizes.find(s => s._id === currentVariant.size_id);
 
-      setVariantsList(prev => [...prev, {
-        ...currentVariant,
-        // Store full objects for reference
-        color: selectedColor,
-        size: selectedSize
-      }]);
+      if (isEditingVariant) {
+        // Đang sửa variant
+        const updatedVariants = [...variantsList];
+        updatedVariants[editingVariantIndex] = {
+          ...currentVariant,
+          color: selectedColor,
+          size: selectedSize
+        };
+        setVariantsList(updatedVariants);
+        setIsEditingVariant(false);
+        setEditingVariantIndex(null);
+      } else {
+        // Thêm variant mới
+        setVariantsList(prev => [...prev, {
+          ...currentVariant,
+          color: selectedColor,
+          size: selectedSize
+        }]);
+      }
 
-      // Reset form variant
+      // Reset form
       setCurrentVariant({
         color_id: '',
         size_id: '',
@@ -174,7 +197,7 @@ function ProductsScreen() {
         status: 'available'
       });
     } else {
-      alert('Vui lòng điền đầy đủ thông tin biến thể');
+      alert(t('products.modal.fillAllVariant'));
     }
   };
 
@@ -184,6 +207,15 @@ function ProductsScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Kiểm tra nếu đang có dữ liệu trong form variant nhưng chưa thêm
+    if (currentVariant.color_id || currentVariant.size_id ||
+      currentVariant.price || currentVariant.quantity_in_stock) {
+      if (!window.confirm('Bạn có biến thể chưa được thêm vào danh sách. Bạn có muốn tiếp tục lưu không?')) {
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     try {
@@ -196,33 +228,35 @@ function ProductsScreen() {
         }
       });
 
-      // Append new images
+      // Prepare existing media array
+      let existingMedia = [];
+
+      // Add existing images that are still selected
       selectedImages.forEach(img => {
-        if (img instanceof File) {
+        if (img.url) { // If it has url, it's an existing image
+          existingMedia.push({
+            type: 'image',
+            url: img.url
+          });
+        } else if (img instanceof File) {
           formDataToSend.append('media', img);
         }
       });
 
-      // Append new videos 
+      // Add existing videos that are still selected  
       selectedVideos.forEach(vid => {
-        if (vid instanceof File) {
+        if (vid.url) { // If it has url, it's an existing video
+          existingMedia.push({
+            type: 'video',
+            url: vid.url
+          });
+        } else if (vid instanceof File) {
           formDataToSend.append('media', vid);
         }
       });
 
-      // For keeping existing media
-      if (editingProduct?.media) {
-        formDataToSend.append('existing_media', JSON.stringify(
-          editingProduct.media.filter(m => {
-            const isImage = m.type === 'image';
-            const existingUrl = m.url;
-            // Keep if still in selectedImages/Videos
-            return isImage ?
-              selectedImages.some(img => img.url === existingUrl) :
-              selectedVideos.some(vid => vid.url === existingUrl);
-          })
-        ));
-      }
+      // Append existing media as JSON string
+      formDataToSend.append('existing_media', JSON.stringify(existingMedia));
 
       let response;
       if (editingProduct) {
@@ -268,7 +302,7 @@ function ProductsScreen() {
 
         alert(t(editingProduct ? 'products.messages.updateSuccess' : 'products.messages.addSuccess'));
         setIsModalOpen(false);
-        resetForm();
+        resetForm(); // Gọi resetForm để reset toàn bộ form
         fetchProducts();
       }
     } catch (error) {
@@ -283,25 +317,6 @@ function ProductsScreen() {
     try {
       setEditingProduct(product);
 
-      // Fetch variants
-      const variantsResult = await shoesVariantService.getVariantsByShoeId(product._id);
-      if (variantsResult.success) {
-        // Transform variants data
-        const formattedVariants = variantsResult.data.map(variant => ({
-          _id: variant._id,
-          color_id: variant.color_id._id,
-          size_id: variant.size_id._id,
-          price: variant.price,
-          quantity_in_stock: variant.quantity_in_stock,
-          status: variant.status,
-          // Store full objects
-          color: variant.color_id,
-          size: variant.size_id
-        }));
-        setVariantsList(formattedVariants);
-      }
-
-      // Set other form data
       setFormData({
         name: product.name,
         description: product.description,
@@ -312,25 +327,56 @@ function ProductsScreen() {
 
       // Set media previews
       if (product.media && product.media.length > 0) {
-        const images = product.media.filter(m => m.type === 'image');
-        const videos = product.media.filter(m => m.type === 'video');
+        const images = product.media
+          .filter(m => m.type === 'image')
+          .map(img => ({
+            url: img.url,
+            type: 'image'
+          }));
 
-        setSelectedImages(images.map(img => ({
-          url: img.url,
-          type: 'image',
-          preview: img.url
-        })));
+        const videos = product.media
+          .filter(m => m.type === 'video')
+          .map(vid => ({
+            url: vid.url,
+            type: 'video'
+          }));
 
-        setSelectedVideos(videos.map(vid => ({
-          url: vid.url,
-          type: 'video',
-          preview: vid.url
-        })));
+        setSelectedImages(images);
+        setSelectedVideos(videos);
+      } else {
+        setSelectedImages([]);
+        setSelectedVideos([]);
+      }
+
+      // Fetch và set variants với thông tin đầy đủ
+      try {
+        const variantsResult = await shoesVariantService.getVariantsByShoeId(product._id);
+        console.log('Variants result:', variantsResult);
+
+        if (variantsResult.success) {
+          const populatedVariants = variantsResult.data.map(variant => ({
+            _id: variant._id,
+            color_id: variant.color_id?._id,
+            size_id: variant.size_id?._id,
+            price: variant.price,
+            quantity_in_stock: variant.quantity_in_stock,
+            status: variant.status || 'available',
+            // Store complete objects
+            color: variant.color_id,
+            size: variant.size_id
+          }));
+
+          console.log('Populated variants:', populatedVariants);
+          setVariantsList(populatedVariants);
+        }
+      } catch (error) {
+        console.error('Error fetching variants:', error);
       }
 
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error preparing edit form:', error);
+      alert('Có lỗi xảy ra khi chuẩn bị form chỉnh sửa');
     }
   };
 
@@ -355,7 +401,8 @@ function ProductsScreen() {
       description: '',
       brand_id: '',
       category_id: '',
-      status: 'active'
+      status: 'active',
+      media: []
     });
     setSelectedImages([]);
     setSelectedVideos([]);
@@ -365,6 +412,15 @@ function ProductsScreen() {
     setSizeInput('');
     setEditingProduct(null);
     setVariantsList([]); // Reset variants list
+
+    // Reset form variant
+    setCurrentVariant({
+      color_id: '',
+      size_id: '',
+      price: '',
+      quantity_in_stock: '',
+      status: 'available'
+    });
   };
 
   // Thêm các hàm xử lý cho hình ảnh và video
@@ -411,83 +467,187 @@ function ProductsScreen() {
     setSelectedSizes(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleClose = () => {
+    if (window.confirm(t('products.modal.confirmCancel'))) {
+      setShowNewColorForm(false);
+      setShowColorPicker(false);
+      onClose();
+    }
+  };
+
+  // Tính toán phân trang
+  const totalPages = Math.ceil(products.length / pageSize);
+  const paginatedProducts = products.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Thêm hàm xử lý search
+  const handleSearch = async (keyword) => {
+    try {
+      setIsLoading(true);
+      const result = await productService.searchProducts(keyword);
+      if (result.success) {
+        setProducts(result.data.shoes);
+        setCurrentPage(1); // Reset về trang 1 khi search
+      }
+    } catch (error) {
+      console.error('Error searching products:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Thêm hàm debounce search
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+
+    // Clear timeout cũ
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // Set timeout mới
+    const timeoutId = setTimeout(() => {
+      if (value.trim()) {
+        handleSearch(value);
+      } else {
+        fetchProducts(); // Fetch lại toàn bộ products nếu search rỗng
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+  };
+
   return (
     <MainLayout>
       <div className="products-container">
         <div className="page-header">
           <h1>{t('products.title')}</h1>
-          <button className="add-button" onClick={() => setIsModalOpen(true)}>
-            <i className="fas fa-plus"></i>
-            {t('products.addProduct')}
-          </button>
+          <div className="header-actions">
+            <div className="search-box">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={t('products.searchPlaceholder')}
+                className="search-input"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+            <button className="add-button" onClick={() => setIsModalOpen(true)}>
+              <i className="fas fa-plus"></i>
+              {t('products.addProduct')}
+            </button>
+          </div>
         </div>
 
         {isLoading ? (
           <div>Loading...</div>
         ) : (
-          <table className="products-table">
-            <thead>
-              <tr>
-                <th>{t('products.form.media')}</th>
-                <th>{t('products.form.name')}</th>
-                <th>{t('products.form.description')}</th>
-                <th>{t('products.form.brand')}</th>
-                <th>{t('products.form.category')}</th>
-                <th>{t('products.form.status')}</th>
-                <th>{t('common.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(product => (
-                <tr key={product._id}>
-                  <td>
-                    {product.media && product.media.length > 0 ? (
-                      <img
-                        src={product.media[0].url}
-                        alt={product.name}
-                        className="product-image"
-                      />
-                    ) : (
-                      <div className="no-image">No Image</div>
-                    )}
-                  </td>
-                  <td>{product.name}</td>
-                  <td>{product.description}</td>
-                  <td>{product.brand_id?.name || 'N/A'}</td>
-                  <td>{product.category_id?.name || 'N/A'}</td>
-                  <td>
-                    {statusOptions.find(option => option.value === product.status)?.label || product.status}
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <button
-                        className="edit-button"
-                        onClick={() => handleEdit(product)}
-                      >
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button
-                        className="delete-button"
-                        onClick={() => handleDelete(product._id)}
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
+          <>
+            <table className="products-table">
+              <thead>
+                <tr>
+                  <th>{t('products.form.media')}</th>
+                  <th>{t('products.form.name')}</th>
+                  <th>{t('products.form.description')}</th>
+                  <th>{t('products.form.brand')}</th>
+                  <th>{t('products.form.category')}</th>
+                  <th>{t('products.form.status')}</th>
+                  <th>{t('common.actions')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedProducts.map(product => (
+                  <tr key={product._id}>
+                    <td>
+                      {product.media && product.media.length > 0 ? (
+                        <img
+                          src={product.media[0].url}
+                          alt={product.name}
+                          className="product-image"
+                        />
+                      ) : (
+                        <div className="no-image">No Image</div>
+                      )}
+                    </td>
+                    <td>{product.name}</td>
+                    <td>{product.description}</td>
+                    <td>{product.brand_id?.name || 'N/A'}</td>
+                    <td>{product.category_id?.name || 'N/A'}</td>
+                    <td>
+                      {statusOptions.find(option => option.value === product.status)?.label || product.status}
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="edit-button"
+                          onClick={() => handleEdit(product)}
+                        >
+                          <i className="fas fa-edit"></i>
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDelete(product._id)}
+                        >
+                          <i className="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* PHÂN TRANG */}
+            <div className="pagination">
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                First
+              </button>
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(page =>
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+                )
+                .map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={page === currentPage ? 'active' : ''}
+                  >
+                    {page}
+                  </button>
+                ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                Last
+              </button>
+            </div>
+          </>
         )}
 
         {isModalOpen && (
           <ProductModal
             isOpen={isModalOpen}
             onClose={() => {
-              if (window.confirm('Bạn có chắc muốn hủy? Các thông tin đã nhập sẽ không được lưu.')) {
-                setIsModalOpen(false);
-                resetForm();
-              }
+              setIsModalOpen(false);
+              resetForm();
             }}
             formData={formData}
             handleInputChange={handleInputChange}
@@ -515,11 +675,13 @@ function ProductsScreen() {
             handleRemoveColor={handleRemoveColor}
             handleRemoveSize={handleRemoveSize}
             currentVariant={currentVariant}
+            setCurrentVariant={setCurrentVariant} // Thêm prop này
             handleVariantChange={handleVariantChange}
-            handleAddVariant={handleAddVariant}
+            onAddVariant={handleAddVariant}
             variantsList={variantsList}
+            setVariantsList={setVariantsList}
             handleRemoveVariant={handleRemoveVariant}
-            statusOptions={statusOptions}  // Thêm dòng này
+            statusOptions={statusOptions}
           />
         )}
       </div>

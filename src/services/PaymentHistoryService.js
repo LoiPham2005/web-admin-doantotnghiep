@@ -3,7 +3,7 @@ import { API_URL } from './config';
 import { getAuthHeader } from '../config/authHeader';
 
 const PaymentHistoryService = {
-    getAllPayments: async (page = 1, limit = 10) => {
+    getAllPayments: async (page = 1, limit = 15) => {
         try {
             const response = await axios.get(`${API_URL}/payment-history/list`, {
                 params: {
@@ -34,6 +34,19 @@ const PaymentHistoryService = {
             headers: getAuthHeader()
         });
         return response.data;
+    },
+
+    searchPayments: async (keyword) => {
+        try {
+            const response = await axios.get(`${API_URL}/payment-history/search`, {
+                params: { keyword },
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error searching payments:", error);
+            throw error;
+        }
     }
 };
 

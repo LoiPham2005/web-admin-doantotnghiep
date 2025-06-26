@@ -69,6 +69,19 @@
     text-align: center;
 }
 
+.birth-date-cell {
+    min-width: 100px;
+    text-align: center;
+    color: #666;
+}
+
+.price-cell {
+    min-width: 120px;
+    text-align: right;
+    color: #f57c00;
+    font-weight: 500;
+}
+
 /* Dark mode styles */
 .dark-mode .top-customers-container {
     background: #1a1a1a;
@@ -87,4 +100,13 @@
 .dark-mode .top-customers-title {
     color: #fff;
     border-bottom-color: #333;
+}
+
+/* Dark mode */
+body.dark-mode .birth-date-cell {
+    color: #aaa;
+}
+
+body.dark-mode .price-cell {
+    color: #ffb74d;
 }

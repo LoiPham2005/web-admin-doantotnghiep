@@ -15,6 +15,10 @@ function CategoryScreen() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null);
+  const pageSize = 15;
 
   useEffect(() => {
     fetchCategories();
@@ -22,13 +26,23 @@ function CategoryScreen() {
 
   const fetchCategories = async () => {
     try {
-      const result = await categoryService.getCategories();
-      console.log('Categories result:', result); // Thêm log này
+      const result = await categoryService.getCategories(true);
       if (result.success) {
         setCategories(result.data);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleToggleActive = async (id, currentStatus) => {
+    try {
+      await categoryService.toggleCategoryActive(id);
+      await fetchCategories();
+      alert(t(`categories.messages.${currentStatus ? 'deactivated' : 'activated'}`));
+    } catch (error) {
+      console.error('Error toggling category:', error);
+      alert(t('common.error'));
     }
   };
 
@@ -55,7 +69,6 @@ function CategoryScreen() {
       const categoryData = new FormData();
       categoryData.append('name', formData.name.trim());
 
-      // Thêm media vào formData nếu có
       if (formData.media) {
         categoryData.append('media', formData.media);
       }
@@ -106,6 +119,40 @@ function CategoryScreen() {
     }
   };
 
+  const handleSearch = async (keyword) => {
+    try {
+      setIsLoading(true);
+      const result = await categoryService.searchCategories(keyword);
+      if (result.success) {
+        setCategories(result.data);
+        setCurrentPage(1);
+      }
+    } catch (error) {
+      console.error('Error searching categories:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const timeoutId = setTimeout(() => {
+      if (value.trim()) {
+        handleSearch(value);
+      } else {
+        fetchCategories();
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -115,15 +162,30 @@ function CategoryScreen() {
     setEditingCategory(null);
   };
 
+  const totalPages = Math.ceil(categories.length / pageSize);
+  const paginatedCategories = categories.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <MainLayout>
       <div className="categories-container">
         <div className="page-header">
           <h1>{t('categories.title')}</h1>
-          <button className="add-button" onClick={() => setIsModalOpen(true)}>
-            <i className="fas fa-plus"></i>
-            {t('categories.addCategory')}
-          </button>
+          <div className="header-actions">
+            <div className="search-box">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={t('categories.searchPlaceholder')}
+                className="search-input"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+            <button className="add-button" onClick={() => setIsModalOpen(true)}>
+              <i className="fas fa-plus"></i>
+              {t('categories.addCategory')}
+            </button>
+          </div>
         </div>
 
         <table className="categories-table">
@@ -131,11 +193,12 @@ function CategoryScreen() {
             <tr>
               <th>{t('categories.form.image')}</th>
               <th>{t('categories.form.name')}</th>
+              <th>{t('categories.form.status')}</th>
               <th>{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {categories.map(category => (
+            {paginatedCategories.map(category => (
               <tr key={category._id}>
                 <td className="image-cell">
                   <img
@@ -146,7 +209,19 @@ function CategoryScreen() {
                 </td>
                 <td>{category.name}</td>
                 <td>
+                  <span className={`status-badge ${category.is_active ? 'active' : 'inactive'}`}>
+                    {category.is_active ? t('common.active') : t('common.inactive')}
+                  </span>
+                </td>
+                <td>
                   <div className="action-buttons">
+                    <button
+                      className="toggle-button"
+                      onClick={() => handleToggleActive(category._id, category.is_active)}
+                      title={t(category.is_active ? 'categories.deactivate' : 'categories.activate')}
+                    >
+                      <i className={`fas fa-${category.is_active ? 'eye' : 'eye-slash'}`}></i>
+                    </button>
                     <button
                       className="edit-button"
                       onClick={() => handleEdit(category)}
@@ -165,6 +240,49 @@ function CategoryScreen() {
             ))}
           </tbody>
         </table>
+
+        {/* PHÂN TRANG */}
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            First
+          </button>
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(page =>
+              page === 1 ||
+              page === totalPages ||
+              (page >= currentPage - 1 && page <= currentPage + 1)
+            )
+            .map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={page === currentPage ? 'active' : ''}
+              >
+                {page}
+              </button>
+            ))}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            Last
+          </button>
+        </div>
 
         {isModalOpen && (
           <div className="modal-overlay">

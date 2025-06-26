@@ -6,8 +6,11 @@
 }
 
 .chat-list-header {
-    padding: 20px;
+    padding: 12px;
     border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+    /* Căn giữa search box */
 }
 
 .chat-list-header h2 {
@@ -131,4 +134,56 @@
     font-size: 12px;
     color: #666;
     margin-top: 2px;
+}
+
+.search-box {
+    padding: 0;
+    position: relative;
+    width: 90%;
+    /* Giảm chiều ngang xuống 90% */
+    max-width: 300px;
+    /* Thêm max-width để giới hạn độ rộng tối đa */
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    height: 36px;
+    /* Thêm chiều cao cố định */
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    right: 12px;
+    /* Giảm khoảng cách với mép phải */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+/* Dark mode */
+body.dark-mode .search-input {
+    background-color: #2d2d2d;
+    color: white;
+    border-color: #444;
+}
+
+body.dark-mode .search-box .search-icon {
+    color: #666;
+}
+
+body.dark-mode .chat-list-header {
+    border-color: #333;
 }

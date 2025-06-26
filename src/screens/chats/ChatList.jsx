@@ -9,9 +9,27 @@ const ChatList = ({ onSelectChat, selectedUserId }) => {
   const [loading, setLoading] = useState(true);
   const adminId = localStorage.getItem('userId');
 
+  // Add search states
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Add effect to filter users when search changes
+  useEffect(() => {
+    if (users.length > 0) {
+      const filtered = users.filter(chat => {
+        const username = chat.user_id.username.toLowerCase();
+        const email = chat.user_id.email.toLowerCase();
+        const search = searchKeyword.toLowerCase();
+        return username.includes(search) || email.includes(search);
+      });
+      setFilteredUsers(filtered);
+    }
+  }, [searchKeyword, users]);
 
   const fetchUsers = async () => {
     try {
@@ -19,7 +37,7 @@ const ChatList = ({ onSelectChat, selectedUserId }) => {
       const response = await userService.getAllUsers();
       console.log('Fetched users:', response);
 
-      // Lọc chỉ lấy users
+      // Filter users and map data
       const filteredUsers = response.filter(user => user.role === 'user').map(user => ({
         user_id: user,
         participants: [
@@ -34,6 +52,7 @@ const ChatList = ({ onSelectChat, selectedUserId }) => {
       }));
 
       setUsers(filteredUsers);
+      setFilteredUsers(filteredUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -41,19 +60,35 @@ const ChatList = ({ onSelectChat, selectedUserId }) => {
     }
   };
 
+  // Add search handler with debounce
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+  };
+
   return (
     <div className="chat-list">
       <div className="chat-list-header">
-        <h2>{t('chat.userList.title')}</h2>
+        {/* <h2>{t('chat.userList.title')}</h2> */}
+        <div className="search-box">
+          <input
+            type="text"
+            value={searchKeyword}
+            onChange={handleSearchChange}
+            placeholder={t('chat.userList.search')}
+            className="search-input"
+          />
+          <i className="fas fa-search search-icon"></i>
+        </div>
       </div>
 
       <div className="chat-list-content">
         {loading ? (
-          <div className="loading">{t('chat.window.loading')}</div>
-        ) : users.length === 0 ? (
-          <div className="no-chats">{t('chat.window.noUsers')}</div>
+          <div className="loading">{t('chat.userList.loading')}</div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="no-chats">{t('chat.userList.noUsers')}</div>
         ) : (
-          users.map(chat => (
+          filteredUsers.map(chat => (
             <div
               key={chat.user_id._id}
               className={`chat-item ${selectedUserId === chat.user_id._id ? 'active' : ''}`}

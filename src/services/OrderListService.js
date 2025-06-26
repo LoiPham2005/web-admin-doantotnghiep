@@ -24,5 +24,19 @@ export const orderListService = {
       console.error("Error updating order status:", error);
       throw error;
     }
+  },
+
+  // Add search orders function
+  searchOrders: async (keyword) => {
+    try {
+      const response = await axiosInstance.get('/orders/search', {
+        params: { keyword },
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error searching orders:", error);
+      throw error;
+    }
   }
 };

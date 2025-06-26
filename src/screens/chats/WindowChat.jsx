@@ -5,6 +5,7 @@ import { API_URL } from '../../services/config';
 import './WindowChat.css';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import { DOMAIN } from '../../setup/setup';
 
 const WindowChat = ({ chat, userId }) => {
   const { t } = useTranslation();
@@ -17,8 +18,8 @@ const WindowChat = ({ chat, userId }) => {
 
   useEffect(() => {
     // Khởi tạo kết nối socket
-    // const socket = io('http://localhost:3000', {
-    const socket = io('wss://backend-doantotnghiep-wy5h.onrender.com', {
+    const socket = io(DOMAIN, {
+      // const socket = io('wss://backend-doantotnghiep-wy5h.onrender.com', {
       transports: ['websocket', 'polling'], // Thêm polling để backup
       withCredentials: true
     });

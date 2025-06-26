@@ -59,5 +59,22 @@ export const notificationService = {
             console.error('Error deleting notification:', error);
             throw error;
         }
+    },
+
+    // Thêm hàm search notifications
+    searchNotifications: async (keyword) => {
+        try {
+            const response = await axios.get(`${API_URL}/notifications/search`, {
+                params: { keyword },
+                headers: getAuthHeader()
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error searching notifications:", error);
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Error searching notifications'
+            };
+        }
     }
 };

@@ -55,16 +55,28 @@ export const userService = {
     },
 
     // Thêm method search users
-    searchUsers: async (searchTerm) => {
+    searchUsers: async (keyword) => {
         try {
             const response = await axios.get(`${API_URL}/users/search`, {
-                params: { query: searchTerm },
+                params: { keyword },
                 headers: getAuthHeader()
             });
-            return response.data;
+            if (response.data.status === 200) {
+                return {
+                    success: true,
+                    data: response.data.data
+                };
+            }
+            return {
+                success: false,
+                message: response.data.message
+            };
         } catch (error) {
             console.error("Error searching users:", error);
-            throw error.response?.data || error;
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Error searching users'
+            };
         }
     }
 };

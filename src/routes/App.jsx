@@ -17,6 +17,7 @@ import BrandScreen from '../screens/brand/BrandScreen';
 import PostsScreen from '../screens/posts/PostsScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import PaymentHistoryScreen from '../screens/payment_history/PaymentHistoryScreen';
+import BannerScreen from '../screens/banner/BannerScreen';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, loading } = useAuth();
@@ -80,6 +81,12 @@ const AppRoutes = () => {
         path="/brand"
         element={
           isAuthenticated ? <BrandScreen /> : <Navigate to="/login" />
+        }
+      />
+      <Route
+        path="/banner"
+        element={
+          isAuthenticated ? <BannerScreen /> : <Navigate to="/login" />
         }
       />
       <Route

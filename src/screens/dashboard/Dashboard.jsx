@@ -10,8 +10,8 @@ import TopProductsChart from './TopProductsChart';
 import TopCustomersChart from './TopCustomersChart';
 
 function Dashboard() {
-  const { t } = useTranslation(); 
-  const { isDarkMode } = useTheme(); 
+  const { t } = useTranslation();
+  const { isDarkMode } = useTheme();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalOrders: 0,
@@ -123,33 +123,33 @@ function Dashboard() {
                 </div>
               </div>
               <div className="stat-value">{card.value}</div>
-              <div className={`stat-change ${card.change.type}`}>
+              {/* <div className={`stat-change ${card.change.type}`}>
                 <i className={`fas fa-arrow-${card.change.type}`}></i>
                 <span>{card.change.value} {card.change.period}</span>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>
 
         {/* <div className="chart-section"> */}
-          {/* <div className="section-header"> */}
-            {/* <h2>{t('dashboard.charts.salesDetails')}</h2> */}
-            {/* <div className="period-selector">
+        {/* <div className="section-header"> */}
+        {/* <h2>{t('dashboard.charts.salesDetails')}</h2> */}
+        {/* <div className="period-selector">
               <span>{t('dashboard.period.october')}</span>
               <i className="fas fa-chevron-down"></i>
             </div> */}
-          {/* </div> */}
-          <div className="sales-chart">
-            <SalesDetailsChart />
-          </div>
+        {/* </div> */}
+        <div className="sales-chart">
+          <SalesDetailsChart />
+        </div>
         {/* </div> */}
 
         {/* <div className="chart-section" style={{ marginTop: '200px' }}> */}
-          <div className="section-header" style={{ marginTop: '150px' }}>
-            {/* <h2>{t('dashboard.charts.topProducts')}</h2> */}
-            <TopProductsChart />
-          </div>
-         
+        <div className="section-header" style={{ marginTop: '150px' }}>
+          {/* <h2>{t('dashboard.charts.topProducts')}</h2> */}
+          <TopProductsChart />
+        </div>
+
         {/* </div> */}
 
         <div >

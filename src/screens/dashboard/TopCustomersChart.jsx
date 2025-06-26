@@ -34,6 +34,24 @@ const TopCustomersChart = () => {
         }
     };
 
+    const formatBirthDate = (birthDate) => {
+        if (!birthDate) return t('accounts.noBirthDate');
+        try {
+            // Convert birthDate to Date object and format it
+            const date = new Date(birthDate);
+            if (isNaN(date.getTime())) return t('accounts.noBirthDate');
+
+            return new Date(birthDate).toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        } catch (error) {
+            console.error('Error formatting birth date:', error);
+            return t('accounts.noBirthDate');
+        }
+    };
+
     return (
         <div className="top-customers-container">
             <h2 className="top-customers-title">{t('statistics.topCustomers.title')}</h2>
@@ -82,7 +100,7 @@ const TopCustomersChart = () => {
                         </thead>
                         <tbody>
                             {topCustomers.map((customer, index) => (
-                                <tr key={customer.id} className="customer-row">
+                                <tr key={customer._id} className="customer-row">
                                     <td className="rank-cell">{index + 1}</td>
                                     <td className="image-cell">
                                         <img
@@ -94,19 +112,29 @@ const TopCustomersChart = () => {
                                     <td className="name-cell">{customer.username}</td>
                                     <td className="email-cell">{customer.email}</td>
                                     <td className="phone-cell">{customer.phone}</td>
-                                    <td className="birth-date-cell">{customer.birth_date}</td>
+                                    {/* <td className="birth-date-cell">
+                                        {formatBirthDate(customer.birthDate)} 
+                                    </td> */}
+                                    <td>
+                                        {customer.birthDate ?
+                                            new Date(customer.birthDate).toLocaleDateString() :
+                                            t('accounts.noBirthDate')}
+                                    </td>
                                     <td className="orders-cell">{customer.totalOrders}</td>
                                     <td className="spent-cell">
                                         {customer.totalSpent.toLocaleString('vi-VN')}đ
                                     </td>
-                                    <td className="last-purchase-cell">{customer.lastPurchase}</td>
+                                    <td className="last-purchase-cell">
+                                        {customer.lastPurchase}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 

@@ -9,7 +9,7 @@ export const en = {
       cancel: "Cancel",
       delete: "Delete",
       edit: "Edit",
-      confirm: "Confirm", 
+      confirm: "Confirm",
       back: "Back",
       add: "Add",
       update: "Update",
@@ -23,12 +23,13 @@ export const en = {
         products: "Products",
         category: "Categories",
         brand: "Brands",
+        banner: "Banner",
         voucher: "Vouchers",
         notification: "Notifications",
         account: "User Accounts",
         inbox: "Messages",
         posts: "Posts",
-        orderLists: "Order Lists", 
+        orderLists: "Order Lists",
         productStock: "Product Stock",
         paymentHistory: "Payment History",
         settings: "Settings",
@@ -51,7 +52,7 @@ export const en = {
     dashboard: {
       title: "Dashboard",
       totalUsers: "Total Users",
-      totalOrders: "Total Orders", 
+      totalOrders: "Total Orders",
       totalSales: "Total Sales",
       totalPending: "Pending Orders",
       fromYesterday: "from yesterday",
@@ -87,18 +88,20 @@ export const en = {
       title: "Products",
       addProduct: "Add Product",
       editProduct: "Edit Product",
+      searchPlaceholder: "search products...",
       form: {
         name: "Product Name",
         description: "Description",
         brand: "Brand",
-        category: "Category", 
+        category: "Category",
         status: "Status",
         media: "Images/Videos"
       },
       status: {
         active: "In Stock",
         'out of stock': "Out of Stock",
-        'importing goods': "Importing"
+        'importing goods': "Importing",
+        'hidden': "Hidden"
       },
       messages: {
         confirmDelete: "Are you sure you want to delete this product?",
@@ -146,26 +149,38 @@ export const en = {
         fillAllVariant: "Please fill in all variant information",
         fillAllColor: "Please enter all color information",
         addColorSuccess: "Color added successfully",
-        addColorError: "Error adding new color: "
+        addColorError: "Error adding new color: ",
+        variantStatus: {
+          title: "Variant status",
+          available: "available",
+          out_of_stock: "out of stock",
+          discontinued: "discontinued"
+        }
       }
     },
 
     categories: {
       title: "Categories",
       addCategory: "Add Category",
-      editCategory: "Edit Category", 
+      editCategory: "Edit Category",
       deleteCategory: "Delete Category",
       form: {
         name: "Category Name",
         image: "Image",
-        media: "Category Image"
+        media: "Category Image",
+        status: "status"
       },
+      activate: "activate",
+      deactivate: "deactivate",
       messages: {
         confirmDelete: "Are you sure you want to delete this category?",
         deleteSuccess: "Category deleted successfully",
         updateSuccess: "Category updated successfully",
-        addSuccess: "Category added successfully"
-      }
+        addSuccess: "Category added successfully",
+        activated: "Category enabled successfully",
+        deactivated: "Category disabled successfully"
+      },
+      searchPlaceholder: "Search categories...",
     },
 
     vouchers: {
@@ -194,7 +209,7 @@ export const en = {
       },
       status: {
         active: "Active",
-        expired: "Expired", 
+        expired: "Expired",
         outOfStock: "Out of Stock"
       },
       messages: {
@@ -202,7 +217,8 @@ export const en = {
         deleteSuccess: "Voucher deleted successfully",
         updateSuccess: "Voucher updated successfully",
         addSuccess: "Voucher added successfully"
-      }
+      },
+      searchPlaceholder: "Search by name or voucher code..."
     },
 
     accounts: {
@@ -218,21 +234,31 @@ export const en = {
       },
       noPhone: "Not updated",
       noGender: "Not updated",
-      noBirthDate: "Not updated"
+      noBirthDate: "Not updated",
+      searchPlaceholder: "Search by name, email or phone number...",
+      status: {
+        active: "Active",
+        inactive: "Inactive"
+      },
+      activate: "Activate",
+      deactivate: "Deactivate",
+      confirmToggle: "Are you sure you want to toggle this account's status?",
+      toggleSuccess: "Account status updated successfully"
     },
 
     productStock: {
       title: "Product Stock",
       quantity: "Quantity",
       status: "Status",
-      lowStock: "Low Stock",  
+      lowStock: "Low Stock",
       outOfStock: "Out of Stock",
       inStock: "In Stock",
       actions: {
         view: "View Details",
         edit: "Edit",
         delete: "Delete"
-      }
+      },
+      searchPlaceholder: "Search products..."
     },
 
     orderList: {
@@ -245,7 +271,7 @@ export const en = {
       discount: "Discount",
       finalTotal: "Final Total",
       paymentMethod: "Payment Method",
-      shippingAddress: "Shipping Address", 
+      shippingAddress: "Shipping Address",
       orderDate: "Order Date",
       orderStatus: "Order Status",
       status: {
@@ -257,7 +283,7 @@ export const en = {
         received: "Received",
         cancelled: "Cancelled",
         return_requested: "Return Requested",
-        return_accepted: "Return Accepted", 
+        return_accepted: "Return Accepted",
         return_rejected: "Return Rejected",
         returned: "Returned",
         refunded: "Refunded",
@@ -265,7 +291,8 @@ export const en = {
       },
       actions: "Actions",
       confirmStatusChange: "Confirm order status change?",
-      statusUpdateSuccess: "Status updated successfully"
+      statusUpdateSuccess: "Status updated successfully",
+      searchPlaceholder: "Search by order ID, customer or status..."
     },
 
     notifications: {
@@ -276,7 +303,7 @@ export const en = {
       actions: "Actions",
       add: "Add Notification",
       titleField: "Title",
-      messageField: "Content", 
+      messageField: "Content",
       typeField: "Notification Type",
       confirmDelete: "Are you sure you want to delete this notification?",
       selectUsers: "Select notification recipients",
@@ -294,7 +321,8 @@ export const en = {
         createUserSuccess: "User notification created successfully",
         updateUserSuccess: "User notification updated successfully",
         deleteUserSuccess: "User notification deleted successfully"
-      }
+      },
+      searchPlaceholder: "Search by title, content or type..."
     },
 
     brands: {
@@ -306,12 +334,17 @@ export const en = {
         name: "Brand Name",
         image: "Image"
       },
+      activate: "activate",
+      deactivate: "deactivate",
       messages: {
         confirmDelete: "Are you sure you want to delete this brand?",
         deleteSuccess: "Brand deleted successfully",
         updateSuccess: "Brand updated successfully",
-        addSuccess: "Brand added successfully"
-      }
+        addSuccess: "Brand enabled successfully",
+        activated: "Brand enabled successfully",
+        deactivated: "Brand successfully disabled"
+      },
+      searchPlaceholder: "Search for brands..."
     },
 
     posts: {
@@ -328,7 +361,8 @@ export const en = {
         createSuccess: "Post created successfully",
         updateSuccess: "Post updated successfully",
         deleteSuccess: "Post deleted successfully"
-      }
+      },
+      searchPlaceholder: "Search by title or content..."
     },
 
     statistics: {
@@ -337,7 +371,7 @@ export const en = {
         title: "Sales Details Chart",
         dateRange: "Date Range",
         from: "From",
-        to: "To", 
+        to: "To",
         revenue: "Revenue",
         noData: "No data available"
       },
@@ -369,8 +403,8 @@ export const en = {
     chat: {
       title: "Messages",
       userList: {
-        title: "User List",
-        search: "Search users",
+        title: "Users List",
+        search: "Search users...",
         noUsers: "No users found",
         loading: "Loading users..."
       },
@@ -424,7 +458,25 @@ export const en = {
         cancelled: "Cancelled"
       },
       noData: "No payment data available",
-      loading: "Loading payment history..."
+      loading: "Loading payment history...",
+      searchPlaceholder: "Search by order ID or user..."
+    },
+
+    banners: {
+      title: "Banner Management",
+      addBanner: "Add Banner",
+      editBanner: "Edit Banner",
+      deleteBanner: "Delete Banner",
+      form: {
+        image: "Banner Image"
+      },
+      messages: {
+        confirmDelete: "Are you sure you want to delete this banner?",
+        deleteSuccess: "Banner deleted successfully",
+        updateSuccess: "Banner updated successfully",
+        addSuccess: "Banner added successfully",
+        maxBanners: "Maximum 3 banners allowed"
+      }
     }
   }
 };

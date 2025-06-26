@@ -15,6 +15,10 @@ function BrandScreen() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [editingBrand, setEditingBrand] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null);
+  const pageSize = 15;
 
   useEffect(() => {
     fetchBrands();
@@ -22,12 +26,23 @@ function BrandScreen() {
 
   const fetchBrands = async () => {
     try {
-      const result = await brandService.getBrands();
+      const result = await brandService.getBrands(true);
       if (result.success) {
         setBrands(result.data);
       }
     } catch (error) {
       console.error('Error fetching brands:', error);
+    }
+  };
+
+  const handleToggleActive = async (id, currentStatus) => {
+    try {
+      await brandService.toggleBrandActive(id);
+      await fetchBrands();
+      alert(t(`brands.messages.${currentStatus ? 'deactivated' : 'activated'}`));
+    } catch (error) {
+      console.error('Error toggling brand:', error);
+      alert(t('common.error'));
     }
   };
 
@@ -54,15 +69,9 @@ function BrandScreen() {
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name.trim());
 
-      // Chỉ gửi media nếu có file mới
       if (formData.media instanceof File) {
         formDataToSend.append('media', formData.media);
       }
-
-      console.log('Submitting form data:', {
-        name: formData.name,
-        hasMedia: !!formData.media
-      });
 
       if (editingBrand) {
         await brandService.updateBrand(editingBrand._id, formDataToSend);
@@ -84,7 +93,6 @@ function BrandScreen() {
   };
 
   const handleEdit = (brand) => {
-    console.log('Editing brand:', brand);
     setEditingBrand(brand);
     setFormData({
       name: brand.name,
@@ -106,6 +114,40 @@ function BrandScreen() {
     }
   };
 
+  const handleSearch = async (keyword) => {
+    try {
+      setIsLoading(true);
+      const result = await brandService.searchBrands(keyword);
+      if (result.success) {
+        setBrands(result.data);
+        setCurrentPage(1);
+      }
+    } catch (error) {
+      console.error('Error searching brands:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const timeoutId = setTimeout(() => {
+      if (value.trim()) {
+        handleSearch(value);
+      } else {
+        fetchBrands();
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -115,15 +157,30 @@ function BrandScreen() {
     setEditingBrand(null);
   };
 
+  const totalPages = Math.ceil(brands.length / pageSize);
+  const paginatedBrands = brands.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <MainLayout>
       <div className="brands-container">
         <div className="page-header">
           <h1>{t('brands.title')}</h1>
-          <button className="add-button" onClick={() => setIsModalOpen(true)}>
-            <i className="fas fa-plus"></i>
-            {t('brands.addBrand')}
-          </button>
+          <div className="header-actions">
+            <div className="search-box">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={t('brands.searchPlaceholder')}
+                className="search-input"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+            <button className="add-button" onClick={() => setIsModalOpen(true)}>
+              <i className="fas fa-plus"></i>
+              {t('brands.addBrand')}
+            </button>
+          </div>
         </div>
 
         <table className="brands-table">
@@ -131,11 +188,12 @@ function BrandScreen() {
             <tr>
               <th>{t('brands.form.image')}</th>
               <th>{t('brands.form.name')}</th>
+              <th>{t('brands.form.status')}</th>
               <th>{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {brands.map(brand => (
+            {paginatedBrands.map(brand => (
               <tr key={brand._id}>
                 <td className="image-cell">
                   <img
@@ -146,7 +204,19 @@ function BrandScreen() {
                 </td>
                 <td>{brand.name}</td>
                 <td>
+                  <span className={`status-badge ${brand.is_active ? 'active' : 'inactive'}`}>
+                    {brand.is_active ? t('common.active') : t('common.inactive')}
+                  </span>
+                </td>
+                <td>
                   <div className="action-buttons">
+                    <button
+                      className="toggle-button"
+                      onClick={() => handleToggleActive(brand._id, brand.is_active)}
+                      title={t(brand.is_active ? 'brands.deactivate' : 'brands.activate')}
+                    >
+                      <i className={`fas fa-${brand.is_active ? 'eye' : 'eye-slash'}`}></i>
+                    </button>
                     <button
                       className="edit-button"
                       onClick={() => handleEdit(brand)}
@@ -165,6 +235,49 @@ function BrandScreen() {
             ))}
           </tbody>
         </table>
+
+        {/* PHÂN TRANG */}
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            First
+          </button>
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(page =>
+              page === 1 ||
+              page === totalPages ||
+              (page >= currentPage - 1 && page <= currentPage + 1)
+            )
+            .map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={page === currentPage ? 'active' : ''}
+              >
+                {page}
+              </button>
+            ))}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            Last
+          </button>
+        </div>
 
         {isModalOpen && (
           <div className="modal-overlay">

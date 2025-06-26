@@ -10,6 +10,14 @@ function OrderListScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('all');
 
+  // Thêm state cho phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 15;
+
+  // Add search states
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -109,14 +117,86 @@ function OrderListScreen() {
     ? orders
     : orders.filter(order => order.status === selectedStatus);
 
+  // Tính toán phân trang
+  const totalPages = Math.ceil(filteredOrders.length / pageSize);
+  const paginatedOrders = filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Add search handler
+  const handleSearch = async (keyword) => {
+    try {
+      setLoading(true);
+      const response = await orderListService.searchOrders(keyword);
+      if (response.status === 200) {
+        // Map through orders to format data
+        const formattedOrders = response.data.orders.map(order => ({
+          _id: order._id,
+          username: order.user_id?.username || 'N/A',
+          email: order.user_id?.email || 'N/A',
+          total_price: order.total_price,
+          shipping_fee: order.shipping_fee,
+          discount: order.discount,
+          final_total: order.final_total,
+          payment_method: order.payment_method,
+          status: order.status,
+          address: order.address_id?.receiving_address || 'N/A',
+          created_at: new Date(order.createdAt).toLocaleDateString('vi-VN')
+        }));
+        setOrders(formattedOrders);
+        setCurrentPage(1); // Reset về trang 1
+      }
+    } catch (error) {
+      console.error('Error searching orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add debounce search
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchKeyword(value);
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const timeoutId = setTimeout(() => {
+      if (value.trim()) {
+        handleSearch(value);
+      } else {
+        fetchOrders();
+      }
+    }, 500);
+
+    setSearchTimeout(timeoutId);
+  };
+
   return (
     <MainLayout>
       <div className="order-list-container">
         <div className="page-header">
           <h1>{t('orderList.title')}</h1>
+          <div className="header-actions">
+            <div className="search-box">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={t('orderList.searchPlaceholder')}
+                className="search-input"
+              />
+              <i className="fas fa-search search-icon"></i>
+            </div>
+          </div>
+        </div>
+
+        <div className="status-filter-container">
           <select
             value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
+            onChange={(e) => {
+              setSelectedStatus(e.target.value);
+              setCurrentPage(1); // Reset về trang 1 khi lọc
+            }}
             className="status-filter"
           >
             <option value="all">{t('orderList.allOrders')}</option>
@@ -129,7 +209,7 @@ function OrderListScreen() {
             <option value="return_approved">{t('orderList.status.return_accepted')}</option>
             <option value="return_rejected">{t('orderList.status.return_rejected')}</option>
             <option value="returned">{t('orderList.status.returned')}</option>
-            <option value="reviewed">{t('orderList.status.reviewed')}</option> {/* Add this line */}
+            <option value="reviewed">{t('orderList.status.reviewed')}</option>
           </select>
         </div>
 
@@ -150,7 +230,7 @@ function OrderListScreen() {
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.map(order => (
+            {paginatedOrders.map(order => (
               <tr key={order._id}>
                 <td>{order._id.slice(-6)}</td>
                 <td>
@@ -196,6 +276,49 @@ function OrderListScreen() {
             ))}
           </tbody>
         </table>
+
+        {/* PHÂN TRANG */}
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          >
+            First
+          </button>
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(page =>
+              page === 1 ||
+              page === totalPages ||
+              (page >= currentPage - 1 && page <= currentPage + 1)
+            )
+            .map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={page === currentPage ? 'active' : ''}
+              >
+                {page}
+              </button>
+            ))}
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            Last
+          </button>
+        </div>
 
         {loading && (
           <div className="loading-overlay">
