@@ -4,6 +4,7 @@ import MainLayout from '../../layouts/MainLayout';
 import { postsService } from '../../services/PostsService';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import './PostsScreen.css';
+import Loading from '../../components/Loading'; // Import component Loading
 
 export default function PostsScreen() {
   const { t } = useTranslation();
@@ -17,6 +18,7 @@ export default function PostsScreen() {
     message: '',
     media: []
   });
+  const [isLoading, setIsLoading] = useState(false); // New loading state
 
   // Add new state for image previews
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -90,6 +92,7 @@ export default function PostsScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
@@ -125,6 +128,8 @@ export default function PostsScreen() {
     } catch (error) {
       console.error('Error submitting post:', error);
       alert(t('common.error'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -205,6 +210,7 @@ export default function PostsScreen() {
 
   return (
     <MainLayout>
+      {isLoading && <Loading />}
       <div className="posts-container">
         <div className="page-header">
           <h1>{t('posts.title')}</h1>

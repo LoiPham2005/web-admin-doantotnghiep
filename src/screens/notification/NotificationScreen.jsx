@@ -6,6 +6,7 @@ import { notificationUserService } from '../../services/NotificationUserService'
 import { userService } from '../../services/UserService';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import './NotificationScreen.css';
+import Loading from '../../components/Loading'; // Import component Loading
 
 export default function NotificationScreen() {
   const { t } = useTranslation();
@@ -22,6 +23,7 @@ export default function NotificationScreen() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 15;
+  const [isLoading, setIsLoading] = useState(false); // Thêm state isLoading
 
   // Thêm state cho search
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -120,6 +122,7 @@ export default function NotificationScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const notificationData = {
         title: formData.title,
@@ -169,6 +172,8 @@ export default function NotificationScreen() {
     } catch (error) {
       console.error('Error submitting notification:', error);
       alert(t('common.error'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -258,6 +263,7 @@ export default function NotificationScreen() {
 
   return (
     <MainLayout>
+      {isLoading && <Loading />}
       <div className="notifications-container">
         <div className="page-header">
           <h1>{t('notifications.title')}</h1>

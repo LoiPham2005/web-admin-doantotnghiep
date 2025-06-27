@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import MainLayout from '../../layouts/MainLayout';
 import { brandService } from '../../services/BrandService';
+import Loading from '../../components/Loading';
 import './BrandScreen.css';
 
 function BrandScreen() {
@@ -162,6 +163,7 @@ function BrandScreen() {
 
   return (
     <MainLayout>
+      {isLoading && <Loading />}
       <div className="brands-container">
         <div className="page-header">
           <h1>{t('brands.title')}</h1>

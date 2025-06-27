@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import MainLayout from '../../layouts/MainLayout';
 import { bannerService } from '../../services/BannerService';
 import './BannerScreen.css';
+import Loading from '../../components/Loading'; // Import component Loading
 
 const BannerScreen = () => {
     const { t } = useTranslation();
@@ -12,6 +13,7 @@ const BannerScreen = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBanner, setEditingBanner] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // Thêm state isLoading
 
     useEffect(() => {
         fetchBanners();
@@ -60,15 +62,18 @@ const BannerScreen = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         try {
-            // Kiểm tra file đã chọn chưa
-            if (!selectedFile) {
+            // Chỉ kiểm tra file bắt buộc khi thêm mới
+            if (!editingBanner && !selectedFile) {
                 alert(t('banners.messages.pleaseSelectImage'));
                 return;
             }
 
             const formData = new FormData();
-            formData.append('media', selectedFile); // Phải đúng tên field là 'media'
+            if (selectedFile) {
+                formData.append('media', selectedFile);
+            }
 
             if (editingBanner) {
                 await bannerService.updateBanner(editingBanner._id, formData);
@@ -87,6 +92,8 @@ const BannerScreen = () => {
         } catch (error) {
             console.error('Error saving banner:', error);
             alert(error?.response?.data?.message || t('common.error'));
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -118,6 +125,7 @@ const BannerScreen = () => {
 
     return (
         <MainLayout>
+            {isLoading && <Loading />}
             <div className="banners-container">
                 <div className="page-header">
                     <h1>{t('banners.title')}</h1>

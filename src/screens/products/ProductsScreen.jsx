@@ -9,6 +9,7 @@ import { colorService } from '../../services/ColorService';
 import { sizesService } from '../../services/SizesService';
 import { shoesVariantService } from '../../services/ShoesVariantService'; // Thêm dòng này
 import './ProductsScreen.css';
+import Loading from '../../components/Loading'; 
 
 function ProductsScreen() {
   const { t } = useTranslation();
@@ -207,17 +208,7 @@ function ProductsScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Kiểm tra nếu đang có dữ liệu trong form variant nhưng chưa thêm
-    if (currentVariant.color_id || currentVariant.size_id ||
-      currentVariant.price || currentVariant.quantity_in_stock) {
-      if (!window.confirm('Bạn có biến thể chưa được thêm vào danh sách. Bạn có muốn tiếp tục lưu không?')) {
-        return;
-      }
-    }
-
     setIsLoading(true);
-
     try {
       const formDataToSend = new FormData();
 
@@ -519,6 +510,7 @@ function ProductsScreen() {
 
   return (
     <MainLayout>
+      {isLoading && <Loading />}
       <div className="products-container">
         <div className="page-header">
           <h1>{t('products.title')}</h1>

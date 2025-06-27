@@ -7,6 +7,7 @@ import AuthService from '../../services/AuthService';
 import './VoucherScreen.css';
 import { userService } from '../../services/UserService';
 import { userVoucherService } from '../../services/UserVoucherService';
+import Loading from '../../components/Loading'; // Import component Loading
 
 function VoucherScreen() {
   const { t } = useTranslation();
@@ -311,6 +312,7 @@ function VoucherScreen() {
 
   return (
     <MainLayout>
+      {isLoading && <Loading />}
       <div className="vouchers-container">
         <div className="page-header">
           <h1>{t('vouchers.title')}</h1>

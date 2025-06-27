@@ -3,6 +3,7 @@ import MainLayout from '../../layouts/MainLayout';
 import { categoryService } from '../../services/CategoryService';
 import './CategoryScreen.css';
 import { useTranslation } from 'react-i18next';
+import Loading from '../../components/Loading';
 
 function CategoryScreen() {
   const { t } = useTranslation();
@@ -167,6 +168,7 @@ function CategoryScreen() {
 
   return (
     <MainLayout>
+      {isLoading && <Loading />}
       <div className="categories-container">
         <div className="page-header">
           <h1>{t('categories.title')}</h1>
