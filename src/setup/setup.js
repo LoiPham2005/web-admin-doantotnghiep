@@ -4,4 +4,5 @@
 
 // domain chuẩn sẽ lấy khi đẩy backend lên hosting
 // export const DOMAIN = "https://backend-doantotnghiep-wy5h.onrender.com"
+
 export const DOMAIN = "https://backend-doantotnghiep-1.onrender.com"
