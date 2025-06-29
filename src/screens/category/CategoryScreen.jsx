@@ -204,6 +204,7 @@ function CategoryScreen() {
           <table className="categories-table">
             <thead>
               <tr>
+                <th>STT</th>  {/* Thêm cột STT */}
                 <th>{t('categories.form.image')}</th>
                 <th>{t('categories.form.name')}</th>
                 <th>{t('categories.form.status')}</th>
@@ -211,8 +212,9 @@ function CategoryScreen() {
               </tr>
             </thead>
             <tbody>
-              {paginatedCategories.map(category => (
+              {paginatedCategories.map((category, index) => (
                 <tr key={category._id}>
+                  <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                   <td className="image-cell">
                     <img
                       src={category.media}

@@ -38,6 +38,7 @@ const PaymentHistoryService = {
 
     searchPayments: async (keyword) => {
         try {
+            console.log("Searching with keyword:", keyword);
             const response = await axios.get(`${API_URL}/payment-history/search`, {
                 params: { keyword },
                 headers: getAuthHeader()

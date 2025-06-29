@@ -337,6 +337,7 @@ function VoucherScreen() {
         <table className="vouchers-table">
           <thead>
             <tr>
+              <th>STT</th>  {/* Thêm cột STT */}
               <th>{t('vouchers.form.name')}</th>
               <th>{t('vouchers.form.code')}</th>
               <th>{t('vouchers.form.discountValue')}</th>
@@ -347,8 +348,9 @@ function VoucherScreen() {
             </tr>
           </thead>
           <tbody>
-            {paginatedVouchers.map(voucher => (
+            {paginatedVouchers.map((voucher, index) => (
               <tr key={voucher._id}>
+                <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                 <td>{voucher.name}</td>
                 <td>{voucher.code}</td>
                 <td>{voucher.discount_value}{voucher.discount_type === 'percentage' ? '%' : 'đ'}</td>

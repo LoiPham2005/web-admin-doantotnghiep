@@ -246,6 +246,7 @@ export default function PostsScreen() {
           <table className="posts-table">
             <thead>
               <tr>
+                <th>STT</th>  {/* Thêm cột STT */}
                 <th>{t('posts.form.media')}</th>
                 <th>{t('posts.form.title')}</th>
                 <th>{t('posts.form.message')}</th>
@@ -253,8 +254,9 @@ export default function PostsScreen() {
               </tr>
             </thead>
             <tbody>
-              {paginatedPosts.map(post => (
+              {paginatedPosts.map((post, index) => (
                 <tr key={post._id}>
+                  <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                   <td className="media-cell">
                     {post.media && post.media.length > 0 && (
                       <img

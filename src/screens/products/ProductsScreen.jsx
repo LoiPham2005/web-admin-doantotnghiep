@@ -539,6 +539,7 @@ function ProductsScreen() {
             <table className="products-table">
               <thead>
                 <tr>
+                  <th>STT</th>  {/* Thêm cột STT */}
                   <th>{t('products.form.media')}</th>
                   <th>{t('products.form.name')}</th>
                   <th>{t('products.form.description')}</th>
@@ -549,8 +550,9 @@ function ProductsScreen() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedProducts.map(product => (
+                {paginatedProducts.map((product, index) => (
                   <tr key={product._id}>
+                    <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                     <td>
                       {product.media && product.media.length > 0 ? (
                         <img

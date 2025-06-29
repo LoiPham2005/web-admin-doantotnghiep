@@ -125,6 +125,7 @@ function AccountScreen() {
         <table className="accounts-table">
           <thead>
             <tr>
+              <th>STT</th>  {/* Thêm cột STT */}
               <th>{t('accounts.form.avatar')}</th>
               <th>{t('accounts.form.username')}</th>
               <th>{t('accounts.form.email')}</th>
@@ -134,8 +135,9 @@ function AccountScreen() {
             </tr>
           </thead>
           <tbody>
-            {paginatedUsers.map(user => (
+            {paginatedUsers.map((user, index) => (
               <tr key={user._id}>
+                <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                 <td>
                   <img
                     src={user.avatar || defaultAvatar}

@@ -302,6 +302,7 @@ export default function NotificationScreen() {
               <table className="notifications-table">
                 <thead>
                   <tr>
+                    <th>STT</th>  {/* Thêm cột STT */}
                     <th>{t('notifications.titleColumn')}</th>
                     <th>{t('notifications.message')}</th>
                     <th>{t('notifications.type')}</th>
@@ -309,8 +310,9 @@ export default function NotificationScreen() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedNotifications.map((notification) => (
+                  {paginatedNotifications.map((notification, index) => (
                     <tr key={notification._id}>
+                      <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                       <td>{notification.title}</td>
                       <td>{notification.content}</td>
                       <td>{t(`notifications.types.${notification.type}`)}</td>

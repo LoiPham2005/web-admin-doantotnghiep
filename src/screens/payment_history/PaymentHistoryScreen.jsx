@@ -16,6 +16,7 @@ const PaymentHistoryScreen = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [initialLoading, setInitialLoading] = useState(true);
+    const pageSize = 10; // Kích thước trang, thay đổi nếu cần
 
     // Add search states
     const [searchKeyword, setSearchKeyword] = useState('');
@@ -44,7 +45,7 @@ const PaymentHistoryScreen = () => {
 
             if (response.status === 200) {
                 setPayments(response.data.payments);
-                setTotalPages(Math.ceil(response.data.total / 10));
+                setTotalPages(Math.ceil(response.data.total / pageSize));
             }
         } catch (error) {
             console.error('Error fetching payments:', error);
@@ -121,8 +122,8 @@ const PaymentHistoryScreen = () => {
             setLoading(true);
             const response = await PaymentHistoryService.searchPayments(keyword);
             if (response.status === 200) {
-                setPayments(response.data.payments);
-                setCurrentPage(1); // Reset về trang 1
+                setPayments(response.data.data.payments || []);
+                setCurrentPage(1);
             }
         } catch (error) {
             console.error('Error searching payments:', error);
@@ -190,6 +191,7 @@ const PaymentHistoryScreen = () => {
                                 <table className="payment-table">
                                     <thead>
                                         <tr>
+                                            <th>STT</th>  {/* Thêm cột STT */}
                                             <th>{t('paymentHistory.table.orderId')}</th>
                                             <th>{t('paymentHistory.table.username')}</th>
                                             <th>{t('paymentHistory.table.email')}</th>
@@ -201,8 +203,9 @@ const PaymentHistoryScreen = () => {
                                     </thead>
                                     <tbody>
                                         {payments && payments.length > 0 ? (
-                                            payments.map((payment) => (
+                                            payments.map((payment, index) => (
                                                 <tr key={payment._id}>
+                                                    <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                                                     <td>{payment.order_id?._id?.slice(-6) || 'N/A'}</td>
                                                     <td>{payment.user_id?.username || 'N/A'}</td>
                                                     <td>{payment.user_id?.email || 'N/A'}</td>

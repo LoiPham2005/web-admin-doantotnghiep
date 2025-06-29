@@ -216,6 +216,7 @@ function OrderListScreen() {
         <table className="orders-table">
           <thead>
             <tr>
+              <th>STT</th>  {/* Thêm cột STT */}
               <th>{t('orderList.orderId')}</th>
               <th>{t('orderList.customer')}</th>
               <th>{t('orderList.totalAmount')}</th>
@@ -230,8 +231,9 @@ function OrderListScreen() {
             </tr>
           </thead>
           <tbody>
-            {paginatedOrders.map(order => (
+            {paginatedOrders.map((order, index) => (
               <tr key={order._id}>
+                <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                 <td>{order._id.slice(-6)}</td>
                 <td>
                   <div>{order.username}</div>

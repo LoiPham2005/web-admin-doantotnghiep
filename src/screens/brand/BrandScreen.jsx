@@ -199,6 +199,7 @@ function BrandScreen() {
           <table className="brands-table">
             <thead>
               <tr>
+                <th>STT</th>  {/* Thêm cột STT */}
                 <th>{t('brands.form.image')}</th>
                 <th>{t('brands.form.name')}</th>
                 <th>{t('brands.form.status')}</th>
@@ -206,8 +207,9 @@ function BrandScreen() {
               </tr>
             </thead>
             <tbody>
-              {paginatedBrands.map(brand => (
+              {paginatedBrands.map((brand, index) => (
                 <tr key={brand._id}>
+                  <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
                   <td className="image-cell">
                     <img
                       src={brand.media}
