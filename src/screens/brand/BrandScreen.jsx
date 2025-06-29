@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import MainLayout from '../../layouts/MainLayout';
 import { brandService } from '../../services/BrandService';
-import Loading from '../../components/Loading';
+import Loading from '../../components/LoadingPage';
 import './BrandScreen.css';
 
 function BrandScreen() {
@@ -19,10 +19,18 @@ function BrandScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const pageSize = 15;
 
   useEffect(() => {
-    fetchBrands();
+    const init = async () => {
+      try {
+        await fetchBrands();
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    init();
   }, []);
 
   const fetchBrands = async () => {
@@ -163,199 +171,203 @@ function BrandScreen() {
 
   return (
     <MainLayout>
-      {isLoading && <Loading />}
-      <div className="brands-container">
-        <div className="page-header">
-          <h1>{t('brands.title')}</h1>
-          <div className="header-actions">
-            <div className="search-box">
-              <input
-                type="text"
-                value={searchKeyword}
-                onChange={handleSearchChange}
-                placeholder={t('brands.searchPlaceholder')}
-                className="search-input"
-              />
-              <i className="fas fa-search search-icon"></i>
+      {initialLoading ? (
+        <Loading />
+      ) : (
+        <div className="brands-container">
+          {isLoading && <Loading />}
+          <div className="page-header">
+            <h1>{t('brands.title')}</h1>
+            <div className="header-actions">
+              <div className="search-box">
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={handleSearchChange}
+                  placeholder={t('brands.searchPlaceholder')}
+                  className="search-input"
+                />
+                <i className="fas fa-search search-icon"></i>
+              </div>
+              <button className="add-button" onClick={() => setIsModalOpen(true)}>
+                <i className="fas fa-plus"></i>
+                {t('brands.addBrand')}
+              </button>
             </div>
-            <button className="add-button" onClick={() => setIsModalOpen(true)}>
-              <i className="fas fa-plus"></i>
-              {t('brands.addBrand')}
+          </div>
+
+          <table className="brands-table">
+            <thead>
+              <tr>
+                <th>{t('brands.form.image')}</th>
+                <th>{t('brands.form.name')}</th>
+                <th>{t('brands.form.status')}</th>
+                <th>{t('common.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedBrands.map(brand => (
+                <tr key={brand._id}>
+                  <td className="image-cell">
+                    <img
+                      src={brand.media}
+                      alt={brand.name}
+                      className="brand-image"
+                    />
+                  </td>
+                  <td>{brand.name}</td>
+                  <td>
+                    <span className={`status-badge ${brand.is_active ? 'active' : 'inactive'}`}>
+                      {brand.is_active ? t('common.active') : t('common.inactive')}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="toggle-button"
+                        onClick={() => handleToggleActive(brand._id, brand.is_active)}
+                        title={t(brand.is_active ? 'brands.deactivate' : 'brands.activate')}
+                      >
+                        <i className={`fas fa-${brand.is_active ? 'eye' : 'eye-slash'}`}></i>
+                      </button>
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEdit(brand)}
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDelete(brand._id)}
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* PHÂN TRANG */}
+          <div className="pagination">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              First
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(page =>
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              )
+              .map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={page === currentPage ? 'active' : ''}
+                >
+                  {page}
+                </button>
+              ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              Last
             </button>
           </div>
-        </div>
 
-        <table className="brands-table">
-          <thead>
-            <tr>
-              <th>{t('brands.form.image')}</th>
-              <th>{t('brands.form.name')}</th>
-              <th>{t('brands.form.status')}</th>
-              <th>{t('common.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedBrands.map(brand => (
-              <tr key={brand._id}>
-                <td className="image-cell">
-                  <img
-                    src={brand.media}
-                    alt={brand.name}
-                    className="brand-image"
-                  />
-                </td>
-                <td>{brand.name}</td>
-                <td>
-                  <span className={`status-badge ${brand.is_active ? 'active' : 'inactive'}`}>
-                    {brand.is_active ? t('common.active') : t('common.inactive')}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button
-                      className="toggle-button"
-                      onClick={() => handleToggleActive(brand._id, brand.is_active)}
-                      title={t(brand.is_active ? 'brands.deactivate' : 'brands.activate')}
-                    >
-                      <i className={`fas fa-${brand.is_active ? 'eye' : 'eye-slash'}`}></i>
-                    </button>
-                    <button
-                      className="edit-button"
-                      onClick={() => handleEdit(brand)}
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDelete(brand._id)}
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* PHÂN TRANG */}
-        <div className="pagination">
-          <button
-            onClick={() => setCurrentPage(1)}
-            disabled={currentPage === 1}
-          >
-            First
-          </button>
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter(page =>
-              page === 1 ||
-              page === totalPages ||
-              (page >= currentPage - 1 && page <= currentPage + 1)
-            )
-            .map(page => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={page === currentPage ? 'active' : ''}
-              >
-                {page}
-              </button>
-            ))}
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-          <button
-            onClick={() => setCurrentPage(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            Last
-          </button>
-        </div>
-
-        {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-header">
-                <h2>{editingBrand ? t('brands.editBrand') : t('brands.addBrand')}</h2>
-                <button
-                  className="close-button"
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    resetForm();
-                  }}
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>{t('brands.form.name')}</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal">
+                <div className="modal-header">
+                  <h2>{editingBrand ? t('brands.editBrand') : t('brands.addBrand')}</h2>
+                  <button
+                    className="close-button"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      resetForm();
+                    }}
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
                 </div>
-
-                <div className="form-group">
-                  <label>{t('brands.form.media')}</label>
-                  <div className="media-upload-container">
-                    {formData.mediaPreview && (
-                      <div className="media-preview">
-                        <img
-                          src={formData.mediaPreview}
-                          alt="Preview"
-                        />
-                        <button
-                          type="button"
-                          className="remove-media"
-                          onClick={() => {
-                            setFormData(prev => ({
-                              ...prev,
-                              media: null,
-                              mediaPreview: null
-                            }));
-                          }}
-                        >
-                          <i className="fas fa-times"></i>
-                        </button>
-                      </div>
-                    )}
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label>{t('brands.form.name')}</label>
                     <input
-                      type="file"
-                      name="media"
+                      type="text"
+                      name="name"
+                      value={formData.name}
                       onChange={handleInputChange}
-                      accept="image/*"
-                      required={!editingBrand?.media && !formData.media}
-                      disabled={formData.mediaPreview}
+                      required
                     />
                   </div>
-                </div>
 
-                <div className="modal-buttons">
-                  <button type="button" onClick={() => setIsModalOpen(false)}>
-                    {t('common.cancel')}
-                  </button>
-                  <button type="submit" disabled={isLoading}>
-                    {isLoading ? t('common.loading') : (editingBrand ? t('common.update') : t('common.add'))}
-                  </button>
-                </div>
-              </form>
+                  <div className="form-group">
+                    <label>{t('brands.form.media')}</label>
+                    <div className="media-upload-container">
+                      {formData.mediaPreview && (
+                        <div className="media-preview">
+                          <img
+                            src={formData.mediaPreview}
+                            alt="Preview"
+                          />
+                          <button
+                            type="button"
+                            className="remove-media"
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                media: null,
+                                mediaPreview: null
+                              }));
+                            }}
+                          >
+                            <i className="fas fa-times"></i>
+                          </button>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        name="media"
+                        onChange={handleInputChange}
+                        accept="image/*"
+                        required={!editingBrand?.media && !formData.media}
+                        disabled={formData.mediaPreview}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="modal-buttons">
+                    <button type="button" onClick={() => setIsModalOpen(false)}>
+                      {t('common.cancel')}
+                    </button>
+                    <button type="submit" disabled={isLoading}>
+                      {isLoading ? t('common.loading') : (editingBrand ? t('common.update') : t('common.add'))}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </MainLayout>
   );
 }

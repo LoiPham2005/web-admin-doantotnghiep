@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { userService } from '../../services/UserService';
 import { useTranslation } from 'react-i18next';
 import './ChatList.css';
+import defaultAvatar from '../../assets/default-avatar.webp';
 
 const ChatList = ({ onSelectChat, selectedUserId }) => {
   const { t } = useTranslation();
@@ -95,7 +96,7 @@ const ChatList = ({ onSelectChat, selectedUserId }) => {
               onClick={() => onSelectChat(chat)}
             >
               <img
-                src={chat.user_id.avatar || '/default-avatar.png'}
+                src={chat.user_id.avatar || defaultAvatar}
                 alt={chat.user_id.username}
                 className="chat-avatar"
               />

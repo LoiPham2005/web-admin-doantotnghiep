@@ -6,7 +6,7 @@ import { notificationUserService } from '../../services/NotificationUserService'
 import { userService } from '../../services/UserService';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import './NotificationScreen.css';
-import Loading from '../../components/Loading'; // Import component Loading
+import Loading from '../../components/LoadingPage'; // Import component Loading
 
 export default function NotificationScreen() {
   const { t } = useTranslation();
@@ -24,14 +24,21 @@ export default function NotificationScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 15;
   const [isLoading, setIsLoading] = useState(false); // Thêm state isLoading
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // Thêm state cho search
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null);
 
   useEffect(() => {
-    fetchNotifications();
-    fetchUsers();
+    const init = async () => {
+      try {
+        await Promise.all([fetchNotifications(), fetchUsers()]);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    init();
   }, []);
 
   const fetchUsers = async () => {
@@ -263,220 +270,224 @@ export default function NotificationScreen() {
 
   return (
     <MainLayout>
-      {isLoading && <Loading />}
-      <div className="notifications-container">
-        <div className="page-header">
-          <h1>{t('notifications.title')}</h1>
-          <div className="header-actions">
-            <div className="search-box">
-              <input
-                type="text"
-                value={searchKeyword}
-                onChange={handleSearchChange}
-                placeholder={t('notifications.searchPlaceholder')}
-                className="search-input"
-              />
-              <i className="fas fa-search search-icon"></i>
+      {initialLoading ? (
+        <Loading />
+      ) : (
+        <div className="notifications-container">
+          {isLoading && <Loading />}
+          <div className="page-header">
+            <h1>{t('notifications.title')}</h1>
+            <div className="header-actions">
+              <div className="search-box">
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={handleSearchChange}
+                  placeholder={t('notifications.searchPlaceholder')}
+                  className="search-input"
+                />
+                <i className="fas fa-search search-icon"></i>
+              </div>
+              <button className="add-button" onClick={() => setIsModalOpen(true)}>
+                <i className="fas fa-plus"></i>
+                {t('notifications.add')}
+              </button>
             </div>
-            <button className="add-button" onClick={() => setIsModalOpen(true)}>
-              <i className="fas fa-plus"></i>
-              {t('notifications.add')}
-            </button>
           </div>
-        </div>
 
-        {loading ? (
-          <div className="loading">{t('common.loading')}</div>
-        ) : (
-          <>
-            <table className="notifications-table">
-              <thead>
-                <tr>
-                  <th>{t('notifications.titleColumn')}</th>
-                  <th>{t('notifications.message')}</th>
-                  <th>{t('notifications.type')}</th>
-                  <th>{t('notifications.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedNotifications.map((notification) => (
-                  <tr key={notification._id}>
-                    <td>{notification.title}</td>
-                    <td>{notification.content}</td>
-                    <td>{t(`notifications.types.${notification.type}`)}</td>
-                    <td style={{ display: 'flex', alignItems: 'center' }}>
-                      <button
-                        onClick={() => handleEdit(notification)}
-                        className="edit-button"
-                      >
-                        {/* <FaEdit size={20}/> */}
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(notification._id)}
-                        className="delete-button"
-                      >
-                        {/* <FaTrash /> */}
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    </td>
+          {loading ? (
+            <div className="loading">{t('common.loading')}</div>
+          ) : (
+            <>
+              <table className="notifications-table">
+                <thead>
+                  <tr>
+                    <th>{t('notifications.titleColumn')}</th>
+                    <th>{t('notifications.message')}</th>
+                    <th>{t('notifications.type')}</th>
+                    <th>{t('notifications.actions')}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            {/* PHÂN TRANG */}
-            <div className="pagination">
-              <button
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-              >
-                First
-              </button>
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(page =>
-                  page === 1 ||
-                  page === totalPages ||
-                  (page >= currentPage - 1 && page <= currentPage + 1)
-                )
-                .map(page => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={page === currentPage ? 'active' : ''}
-                  >
-                    {page}
-                  </button>
-                ))}
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </button>
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-              >
-                Last
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Modal Form */}
-        {isModalOpen && (
-          <div className="notification-modal">
-            <div className="modal-content">
-              <h2>{editingNotification ? t('notifications.edit') : t('notifications.add')}</h2>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>{t('notifications.titleField')}</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>{t('notifications.messageField')}</label>
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>{t('notifications.typeField')}</label>
-                  <div className="radio-group">
-                    {['system', 'order', 'promotion'].map((type) => (
-                      <label key={type}>
-                        <input
-                          type="radio"
-                          value={type}
-                          checked={formData.type === type}
-                          onChange={handleTypeChange}
-                        />
-                        {t(`notifications.types.${type}`)}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {formData.type === 'order' && (
-                  <div className="form-group">
-                    <label>{t('notifications.selectUsers')}</label>
-                    <select
-                      onChange={handleSelectUser}
-                      className="user-select"
-                      value=""
+                </thead>
+                <tbody>
+                  {paginatedNotifications.map((notification) => (
+                    <tr key={notification._id}>
+                      <td>{notification.title}</td>
+                      <td>{notification.content}</td>
+                      <td>{t(`notifications.types.${notification.type}`)}</td>
+                      <td style={{ display: 'flex', alignItems: 'center' }}>
+                        <button
+                          onClick={() => handleEdit(notification)}
+                          className="edit-button"
+                        >
+                          {/* <FaEdit size={20}/> */}
+                          <i className="fas fa-edit"></i>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(notification._id)}
+                          className="delete-button"
+                        >
+                          {/* <FaTrash /> */}
+                          <i className="fas fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* PHÂN TRANG */}
+              <div className="pagination">
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  First
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page =>
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  )
+                  .map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={page === currentPage ? 'active' : ''}
                     >
-                      <option value="">{t('notifications.selectUser')}</option>
-                      {users
-                        .filter(user => !selectedUsers.some(selected => selected._id === user._id))
-                        .map(user => (
-                          <option key={user._id} value={user._id}>
-                            {user.email} ({user.username})
-                          </option>
-                        ))}
-                    </select>
+                      {page}
+                    </button>
+                  ))}
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  Last
+                </button>
+              </div>
+            </>
+          )}
 
-                    {selectedUsers.length > 0 && (
-                      <div className="selected-users-list">
-                        <h4>{t('notifications.selectedUsers')}</h4>
-                        {selectedUsers.map(user => (
-                          <div key={user._id} className="selected-user-item">
-                            <span className="user-info">
-                              <span className="email">{user.email}</span>
-                              {user.username && <span className="username">({user.username})</span>}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveUser(user._id)}
-                              className="remove-user-btn"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+          {/* Modal Form */}
+          {isModalOpen && (
+            <div className="notification-modal">
+              <div className="modal-content">
+                <h2>{editingNotification ? t('notifications.edit') : t('notifications.add')}</h2>
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label>{t('notifications.titleField')}</label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      required
+                    />
                   </div>
-                )}
 
-                <div className="button-group">
-                  <button type="submit" className="save-button">
-                    {t('common.save')}
-                  </button>
-                  <button
-                    type="button"
-                    className="cancel-button"
-                    onClick={() => {
-                      setIsModalOpen(false);
-                      setFormData({
-                        title: '',
-                        message: '',
-                        type: 'system'
-                      });
-                      setSelectedUsers([]);
-                    }}
-                  >
-                    {t('common.cancel')}
-                  </button>
-                </div>
-              </form>
+                  <div className="form-group">
+                    <label>{t('notifications.messageField')}</label>
+                    <textarea
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t('notifications.typeField')}</label>
+                    <div className="radio-group">
+                      {['system', 'order', 'promotion'].map((type) => (
+                        <label key={type}>
+                          <input
+                            type="radio"
+                            value={type}
+                            checked={formData.type === type}
+                            onChange={handleTypeChange}
+                          />
+                          {t(`notifications.types.${type}`)}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {formData.type === 'order' && (
+                    <div className="form-group">
+                      <label>{t('notifications.selectUsers')}</label>
+                      <select
+                        onChange={handleSelectUser}
+                        className="user-select"
+                        value=""
+                      >
+                        <option value="">{t('notifications.selectUser')}</option>
+                        {users
+                          .filter(user => !selectedUsers.some(selected => selected._id === user._id))
+                          .map(user => (
+                            <option key={user._id} value={user._id}>
+                              {user.email} ({user.username})
+                            </option>
+                          ))}
+                      </select>
+
+                      {selectedUsers.length > 0 && (
+                        <div className="selected-users-list">
+                          <h4>{t('notifications.selectedUsers')}</h4>
+                          {selectedUsers.map(user => (
+                            <div key={user._id} className="selected-user-item">
+                              <span className="user-info">
+                                <span className="email">{user.email}</span>
+                                {user.username && <span className="username">({user.username})</span>}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveUser(user._id)}
+                                className="remove-user-btn"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="button-group">
+                    <button type="submit" className="save-button">
+                      {t('common.save')}
+                    </button>
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        setFormData({
+                          title: '',
+                          message: '',
+                          type: 'system'
+                        });
+                        setSelectedUsers([]);
+                      }}
+                    >
+                      {t('common.cancel')}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </MainLayout>
   );
 }

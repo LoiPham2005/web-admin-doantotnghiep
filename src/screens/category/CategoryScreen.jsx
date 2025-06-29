@@ -3,7 +3,7 @@ import MainLayout from '../../layouts/MainLayout';
 import { categoryService } from '../../services/CategoryService';
 import './CategoryScreen.css';
 import { useTranslation } from 'react-i18next';
-import Loading from '../../components/Loading';
+import Loading from '../../components/LoadingPage';
 
 function CategoryScreen() {
   const { t } = useTranslation();
@@ -19,10 +19,18 @@ function CategoryScreen() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const pageSize = 15;
 
   useEffect(() => {
-    fetchCategories();
+    const init = async () => {
+      try {
+        await fetchCategories();
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    init();
   }, []);
 
   const fetchCategories = async () => {
@@ -168,202 +176,206 @@ function CategoryScreen() {
 
   return (
     <MainLayout>
-      {isLoading && <Loading />}
-      <div className="categories-container">
-        <div className="page-header">
-          <h1>{t('categories.title')}</h1>
-          <div className="header-actions">
-            <div className="search-box">
-              <input
-                type="text"
-                value={searchKeyword}
-                onChange={handleSearchChange}
-                placeholder={t('categories.searchPlaceholder')}
-                className="search-input"
-              />
-              <i className="fas fa-search search-icon"></i>
+      {initialLoading ? (
+        <Loading />
+      ) : (
+        <div className="categories-container">
+          {isLoading && <Loading />}
+          <div className="page-header">
+            <h1>{t('categories.title')}</h1>
+            <div className="header-actions">
+              <div className="search-box">
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={handleSearchChange}
+                  placeholder={t('categories.searchPlaceholder')}
+                  className="search-input"
+                />
+                <i className="fas fa-search search-icon"></i>
+              </div>
+              <button className="add-button" onClick={() => setIsModalOpen(true)}>
+                <i className="fas fa-plus"></i>
+                {t('categories.addCategory')}
+              </button>
             </div>
-            <button className="add-button" onClick={() => setIsModalOpen(true)}>
-              <i className="fas fa-plus"></i>
-              {t('categories.addCategory')}
+          </div>
+
+          <table className="categories-table">
+            <thead>
+              <tr>
+                <th>{t('categories.form.image')}</th>
+                <th>{t('categories.form.name')}</th>
+                <th>{t('categories.form.status')}</th>
+                <th>{t('common.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedCategories.map(category => (
+                <tr key={category._id}>
+                  <td className="image-cell">
+                    <img
+                      src={category.media}
+                      alt={category.name}
+                      className="category-image"
+                    />
+                  </td>
+                  <td>{category.name}</td>
+                  <td>
+                    <span className={`status-badge ${category.is_active ? 'active' : 'inactive'}`}>
+                      {category.is_active ? t('common.active') : t('common.inactive')}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="toggle-button"
+                        onClick={() => handleToggleActive(category._id, category.is_active)}
+                        title={t(category.is_active ? 'categories.deactivate' : 'categories.activate')}
+                      >
+                        <i className={`fas fa-${category.is_active ? 'eye' : 'eye-slash'}`}></i>
+                      </button>
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEdit(category)}
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDelete(category._id)}
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* PHÂN TRANG */}
+          <div className="pagination">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              First
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(page =>
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              )
+              .map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={page === currentPage ? 'active' : ''}
+                >
+                  {page}
+                </button>
+              ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              Last
             </button>
           </div>
-        </div>
 
-        <table className="categories-table">
-          <thead>
-            <tr>
-              <th>{t('categories.form.image')}</th>
-              <th>{t('categories.form.name')}</th>
-              <th>{t('categories.form.status')}</th>
-              <th>{t('common.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedCategories.map(category => (
-              <tr key={category._id}>
-                <td className="image-cell">
-                  <img
-                    src={category.media}
-                    alt={category.name}
-                    className="category-image"
-                  />
-                </td>
-                <td>{category.name}</td>
-                <td>
-                  <span className={`status-badge ${category.is_active ? 'active' : 'inactive'}`}>
-                    {category.is_active ? t('common.active') : t('common.inactive')}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button
-                      className="toggle-button"
-                      onClick={() => handleToggleActive(category._id, category.is_active)}
-                      title={t(category.is_active ? 'categories.deactivate' : 'categories.activate')}
-                    >
-                      <i className={`fas fa-${category.is_active ? 'eye' : 'eye-slash'}`}></i>
-                    </button>
-                    <button
-                      className="edit-button"
-                      onClick={() => handleEdit(category)}
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDelete(category._id)}
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* PHÂN TRANG */}
-        <div className="pagination">
-          <button
-            onClick={() => setCurrentPage(1)}
-            disabled={currentPage === 1}
-          >
-            First
-          </button>
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter(page =>
-              page === 1 ||
-              page === totalPages ||
-              (page >= currentPage - 1 && page <= currentPage + 1)
-            )
-            .map(page => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={page === currentPage ? 'active' : ''}
-              >
-                {page}
-              </button>
-            ))}
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-          <button
-            onClick={() => setCurrentPage(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            Last
-          </button>
-        </div>
-
-        {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-header">
-                <h2>{editingCategory ? t('categories.editCategory') : t('categories.addCategory')}</h2>
-                <button
-                  className="close-button"
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    resetForm();
-                  }}
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>{t('categories.form.name')}</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal">
+                <div className="modal-header">
+                  <h2>{editingCategory ? t('categories.editCategory') : t('categories.addCategory')}</h2>
+                  <button
+                    className="close-button"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      resetForm();
+                    }}
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
                 </div>
-
-                <div className="form-group">
-                  <label>{t('categories.form.media')}</label>
-                  <div className="media-upload-container">
-                    {(formData.mediaPreview) && (
-                      <div className="media-preview">
-                        <img
-                          src={formData.mediaPreview}
-                          alt="Preview"
-                        />
-                        <button
-                          type="button"
-                          className="remove-media"
-                          onClick={() => {
-                            setFormData(prev => ({
-                              ...prev,
-                              media: null,
-                              mediaPreview: null
-                            }));
-                          }}
-                        >
-                          <i className="fas fa-times"></i>
-                        </button>
-                      </div>
-                    )}
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label>{t('categories.form.name')}</label>
                     <input
-                      type="file"
-                      name="media"
+                      type="text"
+                      name="name"
+                      value={formData.name}
                       onChange={handleInputChange}
-                      accept="image/*"
-                      required={!editingCategory}
-                      style={{ display: formData.mediaPreview ? 'none' : 'block' }}
+                      required
                     />
                   </div>
-                </div>
 
-                <div className="modal-buttons">
-                  <button type="button" onClick={() => {
-                    setIsModalOpen(false);
-                    resetForm();
-                  }}>
-                    {t('common.cancel')}
-                  </button>
-                  <button type="submit" disabled={isLoading}>
-                    {isLoading ? t('common.loading') : (editingCategory ? t('common.update') : t('common.add'))}
-                  </button>
-                </div>
-              </form>
+                  <div className="form-group">
+                    <label>{t('categories.form.media')}</label>
+                    <div className="media-upload-container">
+                      {(formData.mediaPreview) && (
+                        <div className="media-preview">
+                          <img
+                            src={formData.mediaPreview}
+                            alt="Preview"
+                          />
+                          <button
+                            type="button"
+                            className="remove-media"
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                media: null,
+                                mediaPreview: null
+                              }));
+                            }}
+                          >
+                            <i className="fas fa-times"></i>
+                          </button>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        name="media"
+                        onChange={handleInputChange}
+                        accept="image/*"
+                        required={!editingCategory}
+                        style={{ display: formData.mediaPreview ? 'none' : 'block' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="modal-buttons">
+                    <button type="button" onClick={() => {
+                      setIsModalOpen(false);
+                      resetForm();
+                    }}>
+                      {t('common.cancel')}
+                    </button>
+                    <button type="submit" disabled={isLoading}>
+                      {isLoading ? t('common.loading') : (editingCategory ? t('common.update') : t('common.add'))}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </MainLayout>
   );
 }

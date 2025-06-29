@@ -17,6 +17,8 @@ export const en = {
       loading: "Loading...",
       error: "An error occurred",
       confirmLogout: "Are you sure you want to logout?",
+      active: "Active",
+      inactive: "Inactive",
 
       nav: {
         dashboard: "Dashboard",
@@ -230,7 +232,9 @@ export const en = {
         phone: "Phone Number",
         sex: "Gender",
         birthDate: "Birth Date",
-        createdAt: "Created Date"
+        createdAt: "Created Date",
+        status: "Status",
+        actions: "Actions"
       },
       noPhone: "Not updated",
       noGender: "Not updated",
@@ -302,6 +306,7 @@ export const en = {
       type: "Type",
       actions: "Actions",
       add: "Add Notification",
+      edit: "Edit Notification",
       titleField: "Title",
       messageField: "Content",
       typeField: "Notification Type",
@@ -331,8 +336,10 @@ export const en = {
       editBrand: "Edit Brand",
       deleteBrand: "Delete Brand",
       form: {
+        media: "Brand Image",
         name: "Brand Name",
-        image: "Image"
+        image: "Image",
+        status: "status"
       },
       activate: "activate",
       deactivate: "deactivate",
@@ -450,7 +457,8 @@ export const en = {
         amount: "Amount",
         time: "Time",
         method: "Payment Method",
-        status: "Status"
+        status: "Status",
+        email: "Email"
       },
       status: {
         pending: "Pending",

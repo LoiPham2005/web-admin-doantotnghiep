@@ -8,6 +8,7 @@ import './Dashboard.css';
 import Sidebar from '../../components/Sidebar';
 import TopProductsChart from './TopProductsChart';
 import TopCustomersChart from './TopCustomersChart';
+import Loading from '../../components/LoadingPage';
 
 function Dashboard() {
   const { t } = useTranslation();
@@ -99,9 +100,10 @@ function Dashboard() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="loading-container">
+        {/* <div className="loading-container">
           <div className="spinner"></div>
-        </div>
+        </div> */}
+        <Loading />
       </MainLayout>
     );
   }

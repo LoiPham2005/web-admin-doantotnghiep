@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import MainLayout from '../../layouts/MainLayout';
 import { bannerService } from '../../services/BannerService';
 import './BannerScreen.css';
-import Loading from '../../components/Loading'; // Import component Loading
+import Loading from '../../components/LoadingPage'; // Import component Loading
 
 const BannerScreen = () => {
     const { t } = useTranslation();
@@ -14,9 +14,17 @@ const BannerScreen = () => {
     const [editingBanner, setEditingBanner] = useState(null);
     const [loading, setLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(false); // Thêm state isLoading
+    const [initialLoading, setInitialLoading] = useState(true);
 
     useEffect(() => {
-        fetchBanners();
+        const init = async () => {
+            try {
+                await fetchBanners();
+            } finally {
+                setInitialLoading(false);
+            }
+        };
+        init();
     }, []);
 
     // Cleanup preview URL khi component unmount
@@ -125,102 +133,106 @@ const BannerScreen = () => {
 
     return (
         <MainLayout>
-            {isLoading && <Loading />}
-            <div className="banners-container">
-                <div className="page-header">
-                    <h1>{t('banners.title')}</h1>
-                    <button
-                        className="add-button"
-                        onClick={() => setIsModalOpen(true)}
-                        disabled={banners.length >= 3}
-                    >
-                        <i className="fas fa-plus"></i>
-                        {t('banners.addBanner')}
-                    </button>
-                </div>
-
-                {loading ? (
-                    <div className="loading">{t('common.loading')}</div>
-                ) : (
-                    <div className="banners-grid">
-                        {banners.map((banner) => (
-                            <div key={banner._id} className="banner-item">
-                                <img src={banner.media} alt="Banner" />
-                                <div className="banner-actions">
-                                    <button
-                                        onClick={() => handleEdit(banner)}
-                                        className="edit-button"
-                                    >
-                                        <i className="fas fa-edit"></i>
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(banner._id)}
-                                        className="delete-button"
-                                    >
-                                        <i className="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+            {initialLoading ? (
+                <Loading />
+            ) : (
+                <div className="banners-container">
+                    {isLoading && <Loading />}
+                    <div className="page-header">
+                        <h1>{t('banners.title')}</h1>
+                        <button
+                            className="add-button"
+                            onClick={() => setIsModalOpen(true)}
+                            disabled={banners.length >= 3}
+                        >
+                            <i className="fas fa-plus"></i>
+                            {t('banners.addBanner')}
+                        </button>
                     </div>
-                )}
 
-                {isModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal">
-                            <h2>{editingBanner ? t('banners.editBanner') : t('banners.addBanner')}</h2>
-                            <form onSubmit={handleSubmit}>
-                                <div className="form-group">
-                                    <label>{t('banners.form.image')}</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileSelect}
-                                        required={!editingBanner}
-                                    />
-
-                                    {/* Preview section */}
-                                    {(previewUrl || editingBanner?.media) && (
-                                        <div className="image-preview">
-                                            <img
-                                                src={previewUrl || editingBanner?.media}
-                                                alt="Preview"
-                                            />
-                                            <button
-                                                type="button"
-                                                className="remove-image"
-                                                onClick={handleRemoveFile}
-                                            >
-                                                <i className="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    )}
+                    {loading ? (
+                        <div className="loading">{t('common.loading')}</div>
+                    ) : (
+                        <div className="banners-grid">
+                            {banners.map((banner) => (
+                                <div key={banner._id} className="banner-item">
+                                    <img src={banner.media} alt="Banner" />
+                                    <div className="banner-actions">
+                                        <button
+                                            onClick={() => handleEdit(banner)}
+                                            className="edit-button"
+                                        >
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(banner._id)}
+                                            className="delete-button"
+                                        >
+                                            <i className="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
-
-                                <div className="modal-buttons">
-                                    <button
-                                        type="submit"
-                                        disabled={!selectedFile && !editingBanner}
-                                    >
-                                        {editingBanner ? t('common.update') : t('common.add')}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setIsModalOpen(false);
-                                            setSelectedFile(null);
-                                            setPreviewUrl(null);
-                                            setEditingBanner(null);
-                                        }}
-                                    >
-                                        {t('common.cancel')}
-                                    </button>
-                                </div>
-                            </form>
+                            ))}
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+
+                    {isModalOpen && (
+                        <div className="modal-overlay">
+                            <div className="modal">
+                                <h2>{editingBanner ? t('banners.editBanner') : t('banners.addBanner')}</h2>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="form-group">
+                                        <label>{t('banners.form.image')}</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileSelect}
+                                            required={!editingBanner}
+                                        />
+
+                                        {/* Preview section */}
+                                        {(previewUrl || editingBanner?.media) && (
+                                            <div className="image-preview">
+                                                <img
+                                                    src={previewUrl || editingBanner?.media}
+                                                    alt="Preview"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="remove-image"
+                                                    onClick={handleRemoveFile}
+                                                >
+                                                    <i className="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="modal-buttons">
+                                        <button
+                                            type="submit"
+                                            disabled={!selectedFile && !editingBanner}
+                                        >
+                                            {editingBanner ? t('common.update') : t('common.add')}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setIsModalOpen(false);
+                                                setSelectedFile(null);
+                                                setPreviewUrl(null);
+                                                setEditingBanner(null);
+                                            }}
+                                        >
+                                            {t('common.cancel')}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
         </MainLayout>
     );
 };

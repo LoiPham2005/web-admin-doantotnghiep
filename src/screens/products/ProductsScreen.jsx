@@ -9,7 +9,7 @@ import { colorService } from '../../services/ColorService';
 import { sizesService } from '../../services/SizesService';
 import { shoesVariantService } from '../../services/ShoesVariantService'; // Thêm dòng này
 import './ProductsScreen.css';
-import Loading from '../../components/Loading'; 
+import Loading from '../../components/LoadingPage';
 
 function ProductsScreen() {
   const { t } = useTranslation();

@@ -4,10 +4,12 @@ import ChatList from './ChatList';
 import WindowChat from './WindowChat';
 import './ChatsScreen.css';
 import { useTranslation } from 'react-i18next';
+import Loading from '../../components/LoadingPage';
 
 export default function ChatsScreen() {
   const { t } = useTranslation();
   const [selectedChat, setSelectedChat] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -16,9 +18,24 @@ export default function ChatsScreen() {
     }
   }, [userId]);
 
+  useEffect(() => {
+    const init = async () => {
+      try {
+        // await fetchChats(); // Uncomment this line when fetchChats is available
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    init();
+  }, []);
+
   const handleSelectChat = (chat) => {
     setSelectedChat(chat);
   };
+
+  if (initialLoading) {
+    return <Loading />;
+  }
 
   return (
     <MainLayout>
@@ -29,7 +46,7 @@ export default function ChatsScreen() {
               onSelectChat={handleSelectChat}
               selectedUserId={selectedChat?.participants[1]?._id}
             />
-http://localhost:5173/notification          </div>
+          </div>
           <div className="chat-main">
             {selectedChat ? (
               <WindowChat chat={selectedChat} userId={userId} />

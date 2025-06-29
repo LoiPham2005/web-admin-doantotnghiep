@@ -3,6 +3,7 @@ import DatePicker from 'react-datepicker';
 import { statisticsService } from '../../services/StatisticsService';
 import { useTranslation } from 'react-i18next';
 import './TopProductsChart.css';
+import defaultAvatar from '../../assets/default-avatar.webp';
 
 const TopProductsChart = () => {
     const { t } = useTranslation();
@@ -100,7 +101,7 @@ const TopProductsChart = () => {
                                     <td className="rank-cell">{index + 1}</td>
                                     <td className="image-cell">
                                         <img
-                                            src={product.media?.[0]?.url || '/placeholder.png'}
+                                            src={product.media?.[0]?.url || defaultAvatar}
                                             alt={product.name}
                                             className="product-image"
                                         />

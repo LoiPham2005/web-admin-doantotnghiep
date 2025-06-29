@@ -24,50 +24,50 @@ const Header = ({ onToggleSidebar }) => {
 
   const fetchNotifications = async () => {
     try {
-        const response = await notificationUserService.getAdminNotifications();
-        if (response.status === 200) {
-            setNotifications(response.data.notifications);
-            setUnreadCount(
-                response.data.notifications.filter(n => !n.is_read).length
-            );
-        }
+      const response = await notificationUserService.getAdminNotifications();
+      if (response.status === 200) {
+        setNotifications(response.data.notifications);
+        setUnreadCount(
+          response.data.notifications.filter(n => !n.is_read).length
+        );
+      }
     } catch (error) {
-        console.error('Error fetching notifications:', error);
+      console.error('Error fetching notifications:', error);
     }
-};
+  };
 
   const handleMarkAsRead = async (notificationId) => {
     try {
-        await notificationUserService.markAsRead(notificationId);
-        setNotifications(notifications.map(notification => 
-            notification._id === notificationId 
-                ? { ...notification, is_read: true }
-                : notification
-        ));
-        setUnreadCount(prev => Math.max(0, prev - 1));
+      await notificationUserService.markAsRead(notificationId);
+      setNotifications(notifications.map(notification =>
+        notification._id === notificationId
+          ? { ...notification, is_read: true }
+          : notification
+      ));
+      setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
-        console.error('Error marking notification as read:', error);
+      console.error('Error marking notification as read:', error);
     }
-};
+  };
 
-const handleMarkAllAsRead = async () => {
+  const handleMarkAllAsRead = async () => {
     try {
-        const response = await notificationUserService.markAllAsRead();
-        if (response.status === 200) {
-            // Cập nhật state
-            setNotifications(notifications.map(notification => ({
-                ...notification,
-                is_read: true
-            })));
-            setUnreadCount(0);
-            
-            // Không đóng cửa sổ notification
-            // setShowNotifications(false); // Bỏ dòng này
-        }
+      const response = await notificationUserService.markAllAsRead();
+      if (response.status === 200) {
+        // Cập nhật state
+        setNotifications(notifications.map(notification => ({
+          ...notification,
+          is_read: true
+        })));
+        setUnreadCount(0);
+
+        // Không đóng cửa sổ notification
+        // setShowNotifications(false); // Bỏ dòng này
+      }
     } catch (error) {
-        console.error('Error marking all notifications as read:', error);
+      console.error('Error marking all notifications as read:', error);
     }
-};
+  };
 
   const handleChangeLanguage = (lang) => {
     i18n.changeLanguage(lang);
@@ -89,8 +89,7 @@ const handleMarkAllAsRead = async () => {
 
       {/* Right Side */}
       <div className="header-right">
-        {/* Notification Icon */}
-        <div className="notification-container">
+        {/* <div className="notification-container">
           <div
             className="notification"
             onClick={() => setShowNotifications(!showNotifications)}
@@ -109,7 +108,7 @@ const handleMarkAllAsRead = async () => {
               onMarkAllAsRead={handleMarkAllAsRead}
             />
           )}
-        </div>
+        </div> */}
 
         {/* Theme Toggle */}
         <div className="theme-toggle" onClick={toggleTheme}>

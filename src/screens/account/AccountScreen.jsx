@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import MainLayout from '../../layouts/MainLayout';
 import { accountService } from '../../services/AccountService';
 import './AccountScreen.css';
+import defaultAvatar from '../../assets/default-avatar.webp';
 
 function AccountScreen() {
   const { t } = useTranslation();
@@ -137,7 +138,7 @@ function AccountScreen() {
               <tr key={user._id}>
                 <td>
                   <img
-                    src={user.avatar || '/images/default-avatar.png'}
+                    src={user.avatar || defaultAvatar}
                     alt={user.username}
                     className="user-avatar"
                   />

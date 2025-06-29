@@ -7,7 +7,7 @@ import AuthService from '../../services/AuthService';
 import './VoucherScreen.css';
 import { userService } from '../../services/UserService';
 import { userVoucherService } from '../../services/UserVoucherService';
-import Loading from '../../components/Loading'; // Import component Loading
+import Loading from '../../components/LoadingPage'; // Import component Loading
 
 function VoucherScreen() {
   const { t } = useTranslation();

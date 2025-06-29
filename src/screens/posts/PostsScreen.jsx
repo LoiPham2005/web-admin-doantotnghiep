@@ -4,7 +4,7 @@ import MainLayout from '../../layouts/MainLayout';
 import { postsService } from '../../services/PostsService';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import './PostsScreen.css';
-import Loading from '../../components/Loading'; // Import component Loading
+import Loading from '../../components/LoadingPage'; // Import component Loading
 
 export default function PostsScreen() {
   const { t } = useTranslation();
@@ -19,6 +19,7 @@ export default function PostsScreen() {
     media: []
   });
   const [isLoading, setIsLoading] = useState(false); // New loading state
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // Add new state for image previews
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -32,7 +33,14 @@ export default function PostsScreen() {
   const [searchTimeout, setSearchTimeout] = useState(null);
 
   useEffect(() => {
-    fetchPosts();
+    const init = async () => {
+      try {
+        await fetchPosts();
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    init();
   }, []);
 
   const fetchPosts = async () => {
@@ -210,188 +218,192 @@ export default function PostsScreen() {
 
   return (
     <MainLayout>
-      {isLoading && <Loading />}
-      <div className="posts-container">
-        <div className="page-header">
-          <h1>{t('posts.title')}</h1>
-          <div className="header-actions">
-            <div className="search-box">
-              <input
-                type="text"
-                value={searchKeyword}
-                onChange={handleSearchChange}
-                placeholder={t('posts.searchPlaceholder')}
-                className="search-input"
-              />
-              <i className="fas fa-search search-icon"></i>
+      {initialLoading ? (
+        <Loading />
+      ) : (
+        <div className="posts-container">
+          {isLoading && <Loading />}
+          <div className="page-header">
+            <h1>{t('posts.title')}</h1>
+            <div className="header-actions">
+              <div className="search-box">
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={handleSearchChange}
+                  placeholder={t('posts.searchPlaceholder')}
+                  className="search-input"
+                />
+                <i className="fas fa-search search-icon"></i>
+              </div>
+              <button className="add-button" onClick={() => setIsModalOpen(true)}>
+                <i className="fas fa-plus"></i>
+                {t('posts.add')}
+              </button>
             </div>
-            <button className="add-button" onClick={() => setIsModalOpen(true)}>
-              <i className="fas fa-plus"></i>
-              {t('posts.add')}
+          </div>
+
+          <table className="posts-table">
+            <thead>
+              <tr>
+                <th>{t('posts.form.media')}</th>
+                <th>{t('posts.form.title')}</th>
+                <th>{t('posts.form.message')}</th>
+                <th>{t('common.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedPosts.map(post => (
+                <tr key={post._id}>
+                  <td className="media-cell">
+                    {post.media && post.media.length > 0 && (
+                      <img
+                        src={post.media[0].url}
+                        alt={post.title}
+                        className="post-image"
+                      />
+                    )}
+                  </td>
+                  <td>{post.title}</td>
+                  <td>{post.message}</td>
+                  <td>
+                    <div className="action-buttons">
+                      <button
+                        className="edit-button"
+                        onClick={() => handleEdit(post)}
+                      >
+                        {/* <FaEdit /> */}
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDelete(post._id)}
+                      >
+                        {/* <FaTrash /> */}
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* PHÂN TRANG */}
+          <div className="pagination">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              First
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(page =>
+                page === 1 ||
+                page === totalPages ||
+                (page >= currentPage - 1 && page <= currentPage + 1)
+              )
+              .map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={page === currentPage ? 'active' : ''}
+                >
+                  {page}
+                </button>
+              ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              Last
             </button>
           </div>
-        </div>
 
-        <table className="posts-table">
-          <thead>
-            <tr>
-              <th>{t('posts.form.media')}</th>
-              <th>{t('posts.form.title')}</th>
-              <th>{t('posts.form.message')}</th>
-              <th>{t('common.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedPosts.map(post => (
-              <tr key={post._id}>
-                <td className="media-cell">
-                  {post.media && post.media.length > 0 && (
-                    <img
-                      src={post.media[0].url}
-                      alt={post.title}
-                      className="post-image"
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal">
+                <div className="modal-header">
+                  <h2>{editingPost ? t('posts.edit') : t('posts.add')}</h2>
+                </div>
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label>{t('posts.form.title')}</label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      required
                     />
-                  )}
-                </td>
-                <td>{post.title}</td>
-                <td>{post.message}</td>
-                <td>
-                  <div className="action-buttons">
-                    <button
-                      className="edit-button"
-                      onClick={() => handleEdit(post)}
-                    >
-                      {/* <FaEdit /> */}
-                      <i className="fas fa-edit"></i>
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t('posts.form.message')}</label>
+                    <textarea
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t('posts.form.media')}</label>
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      multiple
+                      accept="image/*,video/*"
+                    />
+
+                    {/* Image previews */}
+                    {imagePreviews.length > 0 && (
+                      <div className="image-previews">
+                        {imagePreviews.map((preview, index) => (
+                          <div key={index} className="preview-item">
+                            <img src={preview.url} alt={`Preview ${index}`} />
+                            <button
+                              type="button"
+                              className="remove-image"
+                              onClick={() => handleRemoveFile(index)}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="modal-buttons">
+                    <button type="submit" className="save-button">
+                      {editingPost ? t('common.update') : t('common.save')}
                     </button>
                     <button
-                      className="delete-button"
-                      onClick={() => handleDelete(post._id)}
+                      type="button"
+                      className="cancel-button"
+                      onClick={resetForm}
                     >
-                      {/* <FaTrash /> */}
-                      <i className="fas fa-trash"></i>
+                      {t('common.cancel')}
                     </button>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* PHÂN TRANG */}
-        <div className="pagination">
-          <button
-            onClick={() => setCurrentPage(1)}
-            disabled={currentPage === 1}
-          >
-            First
-          </button>
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter(page =>
-              page === 1 ||
-              page === totalPages ||
-              (page >= currentPage - 1 && page <= currentPage + 1)
-            )
-            .map(page => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={page === currentPage ? 'active' : ''}
-              >
-                {page}
-              </button>
-            ))}
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-          <button
-            onClick={() => setCurrentPage(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            Last
-          </button>
-        </div>
-
-        {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-header">
-                <h2>{editingPost ? t('posts.edit') : t('posts.add')}</h2>
+                </form>
               </div>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>{t('posts.form.title')}</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>{t('posts.form.message')}</label>
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>{t('posts.form.media')}</label>
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    multiple
-                    accept="image/*,video/*"
-                  />
-
-                  {/* Image previews */}
-                  {imagePreviews.length > 0 && (
-                    <div className="image-previews">
-                      {imagePreviews.map((preview, index) => (
-                        <div key={index} className="preview-item">
-                          <img src={preview.url} alt={`Preview ${index}`} />
-                          <button
-                            type="button"
-                            className="remove-image"
-                            onClick={() => handleRemoveFile(index)}
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="modal-buttons">
-                  <button type="submit" className="save-button">
-                    {editingPost ? t('common.update') : t('common.save')}
-                  </button>
-                  <button
-                    type="button"
-                    className="cancel-button"
-                    onClick={resetForm}
-                  >
-                    {t('common.cancel')}
-                  </button>
-                </div>
-              </form>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </MainLayout>
   );
 }

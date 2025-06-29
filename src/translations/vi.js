@@ -18,6 +18,9 @@ export const vi = {
       loading: "Đang xử lý...",
       error: "Đã có lỗi xảy ra",
       confirmLogout: "Bạn có chắc chắn muốn đăng xuất không?",
+      active: "Đang hoạt động",
+      inactive: "Đã vô hiệu hóa",
+
 
       // Sidebar navigation
       nav: {
@@ -245,7 +248,9 @@ export const vi = {
         phone: "Số điện thoại",
         sex: "Giới tính",
         birthDate: "Ngày sinh",
-        createdAt: "Ngày tạo"
+        createdAt: "Ngày tạo",
+        status: "Trạng thái",
+        actions: "Thao tác"
       },
       noPhone: "Chưa cập nhật",
       noGender: "Chưa cập nhật",
@@ -320,6 +325,7 @@ export const vi = {
       type: "Loại",
       actions: "Thao tác",
       add: "Thêm thông báo",
+      edit: "Sửa thông báo",
       titleField: "Tiêu đề",
       messageField: "Nội dung",
       typeField: "Loại thông báo",
@@ -350,8 +356,10 @@ export const vi = {
       editBrand: "Sửa thương hiệu",
       deleteBrand: "Xóa thương hiệu",
       form: {
+        media: "Ảnh thương hiệu",
         name: "Tên thương hiệu",
-        image: "Hình ảnh"
+        image: "Hình ảnh",
+        status: "Trạng thái"
       },
       activate: "Bật thương hiệu",
       deactivate: "Tắt thương hiệu",
@@ -471,7 +479,8 @@ export const vi = {
         amount: "Số tiền",
         time: "Thời gian",
         method: "Phương thức",
-        status: "Trạng thái"
+        status: "Trạng thái",
+        email: "Email"
       },
       status: {
         pending: "Chờ xử lý",
