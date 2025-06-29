@@ -111,6 +111,7 @@ export default function NotificationScreen() {
   };
 
   const handleDelete = async (id) => {
+    setIsLoading(true);
     if (window.confirm(t('notifications.confirmDelete'))) {
       try {
         // Đầu tiên xóa notification để tránh race condition
@@ -123,12 +124,15 @@ export default function NotificationScreen() {
       } catch (error) {
         console.error('Error deleting notification:', error);
         alert(t('common.error'));
-      }
+      }finally {
+        setIsLoading(false);
+    }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsModalOpen(false); // Tắt modal ngay lập tức
     setIsLoading(true);
     try {
       const notificationData = {
@@ -179,6 +183,7 @@ export default function NotificationScreen() {
     } catch (error) {
       console.error('Error submitting notification:', error);
       alert(t('common.error'));
+      setIsModalOpen(true); // Mở lại modal nếu có lỗi
     } finally {
       setIsLoading(false);
     }

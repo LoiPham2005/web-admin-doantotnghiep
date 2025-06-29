@@ -112,6 +112,7 @@ function VoucherScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsModalOpen(false); 
     setIsLoading(true);
 
     try {
@@ -197,6 +198,7 @@ function VoucherScreen() {
     } catch (error) {
       console.error('Submit error:', error);
       alert(error?.response?.data?.message || t('common.error'));
+      setIsModalOpen(true); 
     } finally {
       setIsLoading(false);
     }
@@ -250,6 +252,7 @@ function VoucherScreen() {
 
   const handleDelete = async (id) => {
     if (window.confirm(t('vouchers.messages.confirmDelete'))) {
+      setIsLoading(true);
       try {
         const response = await voucherService.deleteVoucher(id);
         if (response.status === 200) {

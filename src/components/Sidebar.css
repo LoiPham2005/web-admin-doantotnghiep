@@ -90,8 +90,14 @@ body.dark-mode {
 }
 
 .logo-container {
-  padding: 0 0 24px 16px;
-  text-align: left;
+  /* padding: 0 0 24px 16px; */
+  /* text-align: left; */
+  /* padding: 24px 0;  */
+  display: flex;
+  justify-content: center;
+  /* canh giữa theo chiều ngang */
+  align-items: center;
+  /* canh giữa theo chiều dọc nếu cần */
 }
 
 .logo {
@@ -102,6 +108,7 @@ body.dark-mode {
 
 .logo-text-primary {
   color: #4285f4;
+  /* color: #ffa726; */
 }
 
 .logo-text-secondary {

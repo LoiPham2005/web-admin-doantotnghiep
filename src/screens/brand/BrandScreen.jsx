@@ -73,6 +73,7 @@ function BrandScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsModalOpen(false); // Tắt modal ngay lập tức
     setIsLoading(true);
     try {
       const formDataToSend = new FormData();
@@ -90,12 +91,12 @@ function BrandScreen() {
         alert(t('brands.messages.addSuccess'));
       }
 
-      setIsModalOpen(false);
       resetForm();
       fetchBrands();
     } catch (error) {
       console.error('Submit error:', error);
       alert(error.message || t('common.error'));
+      setIsModalOpen(true); // Mở lại modal nếu có lỗi
     } finally {
       setIsLoading(false);
     }
@@ -113,12 +114,16 @@ function BrandScreen() {
 
   const handleDelete = async (id) => {
     if (window.confirm(t('brands.messages.confirmDelete'))) {
+      setIsLoading(true);
       try {
         await brandService.deleteBrand(id);
         alert(t('brands.messages.deleteSuccess'));
         fetchBrands();
       } catch (error) {
+        console.error('Delete error:', error);
         alert(error.message || t('common.error'));
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -209,7 +214,7 @@ function BrandScreen() {
             <tbody>
               {paginatedBrands.map((brand, index) => (
                 <tr key={brand._id}>
-                  <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
+                  <td>{(currentPage - 1) * pageSize + index + 1}</td>  
                   <td className="image-cell">
                     <img
                       src={brand.media}

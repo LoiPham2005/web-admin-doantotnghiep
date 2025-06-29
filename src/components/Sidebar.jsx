@@ -23,6 +23,8 @@ import {
   FaImage
 } from 'react-icons/fa';
 
+import logoApp from '../assets/logo_icon.png';
+
 function Sidebar({ isCollapsed }) {
   const { t } = useTranslation();
   const location = useLocation();
@@ -50,9 +52,12 @@ function Sidebar({ isCollapsed }) {
       <div className="logo-container">
         {!isCollapsed && (
           <h1 className="logo">
-            <span className="logo-text-primary">Dash</span>
-            <span className="logo-text-secondary">Stack</span>
+            <span className="logo-text-primary">Sneak</span>
+            
+            <span className="logo-text-secondary">Up</span>
           </h1>
+          // <img src={logoApp} alt="Logo" className="logo-image" style={{ width: '70px', height: 'auto', marginLeft: '10px' }} />
+
         )}
       </div>
 

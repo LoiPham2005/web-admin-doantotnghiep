@@ -73,31 +73,30 @@ function CategoryScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsModalOpen(false); // Tắt modal ngay lập tức
     setIsLoading(true);
     try {
-      const categoryData = new FormData();
-      categoryData.append('name', formData.name.trim());
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name.trim());
 
-      if (formData.media) {
-        categoryData.append('media', formData.media);
+      if (formData.media instanceof File) {
+        formDataToSend.append('media', formData.media);
       }
 
-      let response;
       if (editingCategory) {
-        response = await categoryService.updateCategory(editingCategory._id, categoryData);
+        await categoryService.updateCategory(editingCategory._id, formDataToSend);
+        alert(t('categories.messages.updateSuccess'));
       } else {
-        response = await categoryService.addCategory(categoryData);
+        await categoryService.addCategory(formDataToSend);
+        alert(t('categories.messages.addSuccess'));
       }
 
-      if (response.status === 200) {
-        alert(editingCategory ? t('categories.messages.updateSuccess') : t('categories.messages.addSuccess'));
-        setIsModalOpen(false);
-        resetForm();
-        await fetchCategories();
-      }
+      resetForm();
+      fetchCategories();
     } catch (error) {
-      console.error('Error saving category:', error);
-      alert(error.response?.data?.message || t('common.error'));
+      console.error('Submit error:', error);
+      alert(error.message || t('common.error'));
+      setIsModalOpen(true); // Mở lại modal nếu có lỗi
     } finally {
       setIsLoading(false);
     }
@@ -115,6 +114,7 @@ function CategoryScreen() {
 
   const handleDelete = async (id) => {
     if (window.confirm(t('categories.messages.confirmDelete'))) {
+      setIsLoading(true);
       try {
         const response = await categoryService.deleteCategory(id);
         if (response.status === 200) {
@@ -124,7 +124,9 @@ function CategoryScreen() {
       } catch (error) {
         console.error('Error deleting category:', error);
         alert(t('common.error'));
-      }
+      }finally {
+        setIsLoading(false);
+    }
     }
   };
 

@@ -208,6 +208,7 @@ function ProductsScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsModalOpen(false);
     setIsLoading(true);
     try {
       const formDataToSend = new FormData();
@@ -299,6 +300,7 @@ function ProductsScreen() {
     } catch (error) {
       console.error('Error saving product:', error);
       alert(error.response?.data?.message || t('common.error'));
+      setIsModalOpen(true); 
     } finally {
       setIsLoading(false);
     }
@@ -373,6 +375,7 @@ function ProductsScreen() {
 
   const handleDelete = async (id) => {
     if (window.confirm(t('products.messages.confirmDelete'))) {
+      setIsLoading(true);
       try {
         const response = await productService.deleteProduct(id);
         if (response.status === 200) {
@@ -382,7 +385,9 @@ function ProductsScreen() {
       } catch (error) {
         console.error('Error deleting product:', error);
         alert(t('common.error'));
-      }
+      }finally {
+        setIsLoading(false);
+    }
     }
   };
 

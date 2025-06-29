@@ -70,9 +70,9 @@ const BannerScreen = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsModalOpen(false);
         setIsLoading(true);
         try {
-            // Chỉ kiểm tra file bắt buộc khi thêm mới
             if (!editingBanner && !selectedFile) {
                 alert(t('banners.messages.pleaseSelectImage'));
                 return;
@@ -91,15 +91,14 @@ const BannerScreen = () => {
                 alert(t('banners.messages.addSuccess'));
             }
 
-            setIsModalOpen(false);
             setSelectedFile(null);
             setPreviewUrl(null);
             setEditingBanner(null);
             fetchBanners();
-
         } catch (error) {
-            console.error('Error saving banner:', error);
+            console.error('Error:', error);
             alert(error?.response?.data?.message || t('common.error'));
+            setIsModalOpen(true);
         } finally {
             setIsLoading(false);
         }
@@ -113,6 +112,7 @@ const BannerScreen = () => {
 
     const handleDelete = async (id) => {
         if (window.confirm(t('banners.messages.confirmDelete'))) {
+            setIsLoading(true);
             try {
                 await bannerService.deleteBanner(id);
                 fetchBanners();
@@ -120,6 +120,8 @@ const BannerScreen = () => {
             } catch (error) {
                 console.error('Error deleting banner:', error);
                 alert(error?.message || t('common.error'));
+            }finally {
+                setIsLoading(false);
             }
         }
     };

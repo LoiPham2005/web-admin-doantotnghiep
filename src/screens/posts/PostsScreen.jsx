@@ -100,6 +100,7 @@ export default function PostsScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsModalOpen(false);
     setIsLoading(true);
     try {
       const formDataToSend = new FormData();
@@ -136,6 +137,7 @@ export default function PostsScreen() {
     } catch (error) {
       console.error('Error submitting post:', error);
       alert(t('common.error'));
+      setIsModalOpen(true); 
     } finally {
       setIsLoading(false);
     }
@@ -143,6 +145,7 @@ export default function PostsScreen() {
 
   const handleDelete = async (id) => {
     if (window.confirm(t('posts.confirmDelete'))) {
+      setIsLoading(true);
       try {
         const response = await postsService.deletePost(id);
         if (response.status === 200) {
@@ -152,7 +155,9 @@ export default function PostsScreen() {
       } catch (error) {
         console.error('Error deleting post:', error);
         alert(t('common.error'));
-      }
+      }finally {
+        setIsLoading(false);
+    }
     }
   };
 
