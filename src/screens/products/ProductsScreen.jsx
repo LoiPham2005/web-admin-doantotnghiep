@@ -10,6 +10,7 @@ import { sizesService } from '../../services/SizesService';
 import { shoesVariantService } from '../../services/ShoesVariantService'; // Thêm dòng này
 import './ProductsScreen.css';
 import Loading from '../../components/LoadingPage';
+import { useNavigate } from 'react-router-dom';
 
 function ProductsScreen() {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ function ProductsScreen() {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [colorInput, setColorInput] = useState('');
   const [sizeInput, setSizeInput] = useState('');
+  const navigate = useNavigate();
 
   // State cho variant hiện tại
   const [currentVariant, setCurrentVariant] = useState({
@@ -300,7 +302,7 @@ function ProductsScreen() {
     } catch (error) {
       console.error('Error saving product:', error);
       alert(error.response?.data?.message || t('common.error'));
-      setIsModalOpen(true); 
+      setIsModalOpen(true);
     } finally {
       setIsLoading(false);
     }
@@ -385,9 +387,9 @@ function ProductsScreen() {
       } catch (error) {
         console.error('Error deleting product:', error);
         alert(t('common.error'));
-      }finally {
+      } finally {
         setIsLoading(false);
-    }
+      }
     }
   };
 
@@ -513,6 +515,23 @@ function ProductsScreen() {
     setSearchTimeout(timeoutId);
   };
 
+
+  const handleAddScreen = () => {
+    navigate('/products/add');
+  };
+
+  // const handleEditScreen = (product) => {
+  //   navigate(`/products/edit/${product._id}`);
+  // };
+
+  const handleEditScreen = (product) => {
+    navigate(`/products/edit/${product._id}`);
+  };
+
+  const handleProductStockScreen = () => {
+    navigate('/product_stock');
+  };
+
   return (
     <MainLayout>
       {isLoading && <Loading />}
@@ -520,6 +539,10 @@ function ProductsScreen() {
         <div className="page-header">
           <h1>{t('products.title')}</h1>
           <div className="header-actions">
+            <button className="stock-button" onClick={handleProductStockScreen}>
+              <i className="fas fa-warehouse"></i>
+              {t('common.nav.productStock')}
+            </button>
             <div className="search-box">
               <input
                 type="text"
@@ -530,7 +553,7 @@ function ProductsScreen() {
               />
               <i className="fas fa-search search-icon"></i>
             </div>
-            <button className="add-button" onClick={() => setIsModalOpen(true)}>
+            <button className="add-button" onClick={handleAddScreen}>
               <i className="fas fa-plus"></i>
               {t('products.addProduct')}
             </button>
@@ -580,7 +603,7 @@ function ProductsScreen() {
                       <div className="action-buttons">
                         <button
                           className="edit-button"
-                          onClick={() => handleEdit(product)}
+                          onClick={() => handleEditScreen(product)}
                         >
                           <i className="fas fa-edit"></i>
                         </button>

@@ -18,6 +18,7 @@ import PostsScreen from '../screens/posts/PostsScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import PaymentHistoryScreen from '../screens/payment_history/PaymentHistoryScreen';
 import BannerScreen from '../screens/banner/BannerScreen';
+import AddEditProductScreen from '../screens/products/AddEditProductScreen';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, loading } = useAuth();
@@ -141,6 +142,22 @@ const AppRoutes = () => {
         path="/payment_history"
         element={
           isAuthenticated ? <PaymentHistoryScreen /> : <Navigate to="/login" />
+        }
+      />
+      <Route
+        path="/products/add"
+        element={
+          <ProtectedRoute>
+            <AddEditProductScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/products/edit/:id"
+        element={
+          <ProtectedRoute>
+            <AddEditProductScreen />
+          </ProtectedRoute>
         }
       />
     </Routes>

@@ -53,7 +53,7 @@ function Sidebar({ isCollapsed }) {
         {!isCollapsed && (
           <h1 className="logo">
             <span className="logo-text-primary">Sneak</span>
-            
+
             <span className="logo-text-secondary">Up</span>
           </h1>
           // <img src={logoApp} alt="Logo" className="logo-image" style={{ width: '70px', height: 'auto', marginLeft: '10px' }} />
@@ -129,12 +129,12 @@ function Sidebar({ isCollapsed }) {
               {!isCollapsed && <span>{t('common.nav.orderLists')}</span>}
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/product_stock" className={`nav-link ${location.pathname === '/product_stock' ? 'active' : ''}`}>
               <FaWarehouse className="nav-icon" />
               {!isCollapsed && <span>{t('common.nav.productStock')}</span>}
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link to="/payment_history" className={`nav-link ${location.pathname === '/payment_history' ? 'active' : ''}`}>
               <FaMoneyBillWave className="nav-icon" />

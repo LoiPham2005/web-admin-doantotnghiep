@@ -267,7 +267,9 @@ function VoucherScreen() {
         } else {
           alert(t('common.error'));
         }
-      }
+      }finally {
+        setIsLoading(false);
+    }
     }
   };
 

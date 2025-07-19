@@ -75,9 +75,12 @@ export const shoesVariantService = {
   // Cập nhật variant
   updateVariant: async (id, variantData) => {
     try {
+      // Tạo object mới không bao gồm _id
+      const { _id, ...updateData } = variantData;
+      
       const response = await axios.put(`${API_URL}/variants/edit/${id}`, {
-        ...variantData,
-        status: variantData.status // Đảm bảo status được gửi đi
+        ...updateData,
+        status: updateData.status || 'available'
       }, {
         headers: getAuthHeader()
       });

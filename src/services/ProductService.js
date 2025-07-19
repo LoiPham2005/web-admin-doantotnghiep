@@ -126,5 +126,30 @@ export const productService = {
         message: error.response?.data?.message || 'Error searching products'
       };
     }
-  }
+  },
+
+  // Lấy thông tin sản phẩm theo ID
+  getProductById: async (id) => {
+    try {
+      const response = await axios.get(`${API_URL}/shoes/${id}`, {
+        headers: getAuthHeader()
+      });
+      if (response.data.status === 200) {
+        return {
+          success: true,
+          data: response.data.data
+        };
+      }
+      return {
+        success: false,
+        message: response.data.message
+      };
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      return {
+        success: false, 
+        message: error.response?.data?.message || 'Error fetching product'
+      };
+    }
+  },
 };
