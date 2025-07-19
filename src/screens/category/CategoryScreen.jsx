@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { categoryService } from '../../services/CategoryService';
+import { brandService } from '../../services/BrandService';
 import './CategoryScreen.css';
 import { useTranslation } from 'react-i18next';
 import Loading from '../../components/LoadingPage';
@@ -8,9 +9,11 @@ import Loading from '../../components/LoadingPage';
 function CategoryScreen() {
   const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    brand_id: '',
     media: null,
     mediaPreview: null
   });
@@ -26,6 +29,7 @@ function CategoryScreen() {
     const init = async () => {
       try {
         await fetchCategories();
+        await fetchBrands();
       } finally {
         setInitialLoading(false);
       }
@@ -41,6 +45,17 @@ function CategoryScreen() {
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchBrands = async () => {
+    try {
+      const response = await brandService.getBrands();
+      if (response.success) {
+        setBrands(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching brands:', error);
     }
   };
 
@@ -73,11 +88,12 @@ function CategoryScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsModalOpen(false); // Tắt modal ngay lập tức
+    setIsModalOpen(false);
     setIsLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name.trim());
+      formDataToSend.append('brand_id', formData.brand_id);
 
       if (formData.media instanceof File) {
         formDataToSend.append('media', formData.media);
@@ -96,7 +112,7 @@ function CategoryScreen() {
     } catch (error) {
       console.error('Submit error:', error);
       alert(error.message || t('common.error'));
-      setIsModalOpen(true); // Mở lại modal nếu có lỗi
+      setIsModalOpen(true);
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +122,7 @@ function CategoryScreen() {
     setEditingCategory(category);
     setFormData({
       name: category.name,
+      brand_id: category.brand_id || '',
       media: null,
       mediaPreview: category.media
     });
@@ -124,9 +141,9 @@ function CategoryScreen() {
       } catch (error) {
         console.error('Error deleting category:', error);
         alert(t('common.error'));
-      }finally {
+      } finally {
         setIsLoading(false);
-    }
+      }
     }
   };
 
@@ -167,6 +184,7 @@ function CategoryScreen() {
   const resetForm = () => {
     setFormData({
       name: '',
+      brand_id: '',
       media: null,
       mediaPreview: null
     });
@@ -326,6 +344,23 @@ function CategoryScreen() {
                       onChange={handleInputChange}
                       required
                     />
+                  </div>
+
+                  <div className="form-group">
+                    <label>{t('categories.form.brand')}</label>
+                    <select
+                      name="brand_id"
+                      value={formData.brand_id}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">{t('categories.form.selectBrand')}</option>
+                      {brands.map(brand => (
+                        <option key={brand._id} value={brand._id}>
+                          {brand.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="form-group">
