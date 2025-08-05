@@ -120,7 +120,7 @@ const Header = ({ onToggleSidebar }) => {
         </div>
 
         {/* Language Selector */}
-        <div className="language-selector">
+        {/* <div className="language-selector">
           <div
             className="language-selected"
             onClick={() => setIsLanguageOpen(!isLanguageOpen)}
@@ -163,7 +163,7 @@ const Header = ({ onToggleSidebar }) => {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Profile Section */}
         <div className="profile">

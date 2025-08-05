@@ -76,12 +76,33 @@ function AddEditProductScreen() {
     { value: 'discontinued', label: t('products.modal.variantStatus.discontinued') }
   ];
 
+  // Thêm state cho danh mục theo brand
+  const [brandCategories, setBrandCategories] = useState([]);
+
   useEffect(() => {
     fetchInitialData();
     if (isEditing) {
       fetchProductData();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (formData.brand_id) {
+      // Fetch categories cho brand được chọn
+      const fetchBrandCategories = async () => {
+        try {
+          const response = await categoryService.getCategoriesByBrand(formData.brand_id);
+          if (response.success) {
+            setBrandCategories(response.data);
+          }
+        } catch (error) {
+          console.error('Error fetching categories:', error);
+        }
+      };
+
+      fetchBrandCategories();
+    }
+  }, [formData.brand_id]);
 
   const fetchInitialData = async () => {
     try {
@@ -108,17 +129,17 @@ function AddEditProductScreen() {
     try {
       setIsLoading(true);
       const response = await productService.getProductById(id);
-      
+
       if (response.success) {
         const product = response.data;
-        
+
         // Set form data
         setFormData({
           name: product.name,
           description: product.description,
           brand_id: product.brand_id?._id || '',
           category_id: product.category_id?._id || '',
-          status: product.status 
+          status: product.status
         });
 
         // Set media
@@ -142,7 +163,7 @@ function AddEditProductScreen() {
             size_id: variant.size_id?._id,
             price: variant.price,
             quantity_in_stock: variant.quantity_in_stock,
-            status: variant.status ,
+            status: variant.status,
             color: variant.color_id,
             size: variant.size_id
           }));
@@ -157,12 +178,29 @@ function AddEditProductScreen() {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+
+    // Nếu thay đổi brand, fetch categories tương ứng
+    if (name === 'brand_id' && value) {
+      try {
+        const result = await categoryService.getCategoriesByBrand(value);
+        if (result.success) {
+          setBrandCategories(result.data);
+          // Reset category selection
+          setFormData(prev => ({
+            ...prev,
+            category_id: ''
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching brand categories:', error);
+      }
+    }
   };
 
   const handleImageSelect = (e) => {
@@ -257,7 +295,7 @@ function AddEditProductScreen() {
         color: selectedColor,
         size: selectedSize
       };
-      
+
       setVariantsList(updatedVariants);
       setIsEditingVariant(false);
       setEditingVariantIndex(null);
@@ -286,7 +324,7 @@ function AddEditProductScreen() {
     try {
       setIsLoading(true);
       const formDataToSend = new FormData();
-      
+
       // Append basic product info
       Object.keys(formData).forEach(key => {
         if (key !== 'media' && formData[key] !== null) {
@@ -319,14 +357,14 @@ function AddEditProductScreen() {
       let response;
       if (isEditing) {
         response = await productService.updateProduct(id, formDataToSend);
-        
+
         // Xử lý variants
         if (variantsList.length > 0) {
           const currentVariants = await shoesVariantService.getVariantsByShoeId(id);
-          
+
           if (currentVariants.success) {
             const existingVariantIds = currentVariants.data.map(v => v._id);
-            
+
             // Xóa variants đã bị loại bỏ
             for (const variantId of existingVariantIds) {
               if (!variantsList.find(v => v._id === variantId)) {
@@ -358,10 +396,10 @@ function AddEditProductScreen() {
       } else {
         // Thêm sản phẩm mới
         response = await productService.addProduct(formDataToSend);
-        
+
         if (response.success || response.status === 200) {
           const productId = response.data.shoes._id;
-          
+
           // Thêm variants cho sản phẩm mới
           if (variantsList.length > 0) {
             await Promise.all(variantsList.map(variant => {
@@ -492,9 +530,10 @@ function AddEditProductScreen() {
                   value={formData.category_id}
                   onChange={handleInputChange}
                   required
+                  disabled={!formData.brand_id} // Disable nếu chưa chọn brand
                 >
                   <option value="">{t('products.modal.selectCategory')}</option>
-                  {categories.map(category => (
+                  {brandCategories.map(category => (
                     <option key={category._id} value={category._id}>
                       {category.name}
                     </option>
@@ -658,7 +697,7 @@ function AddEditProductScreen() {
                   />
                 </div>
 
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label>{t('products.modal.variantStatus.title')}</label>
                   <select
                     name="status"
@@ -671,7 +710,7 @@ function AddEditProductScreen() {
                       </option>
                     ))}
                   </select>
-                </div>
+                </div> */}
               </div>
 
               <div className="variant-buttons">

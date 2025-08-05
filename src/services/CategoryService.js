@@ -112,5 +112,30 @@ export const categoryService = {
         message: error.response?.data?.message || 'Error searching categories'
       };
     }
+  },
+
+  // Thêm hàm lấy danh mục theo thương hiệu
+  getCategoriesByBrand: async (brandId) => {
+    try {
+      const response = await axios.get(`${API_URL}/category/by-brand/${brandId}`, {
+        headers: getAuthHeader()
+      });
+      if (response.data.status === 200) {
+        return {
+          success: true,
+          data: response.data.data
+        };
+      }
+      return {
+        success: false,
+        message: response.data.message
+      };
+    } catch (error) {
+      console.error("Error fetching categories by brand:", error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Error fetching categories'
+      };
+    }
   }
 };

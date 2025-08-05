@@ -129,7 +129,7 @@ export const vi = {
         brand: "Thương hiệu",
         selectBrand: "Chọn thương hiệu",
         category: "Danh mục",
-        selectCategory: "Chọn danh mục",
+        selectCategory: "Chọn danh mục (chọn thương hiệu trước)",
         status: "Trạng thái",
         selectStatus: "Chọn trạng thái",
         media: "Hình ảnh & Video",

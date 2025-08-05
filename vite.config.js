@@ -6,6 +6,7 @@ import { DOMAIN } from './src/setup/setup'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true,
     port: 5173,
     cors: true,
     proxy: {
@@ -15,5 +16,6 @@ export default defineConfig({
         ws: true
       }
     }
-  }
+  },
+  base: '/', // Thêm base URL
 })

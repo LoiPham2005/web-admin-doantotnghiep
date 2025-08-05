@@ -577,6 +577,48 @@ function ProductsScreen() {
                   <th>{t('common.actions')}</th>
                 </tr>
               </thead>
+              {/* <tbody>
+                {paginatedProducts.map((product, index) => (
+                  <tr key={product._id}>
+                    <td>{(currentPage - 1) * pageSize + index + 1}</td> 
+                    <td>
+                      {product.media && product.media.length > 0 ? (
+                        <img
+                          src={product.media[0].url}
+                          alt={product.name}
+                          className="product-image"
+                        />
+                      ) : (
+                        <div className="no-image">No Image</div>
+                      )}
+                    </td>
+                    <td>{product.name}</td>
+                    <td className="clamp-description">{product.description}</td>
+                    <td>{product.brand_id?.name || 'N/A'}</td>
+                    <td>{product.category_id?.name || 'N/A'}</td>
+                    <td>
+                      {statusOptions.find(option => option.value === product.status)?.label || product.status}
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="edit-button"
+                          onClick={() => handleEditScreen(product)}
+                        >
+                          <i className="fas fa-edit"></i>
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDelete(product._id)}
+                        >
+                          <i className="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody> */}
+
               <tbody>
                 {paginatedProducts.map((product, index) => (
                   <tr key={product._id}>
@@ -592,8 +634,16 @@ function ProductsScreen() {
                         <div className="no-image">No Image</div>
                       )}
                     </td>
-                    <td>{product.name}</td>
-                    <td>{product.description}</td>
+                    <td>
+                      <div className="name-column" title={product.name}>
+                        {product.name}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="description-column" title={product.description}>
+                        {product.description}
+                      </div>
+                    </td>
                     <td>{product.brand_id?.name || 'N/A'}</td>
                     <td>{product.category_id?.name || 'N/A'}</td>
                     <td>
