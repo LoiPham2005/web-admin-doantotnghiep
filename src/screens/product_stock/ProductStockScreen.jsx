@@ -17,6 +17,10 @@ function ProductStockScreen() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null);
 
+  // Thêm states
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -94,6 +98,84 @@ function ProductStockScreen() {
     setSearchTimeout(timeoutId);
   };
 
+  // Thêm hàm xử lý click vào sản phẩm
+  const handleViewDetail = (product) => {
+    setSelectedProduct(product);
+    setShowDetailModal(true);
+  };
+
+  // Thêm component ProductDetailModal 
+  const ProductDetailModal = ({ product, onClose }) => {
+    if (!product) return null;
+
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2>{t('productStock.detail.title')}</h2>
+            <button className="close-button" onClick={onClose}>&times;</button>
+          </div>
+          <div className="modal-body">
+            <div className="product-detail">
+              <div className="detail-image">
+                {product.media && product.media.length > 0 && (
+                  <img src={product.media[0].url} alt={product.name} />
+                )}
+              </div>
+              <div className="detail-info">
+                <h3>{product.name}</h3>
+                <p className="brand">{product.brand_id?.name}</p>
+                <p className="description">{product.description}</p>
+
+                <div className="status-section">
+                  <div
+                    className="status-badge"
+                    style={{ backgroundColor: getStatusColor(product.status) }}
+                  >
+                    {t(`products.status.${product.status}`)}
+                  </div>
+                </div>
+
+                <div className="variants-section">
+                  <h4>{t('productStock.detail.variants')}</h4>
+                  <div className="variants-grid">
+                    {product.variants?.map((variant, idx) => (
+                      <div key={idx} className="variant-detail-item">
+                        <div className="variant-header">
+                          <div
+                            className="color-preview"
+                            style={{ backgroundColor: variant.color_id?.value }}
+                          />
+                          <span>Size: {variant.size_id?.size_value}</span>
+                        </div>
+                        <div className="variant-body">
+                          <div className="price">
+                            {variant.price?.toLocaleString('vi-VN')}đ
+                          </div>
+                          <div className="stock">
+                            {t('productStock.detail.inStock')}: {variant.quantity_in_stock}
+                          </div>
+                          <div
+                            className="status"
+                            style={{
+                              backgroundColor: getStatusColor(variant.status)
+                            }}
+                          >
+                            {t(`products.status.${variant.status}`)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <MainLayout>
       <div className="stock-container">
@@ -117,7 +199,11 @@ function ProductStockScreen() {
           {paginatedProducts.map(product => {
             const totalStock = calculateTotalStock(product.variants);
             return (
-              <div key={product._id} className="stock-card">
+              <div
+                key={product._id}
+                className="stock-card"
+                onClick={() => handleViewDetail(product)} // Thêm handler
+              >
                 <div className="stock-image">
                   {product.media && product.media.length > 0 && (
                     <img
@@ -211,6 +297,16 @@ function ProductStockScreen() {
           <div className="loading-overlay">
             <div className="loading-spinner" />
           </div>
+        )}
+
+        {showDetailModal && selectedProduct && (
+          <ProductDetailModal
+            product={selectedProduct}
+            onClose={() => {
+              setShowDetailModal(false);
+              setSelectedProduct(null);
+            }}
+          />
         )}
       </div>
     </MainLayout>

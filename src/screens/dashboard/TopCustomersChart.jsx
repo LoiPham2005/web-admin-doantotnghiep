@@ -5,12 +5,8 @@ import { useTranslation } from 'react-i18next';
 import './TopCustomersChart.css';
 import defaultAvatar from '../../assets/default-avatar.webp';
 
-const TopCustomersChart = () => {
+const TopCustomersChart = ({ dateRange }) => {
     const { t } = useTranslation();
-    const [dateRange, setDateRange] = useState({
-        startDate: new Date(new Date().setMonth(new Date().getMonth() - 1)),
-        endDate: new Date()
-    });
     const [topCustomers, setTopCustomers] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -25,8 +21,12 @@ const TopCustomersChart = () => {
                 dateRange.startDate,
                 dateRange.endDate
             );
+
             if (response.status === 200) {
-                setTopCustomers(response.data);
+                // Giới hạn số lượng khách hàng hiển thị
+                const TOP_CUSTOMERS_LIMIT = 10;
+                const customers = response.data.slice(0, TOP_CUSTOMERS_LIMIT);
+                setTopCustomers(customers);
             }
         } catch (error) {
             console.error('Error fetching top customers:', error);
@@ -34,6 +34,23 @@ const TopCustomersChart = () => {
             setLoading(false);
         }
     };
+
+    // Thêm cleanup function
+    useEffect(() => {
+        let isSubscribed = true;
+
+        const fetchData = async () => {
+            if (isSubscribed) {
+                await fetchTopCustomers();
+            }
+        };
+
+        fetchData();
+
+        return () => {
+            isSubscribed = false;
+        };
+    }, [dateRange]);
 
     const formatBirthDate = (birthDate) => {
         if (!birthDate) return t('accounts.noBirthDate');
@@ -56,30 +73,6 @@ const TopCustomersChart = () => {
     return (
         <div className="top-customers-container">
             <h2 className="top-customers-title">{t('statistics.topCustomers.title')}</h2>
-            <div className="date-picker-container">
-                <DatePicker
-                    selected={dateRange.startDate}
-                    onChange={date => setDateRange(prev => ({ ...prev, startDate: date }))}
-                    selectsStart
-                    startDate={dateRange.startDate}
-                    endDate={dateRange.endDate}
-                    dateFormat="dd/MM/yyyy"
-                    className="date-picker"
-                    placeholderText={t('statistics.topCustomersChart.fromDate')}
-                />
-                <span>{t('statistics.salesChart.to')}</span>
-                <DatePicker
-                    selected={dateRange.endDate}
-                    onChange={date => setDateRange(prev => ({ ...prev, endDate: date }))}
-                    selectsEnd
-                    startDate={dateRange.startDate}
-                    endDate={dateRange.endDate}
-                    minDate={dateRange.startDate}
-                    dateFormat="dd/MM/yyyy"
-                    className="date-picker"
-                    placeholderText={t('statistics.topCustomersChart.toDate')}
-                />
-            </div>
 
             {loading ? (
                 <div className="loading">{t('common.loading')}</div>

@@ -22,10 +22,6 @@ export const voucherService = {
                 `${API_URL}/vouchers/add`,
                 voucherData,
                 {
-                    // headers: {
-                    //     'Content-Type': 'application/json',
-                    //     ...getAuthHeader()
-                    // }
                     headers: getAuthHeader()
                 }
             );

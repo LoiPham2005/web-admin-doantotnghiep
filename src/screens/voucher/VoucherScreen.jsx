@@ -22,6 +22,7 @@ function VoucherScreen() {
   const [formData, setFormData] = useState({
     name: '',
     code: '',
+    type: 'order',           // Thêm type
     discount_type: 'percentage', // Sửa tên field
     discount_value: '', // Sửa tên field
     start_date: '', // Sửa tên field
@@ -34,6 +35,9 @@ function VoucherScreen() {
   const pageSize = 15;
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null);
+
+  // Thêm state để theo dõi loại voucher được chọn
+  const [selectedType, setSelectedType] = useState(formData.type || 'order');
 
   useEffect(() => {
     fetchVouchers();
@@ -75,18 +79,92 @@ function VoucherScreen() {
     }
   };
 
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+
+  //   // Khi thay đổi type voucher
+  //   if (name === 'type') {
+  //     setSelectedType(value);
+  //     // Nếu chọn shipping, tự động set discount_type thành fixed
+  //     if (value === 'shipping') {
+  //       setFormData(prev => ({
+  //         ...prev,
+  //         [name]: value,
+  //         discount_type: 'fixed'
+  //       }));
+  //     } else {
+  //       setFormData(prev => ({
+  //         ...prev,
+  //         [name]: value
+  //       }));
+  //     }
+  //   } else {
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       [name]: value
+  //     }));
+  //   }
+  // };
+
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+
+    // Khi thay đổi type voucher
+    if (name === 'type') {
+      setSelectedType(value);
+      // Nếu chọn shipping, tự động set discount_type thành fixed
+      if (value === 'shipping') {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value,
+          discount_type: 'fixed'
+        }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+      return; // Dừng ở đây, không tiếp tục các xử lý khác
+    }
+
+    // Xử lý các input khác
+    if (name === 'discount_type') {
+      // Khi thay đổi loại giảm giá
+      if (value === 'fixed') {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value,
+          maximum_discount: prev.discount_value || 0
+        }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+    } else if (name === 'discount_value' && formData.discount_type === 'fixed') {
+      // Khi thay đổi giá trị giảm với loại fixed, tự động cập nhật maximum_discount
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        maximum_discount: value
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
+
 
   const resetForm = () => {
     setFormData({
       name: '',
       code: '',
+      type: 'order',
       discount_type: 'percentage',
       discount_value: '',
       start_date: '',
@@ -112,93 +190,81 @@ function VoucherScreen() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsModalOpen(false); 
+    setIsModalOpen(false);
     setIsLoading(true);
 
     try {
       const voucherData = {
-        name: formData.name,
-        code: formData.code,
-        discount_type: formData.discount_type,
+        ...formData,
         discount_value: Number(formData.discount_value),
         minimum_order_value: Number(formData.minimum_order_value),
         maximum_discount: Number(formData.maximum_discount),
-        start_date: new Date(formData.start_date).toISOString(),
-        end_date: new Date(formData.end_date).toISOString(),
         quantity: Number(formData.quantity)
       };
 
       let response;
       if (editingVoucher) {
-        // Xử lý cập nhật
         response = await voucherService.updateVoucher(editingVoucher._id, voucherData);
+        // if (response.status === 200) {
+        //   // Handle user vouchers
+        //   await userVoucherService.removeAllUserVouchers(editingVoucher._id);
 
-        if (response.status === 200) {
-          // Xử lý user vouchers
-          await userVoucherService.removeAllUserVouchers(editingVoucher._id);
-
-          if (voucherType === 'specific') {
-            // Thêm cho users được chọn
-            if (selectedUsers.length > 0) {
-              await Promise.all(selectedUsers.map(user =>
-                userVoucherService.saveVoucherToUser({
-                  user_id: user._id,
-                  voucher_id: editingVoucher._id
-                })
-              ));
-            }
-          } else {
-            // Thêm cho tất cả users
-            const allUsers = await userService.getAllUsers();
-            const regularUsers = allUsers.filter(user => user.role === 'user');
-            await Promise.all(regularUsers.map(user =>
-              userVoucherService.saveVoucherToUser({
-                user_id: user._id,
-                voucher_id: editingVoucher._id
-              })
-            ));
-          }
-        }
+        //   if (voucherType === 'all') {
+        //     const allUsers = await userService.getAllUsers();
+        //     await Promise.all(allUsers.map(user =>
+        //       userVoucherService.saveVoucherToUser({
+        //         user_id: user._id,
+        //         voucher_id: editingVoucher._id
+        //       })
+        //     ));
+        //   } else if (voucherType === 'specific' && selectedUsers.length > 0) {
+        //     await Promise.all(selectedUsers.map(user =>
+        //       userVoucherService.saveVoucherToUser({
+        //         user_id: user._id,
+        //         voucher_id: editingVoucher._id
+        //       })
+        //     ));
+        //   }
+        // }
       } else {
-        // Xử lý thêm mới
+        // Adding a new voucher
         response = await voucherService.addVoucher(voucherData);
+        // if (response.status === 200) {
+        //   const voucherId = response.data._id || response.data.data._id;
 
-        if (response.status === 200) {
-          const voucherId = response.data._id || response.data.data._id;
-
-          if (voucherType === 'specific') {
-            // Thêm cho users được chọn
-            if (selectedUsers.length > 0) {
-              await Promise.all(selectedUsers.map(user =>
-                userVoucherService.saveVoucherToUser({
-                  user_id: user._id,
-                  voucher_id: voucherId
-                })
-              ));
-            }
-          } else {
-            // Thêm cho tất cả users
-            const allUsers = await userService.getAllUsers();
-            const regularUsers = allUsers.filter(user => user.role === 'user');
-            await Promise.all(regularUsers.map(user =>
-              userVoucherService.saveVoucherToUser({
-                user_id: user._id,
-                voucher_id: voucherId
-              })
-            ));
-          }
-        }
+        //   if (voucherType === 'all') {
+        //     // Fetch all users and add the voucher to each
+        //     const allUsers = await userService.getAllUsers();
+        //     await Promise.all(allUsers.map(user =>
+        //       userVoucherService.saveVoucherToUser({
+        //         user_id: user._id,
+        //         voucher_id: voucherId
+        //       })
+        //     ));
+        //   } else if (voucherType === 'specific' && selectedUsers.length > 0) {
+        //     await Promise.all(selectedUsers.map(user =>
+        //       userVoucherService.saveVoucherToUser({
+        //         user_id: user._id,
+        //         voucher_id: voucherId
+        //       })
+        //     ));
+        //   }
+        // }
       }
 
-      alert(t(editingVoucher ? 'vouchers.messages.updateSuccess' : 'vouchers.messages.addSuccess'));
-      setIsModalOpen(false);
-      resetForm();
-      fetchVouchers();
+      // alert(t(editingVoucher ? 'vouchers.messages.updateSuccess' : 'vouchers.messages.addSuccess'));
+      // resetForm();
+      // fetchVouchers();
+
+      if (response.status === 200) {
+        alert(t(editingVoucher ? 'vouchers.messages.updateSuccess' : 'vouchers.messages.addSuccess'));
+        resetForm();
+        fetchVouchers();
+      }
 
     } catch (error) {
       console.error('Submit error:', error);
       alert(error?.response?.data?.message || t('common.error'));
-      setIsModalOpen(true); 
     } finally {
       setIsLoading(false);
     }
@@ -208,42 +274,39 @@ function VoucherScreen() {
     try {
       setEditingVoucher(voucher);
 
-      // Lấy danh sách users của voucher
+      // Fetch users associated with the voucher
       const response = await userVoucherService.getUsersByVoucherId(voucher._id);
 
       if (response.status === 200) {
-        // So sánh số lượng user_vouchers với tổng số users
         const allUsers = await userService.getAllUsers();
         const regularUsers = allUsers.filter(user => user.role === 'user');
 
-        // Nếu số lượng user_vouchers bằng với số lượng regular users 
-        // thì đây là voucher cho tất cả người dùng
+        // If the voucher is for all users, reset selected users
         if (response.data.length === regularUsers.length) {
           setVoucherType('all');
           setSelectedUsers([]); // Reset selected users
         } else {
           setVoucherType('specific');
-          // Map để lấy thông tin user từ data
           const users = response.data.map(uv => uv.user_id);
           setSelectedUsers(users);
         }
       }
 
-      // Set form data
+      // Set form data with the voucher details
       setFormData({
         name: voucher.name || '',
         code: voucher.code || '',
+        type: voucher.type || 'order',
         discount_type: voucher.discount_type || 'percentage',
         discount_value: voucher.discount_value || '',
+        minimum_order_value: voucher.minimum_order_value || '',
+        maximum_discount: voucher.maximum_discount || '',
         start_date: voucher.start_date ? new Date(voucher.start_date).toISOString().split('T')[0] : '',
         end_date: voucher.end_date ? new Date(voucher.end_date).toISOString().split('T')[0] : '',
-        quantity: voucher.quantity || '',
-        minimum_order_value: voucher.minimum_order_value || '',
-        maximum_discount: voucher.maximum_discount || ''
+        quantity: voucher.quantity || ''
       });
 
       setIsModalOpen(true);
-
     } catch (error) {
       console.error('Error getting voucher users:', error);
       alert(t('common.error'));
@@ -267,9 +330,9 @@ function VoucherScreen() {
         } else {
           alert(t('common.error'));
         }
-      }finally {
+      } finally {
         setIsLoading(false);
-    }
+      }
     }
   };
 
@@ -339,43 +402,45 @@ function VoucherScreen() {
           </div>
         </div>
 
-        <table className="vouchers-table">
-          <thead>
-            <tr>
-              <th>STT</th>  {/* Thêm cột STT */}
-              <th>{t('vouchers.form.name')}</th>
-              <th>{t('vouchers.form.code')}</th>
-              <th>{t('vouchers.form.discountValue')}</th>
-              <th>{t('vouchers.form.startDate')}</th>
-              <th>{t('vouchers.form.endDate')}</th>
-              <th>{t('vouchers.form.quantity')}</th>
-              <th>{t('common.edit')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedVouchers.map((voucher, index) => (
-              <tr key={voucher._id}>
-                <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
-                <td>{voucher.name}</td>
-                <td>{voucher.code}</td>
-                <td>{voucher.discount_value}{voucher.discount_type === 'percentage' ? '%' : 'đ'}</td>
-                <td>{new Date(voucher.start_date).toLocaleDateString()}</td>
-                <td>{new Date(voucher.end_date).toLocaleDateString()}</td>
-                <td>{voucher.quantity}</td>
-                <td>
-                  <div className="action-buttons">
-                    <button className="edit-button" onClick={() => handleEdit(voucher)}>
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    <button className="delete-button" onClick={() => handleDelete(voucher._id)}>
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </td>
+        <div className="table-container">
+          <table className="vouchers-table">
+            <thead>
+              <tr>
+                <th>STT</th>  {/* Thêm cột STT */}
+                <th>{t('vouchers.form.name')}</th>
+                <th>{t('vouchers.form.code')}</th>
+                <th>{t('vouchers.form.discountValue')}</th>
+                <th>{t('vouchers.form.startDate')}</th>
+                <th>{t('vouchers.form.endDate')}</th>
+                <th>{t('vouchers.form.quantity')}</th>
+                <th>{t('common.edit')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginatedVouchers.map((voucher, index) => (
+                <tr key={voucher._id}>
+                  <td>{(currentPage - 1) * pageSize + index + 1}</td>  {/* STT */}
+                  <td>{voucher.name}</td>
+                  <td>{voucher.code}</td>
+                  <td>{voucher.discount_value}{voucher.discount_type === 'percentage' ? '%' : 'đ'}</td>
+                  <td>{new Date(voucher.start_date).toLocaleDateString()}</td>
+                  <td>{new Date(voucher.end_date).toLocaleDateString()}</td>
+                  <td>{voucher.quantity}</td>
+                  <td>
+                    <div className="action-buttons">
+                      <button className="edit-button" onClick={() => handleEdit(voucher)}>
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button className="delete-button" onClick={() => handleDelete(voucher._id)}>
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* PHÂN TRANG */}
         <div className="pagination">
@@ -456,16 +521,50 @@ function VoucherScreen() {
                 </div>
 
                 <div className="form-group">
+                  <label>{t('vouchers.form.type')}</label>
+                  <div className="radio-group">
+                    <label className="radio-label">
+                      <input
+                        type="radio"
+                        name="type"
+                        value="order"
+                        checked={formData.type === 'order'}
+                        onChange={handleInputChange}
+                      />
+                      {t('vouchers.form.typeOrder')}
+                    </label>
+                    <label className="radio-label">
+                      <input
+                        type="radio"
+                        name="type"
+                        value="shipping"
+                        checked={formData.type === 'shipping'}
+                        onChange={handleInputChange}
+                      />
+                      {t('vouchers.form.typeShipping')}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="form-group">
                   <label>{t('vouchers.form.discountType')}</label>
-                  <select
-                    name="discount_type" // Changed from discountType
-                    value={formData.discount_type}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="percentage">{t('vouchers.form.percentage')}</option>
-                    <option value="fixed">{t('vouchers.form.fixed')}</option>
-                  </select>
+                  {selectedType === 'shipping' ? (
+                    // Nếu là shipping voucher, hiển thị text "Số tiền cố định"
+                    <div className="fixed-discount-text">
+                      {t('vouchers.form.fixed')}
+                    </div>
+                  ) : (
+                    // Nếu là order voucher, cho phép chọn cả 2 loại
+                    <select
+                      name="discount_type"
+                      value={formData.discount_type}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="percentage">{t('vouchers.form.percentage')}</option>
+                      <option value="fixed">{t('vouchers.form.fixed')}</option>
+                    </select>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -490,7 +589,7 @@ function VoucherScreen() {
                   <label>{t('vouchers.form.startDate')}</label>
                   <input
                     type="date"
-                    name="start_date" // Sửa từ startDate thành start_date
+                    name="start_date"
                     value={formData.start_date}
                     onChange={handleInputChange}
                     required
@@ -532,7 +631,7 @@ function VoucherScreen() {
                   />
                 </div>
 
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label>{t('vouchers.form.maximumDiscount')}</label>
                   <input
                     type="number"
@@ -542,9 +641,25 @@ function VoucherScreen() {
                     required
                     min="0"
                   />
-                </div>
+                </div> */}
 
-                <div className="form-group">
+
+                {/* Chỉ hiển thị trường maximum_discount khi discount_type là percentage */}
+                {formData.discount_type === 'percentage' && (
+                  <div className="form-group">
+                    <label>{t('vouchers.form.maximumDiscount')}</label>
+                    <input
+                      type="number"
+                      name="maximum_discount"
+                      value={formData.maximum_discount}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                    />
+                  </div>
+                )}
+
+                {/* <div className="form-group">
                   <label>{t('vouchers.form.voucherType')}</label>
                   <div className="radio-group">
                     <label className="radio-label">
@@ -568,9 +683,9 @@ function VoucherScreen() {
                       {t('vouchers.form.specificUsers')}
                     </label>
                   </div>
-                </div>
+                </div> */}
 
-                {voucherType === 'specific' && (
+                {/* {voucherType === 'specific' && (
                   <div className="form-group">
                     <label>{t('vouchers.form.selectUsers')}</label>
                     <select
@@ -618,7 +733,7 @@ function VoucherScreen() {
                       </div>
                     )}
                   </div>
-                )}
+                )} */}
 
                 <div className="modal-buttons">
                   <button

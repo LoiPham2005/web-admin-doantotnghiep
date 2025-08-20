@@ -66,10 +66,20 @@ const PaymentHistoryScreen = () => {
 
     const getStatusClass = (status) => {
         switch (status) {
-            case 'pending': return 'pending';
-            case 'completed': return 'completed';
-            case 'cancelled': return 'cancelled';
-            default: return 'pending';
+            case 'pending':
+                return 'pending';
+            case 'processing':
+                return 'processing';
+            case 'shipping':
+                return 'shipping';
+            case 'delivered':
+                return 'completed';
+            case 'cancelled':
+                return 'cancelled';
+            case 'returned':
+                return 'returned';
+            default:
+                return 'pending';
         }
     };
 
@@ -78,10 +88,11 @@ const PaymentHistoryScreen = () => {
             'STT': index + 1,
             'Mã đơn hàng': payment.order_id?._id?.slice(-6) || 'N/A',
             'Người dùng': payment.user_id?.username || 'N/A',
+            'Email': payment.user_id?.email || 'N/A',
             'Số tiền': payment.amount?.toLocaleString('vi-VN') + 'đ',
             'Thời gian': formatDate(payment.createdAt),
-            'Phương thức': payment.order_id?.payment_method || 'N/A',
-            'Trạng thái': payment.order_id?.status || 'Chờ xử lý'
+            'Phương thức': payment.order_id?.payment_method === 'COD' ? 'Tiền mặt' : 'Chuyển khoản',
+            'Trạng thái': convertStatus(payment.order_id?.status)
         }));
 
         const ws = XLSX.utils.json_to_sheet(data);
@@ -152,6 +163,26 @@ const PaymentHistoryScreen = () => {
         setSearchTimeout(timeoutId);
     };
 
+    // Thêm hàm convertStatus 
+    const convertStatus = (status) => {
+        switch (status) {
+            case 'pending':
+                return 'Chờ xác nhận';
+            case 'processing':
+                return 'Đang xử lý';
+            case 'shipping':
+                return 'Đang giao hàng';
+            case 'delivered':
+                return 'Đã giao hàng';
+            case 'returned':
+                return 'Đã trả hàng';
+            case 'cancelled':
+                return 'Đã hủy';
+            default:
+                return 'Chờ xử lý';
+        }
+    };
+
     return (
         <MainLayout>
             {initialLoading ? (
@@ -214,7 +245,7 @@ const PaymentHistoryScreen = () => {
                                                     <td>{payment.order_id?.payment_method || 'N/A'}</td>
                                                     <td>
                                                         <span className={`status ${getStatusClass(payment.order_id?.status)}`}>
-                                                            {payment.order_id?.status || 'Chờ xử lý'}
+                                                            {convertStatus(payment.order_id?.status)}
                                                         </span>
                                                     </td>
                                                 </tr>

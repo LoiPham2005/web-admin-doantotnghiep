@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import DatePicker from 'react-datepicker';
 import MainLayout from '../../layouts/MainLayout';
 import SalesDetailsChart from './SalesDetailsChart';
 import { statisticsService } from '../../services/StatisticsService';
 import { useTheme } from '../../contexts/ThemeContext';
 import './Dashboard.css';
-import Sidebar from '../../components/Sidebar';
 import TopProductsChart from './TopProductsChart';
 import TopCustomersChart from './TopCustomersChart';
 import Loading from '../../components/LoadingPage';
@@ -13,6 +13,9 @@ import Loading from '../../components/LoadingPage';
 function Dashboard() {
   const { t } = useTranslation();
   const { isDarkMode } = useTheme();
+  const [startDate, setStartDate] = useState(new Date(new Date().setHours(0,0,0,0))); // Start of today
+  const [endDate, setEndDate] = useState(new Date());
+  
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalOrders: 0,
@@ -24,30 +27,40 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDashboardStats = async () => {
-      try {
-        setLoading(true);
-        const response = await statisticsService.getDashboardStats();
+    fetchDashboardData();
+  }, [startDate, endDate]);
 
-        if (response.status === 200) {
-          setStats({
-            totalUsers: response.data.totalUsers || 0,
-            totalOrders: response.data.totalOrders || 0,
-            totalRevenue: response.data.totalRevenue || 0,
-            pendingOrders: response.data.pendingOrders || 0,
-            revenueChange: response.data.revenueChange || 0,
-            ordersChange: response.data.ordersChange || 0
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
-      } finally {
-        setLoading(false);
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await statisticsService.getDashboardStats(startDate, endDate);
+
+      if (response.status === 200) {
+        setStats({
+          totalUsers: response.data.totalUsers || 0,
+          totalOrders: response.data.totalOrders || 0,
+          totalRevenue: response.data.totalRevenue || 0,
+          pendingOrders: response.data.pendingOrders || 0,
+          revenueChange: response.data.revenueChange || 0,
+          ordersChange: response.data.ordersChange || 0
+        });
       }
-    };
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchDashboardStats();
-  }, []);
+  function formatCurrencyShortVND(amount) {
+    if (amount >= 1_000_000_000) {
+      return (amount / 1_000_000_000).toFixed(2).replace(/\.?0+$/, '') + ' tỷ đ';
+    } else if (amount >= 1_000_000) {
+      return (amount / 1_000_000).toFixed(2).replace(/\.?0+$/, '') + ' triệu đ';
+    } else {
+      return amount.toLocaleString('vi-VN') + ' đ';
+    }
+  }
 
   const statCardsData = [
     {
@@ -72,12 +85,13 @@ function Dashboard() {
     },
     {
       title: t('dashboard.totalSales'),
-      value: (stats.totalRevenue || 0).toLocaleString('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }),
+      // value: (stats.totalRevenue || 0).toLocaleString('vi-VN', {
+      //   style: 'currency',
+      //   currency: 'VND',
+      //   minimumFractionDigits: 0,
+      //   maximumFractionDigits: 0
+      // }),
+      value: formatCurrencyShortVND(stats.totalRevenue || 0),
       icon: 'chart-line',
       iconColor: '#4caf50',
       iconBgColor: '#e8f5e9',
@@ -97,12 +111,15 @@ function Dashboard() {
     }
   ];
 
+  const handleDateRangeChange = (dates) => {
+    const [start, end] = dates;
+    setStartDate(start);
+    setEndDate(end || start);
+  };
+
   if (loading) {
     return (
       <MainLayout>
-        {/* <div className="loading-container">
-          <div className="spinner"></div>
-        </div> */}
         <Loading />
       </MainLayout>
     );
@@ -113,6 +130,35 @@ function Dashboard() {
       <div className={`dashboard-content ${isDarkMode ? 'dark' : 'light'}`}>
         <div className="dashboard-header">
           <h1 className="page-title">{t('dashboard.title')}</h1>
+          <div className="date-range-picker">
+            <div className="date-picker-wrapper">
+              <label>{t('dashboard.startDate')}</label>
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                className="date-picker"
+                maxDate={endDate}
+              />
+            </div>
+            <div className="date-picker-wrapper">
+              <label>{t('dashboard.endDate')}</label>  
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy" 
+                className="date-picker"
+                minDate={startDate}
+                maxDate={new Date()}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="stat-cards">
@@ -125,37 +171,20 @@ function Dashboard() {
                 </div>
               </div>
               <div className="stat-value">{card.value}</div>
-              {/* <div className={`stat-change ${card.change.type}`}>
-                <i className={`fas fa-arrow-${card.change.type}`}></i>
-                <span>{card.change.value} {card.change.period}</span>
-              </div> */}
             </div>
           ))}
         </div>
 
-        {/* <div className="chart-section"> */}
-        {/* <div className="section-header"> */}
-        {/* <h2>{t('dashboard.charts.salesDetails')}</h2> */}
-        {/* <div className="period-selector">
-              <span>{t('dashboard.period.october')}</span>
-              <i className="fas fa-chevron-down"></i>
-            </div> */}
-        {/* </div> */}
         <div className="sales-chart">
-          <SalesDetailsChart />
+          <SalesDetailsChart dateRange={{ startDate, endDate }} />
         </div>
-        {/* </div> */}
 
-        {/* <div className="chart-section" style={{ marginTop: '200px' }}> */}
         <div className="section-header" style={{ marginTop: '150px' }}>
-          {/* <h2>{t('dashboard.charts.topProducts')}</h2> */}
-          <TopProductsChart />
+          <TopProductsChart dateRange={{ startDate, endDate }} />
         </div>
 
-        {/* </div> */}
-
-        <div >
-          <TopCustomersChart />
+        <div>
+          <TopCustomersChart dateRange={{ startDate, endDate }} />
         </div>
       </div>
     </MainLayout>

@@ -81,6 +81,8 @@ body.dark-mode .products-table td {
 
 .action-buttons {
     display: flex;
+    align-items: center;
+    justify-content: flex-start;
     gap: 8px;
 }
 
@@ -964,36 +966,37 @@ body.dark-mode .form-group select:disabled {
 
 /* CSS cho cột name và description */
 .text-ellipsis {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
-  max-height: 2.8em; /* 2 dòng × line-height */
-  word-wrap: break-word;
-  word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    max-height: 2.8em;
+    /* 2 dòng × line-height */
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 /* Hoặc nếu bạn muốn set width cố định cho các cột */
 .name-column {
-  max-width: 200px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
-  word-wrap: break-word;
+    max-width: 200px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .description-column {
-  max-width: 300px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
-  word-wrap: break-word;
+    max-width: 300px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    word-wrap: break-word;
 }

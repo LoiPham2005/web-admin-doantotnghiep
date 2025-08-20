@@ -88,7 +88,9 @@ export const vi = {
         amount: "Số tiền",
         status: "Trạng thái",
         statusDelivered: "Đã giao"
-      }
+      },
+      startDate: "Từ ngày",
+      endDate: "Đến ngày",
     },
 
     // Products Screen
@@ -112,9 +114,9 @@ export const vi = {
       },
       status: {
         active: "Còn hàng",
-        'out of stock': "Hết hàng",
-        'importing goods': "Đang nhập hàng",
-        'hidden': "Ẩn sản phẩm"  // Thêm translation cho hidden
+        out_of_stock: "Hết hàng",
+        importing_goods: "Đang nhập hàng",
+        hidden: "Ẩn sản phẩm"  // Thêm translation cho hidden
       },
       messages: {
         confirmDelete: "Bạn có chắc chắn muốn xóa sản phẩm này?",
@@ -163,7 +165,7 @@ export const vi = {
         fillAllColor: "Vui lòng nhập đầy đủ thông tin màu",
         addColorSuccess: "Thêm màu thành công",
         addColorError: "Lỗi khi thêm màu mới: ",
-        update: "Cập nhật biến thể",
+        updateVariant: "Cập nhật biến thể",
         editVariant: "Sửa biến thể",
         variantStatus: {
           title: "Trạng thái biến thể",
@@ -184,7 +186,9 @@ export const vi = {
         name: "Tên danh mục",
         image: "Hình ảnh",
         media: "Ảnh danh mục",
-        status: "Trạng thái"
+        status: "Trạng thái",
+        brand: "Thương hiệu",
+        selectBrand: "Chọn thương hiệu"
       },
       activate: "Bật danh mục",
       deactivate: "Tắt danh mục",
@@ -222,7 +226,10 @@ export const vi = {
         allUsers: "Tất cả người dùng",
         specificUsers: "Người dùng cụ thể",
         selectUsers: "Chọn người dùng",
-        selectUser: "Chọn người dùng để thêm"
+        selectUser: "Chọn người dùng để thêm",
+        type: "Loại voucher",
+        typeOrder: "Giảm giá đơn hàng",
+        typeShipping: "Giảm phí vận chuyển"
       },
       status: {
         active: "Đang hoạt động",
@@ -279,7 +286,12 @@ export const vi = {
         edit: "Chỉnh sửa",
         delete: "Xóa"
       },
-      searchPlaceholder: "Tìm kiếm sản phẩm..."
+      searchPlaceholder: "Tìm kiếm sản phẩm...",
+      detail: {
+        title: "Chi tiết sản phẩm",
+        variants: "Danh sách biến thể",
+        inStock: "Tồn kho",
+      }
     },
 
     // Thêm section mới cho order list
@@ -296,7 +308,9 @@ export const vi = {
       shippingAddress: "Địa chỉ giao hàng",
       orderDate: "Ngày đặt",
       orderStatus: "Trạng thái đơn hàng",
+      email: "Email",
       status: {
+        title: "Trạng thái",
         pending: "Chờ xác nhận",
         confirmed: "Đã xác nhận",
         processing: "Đang xử lý",
@@ -314,7 +328,52 @@ export const vi = {
       actions: "Thao tác",
       confirmStatusChange: "Xác nhận thay đổi trạng thái đơn hàng?",
       statusUpdateSuccess: "Cập nhật trạng thái thành công",
-      searchPlaceholder: "Tìm kiếm theo mã đơn, khách hàng hoặc trạng thái..."
+      searchPlaceholder: "Tìm kiếm theo mã đơn, khách hàng hoặc trạng thái...",
+      confirmRefund: "Bạn có chắc chắn muốn hoàn tiền cho đơn hàng này?",
+      refundSuccess: "Hoàn tiền thành công",
+      refund: "Hoàn tiền",
+      noTransId: "Không tìm thấy mã giao dịch MoMo",
+      orderDetail: {
+        title: "Chi tiết đơn hàng",
+        orderInfo: "Thông tin đơn hàng",
+        customerInfo: "Thông tin khách hàng",
+        products: "Danh sách sản phẩm",
+        summary: "Tổng kết",
+        productName: "Tên sản phẩm",
+        variant: "Biến thể",
+        quantity: "Số lượng",
+        price: "Đơn giá",
+        subtotal: "Thành tiền"
+      },
+      returnRequest: {
+        title: "Chi tiết yêu cầu trả hàng",
+        requestInfo: "Thông tin yêu cầu",
+        orderId: "Mã đơn hàng",
+        customer: "Khách hàng",
+        email: "Email",
+        reason: "Lý do trả hàng",
+        quantity: "Số lượng trả",
+        status: {
+          title: "Trạng thái",
+          pending: "Chờ xử lý",
+          approved: "Đã chấp nhận",
+          rejected: "Đã từ chối"
+        },
+        images: "Hình ảnh đính kèm",
+        approve: "Chấp nhận",
+        reject: "Từ chối",
+        updateSuccess: "Cập nhật trạng thái thành công",
+        noRequestFound: "Không tìm thấy yêu cầu trả hàng cho đơn hàng này"
+      },
+      cancelRequest: {
+        title: "Chi tiết hủy đơn hàng",
+        requestInfo: "Thông tin yêu cầu",
+        orderId: "Mã đơn hàng",
+        customer: "Khách hàng",
+        reason: "Lý do hủy",
+        viewReason: "Xem lý do hủy",
+        noRequestFound: "Không tìm thấy thông tin hủy đơn cho đơn hàng này"
+      }
     },
 
     // Thêm section mới cho notifications

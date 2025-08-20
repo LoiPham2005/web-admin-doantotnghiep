@@ -195,3 +195,244 @@ body.dark-mode .search-icon {
   border-color: #ccc;
   cursor: not-allowed;
 }
+
+.refund-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.refund-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.refund-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+/* Order detail styles */
+.order-detail {
+  padding: 20px;
+}
+
+.order-detail h3 {
+  margin-bottom: 15px;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.order-info,
+.customer-info,
+.products-info,
+.order-summary {
+  margin-bottom: 30px;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+}
+
+.detail-table th,
+.detail-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-table th {
+  background-color: var(--secondary-bg);
+  font-weight: 600;
+}
+
+.final-total {
+  font-size: 1.2em;
+  color: #2196F3;
+  margin-top: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.view-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #2196F3;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.view-button:hover {
+  background-color: #1976D2;
+}
+
+/* Dark mode styles */
+body.dark-mode .order-detail {
+  background-color: #1a1a1a;
+}
+
+body.dark-mode .detail-table th {
+  background-color: #2d2d2d;
+}
+
+body.dark-mode .detail-table td,
+body.dark-mode .detail-table th {
+  border-color: #444;
+  color: white;
+}
+
+/* Return Request Modal Styles */
+.return-request-detail {
+  padding: 20px;
+}
+
+.request-info,
+.product-info,
+.images-section {
+  margin-bottom: 30px;
+}
+
+.request-info h3,
+.product-info h3,
+.images-section h3 {
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.product-detail {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.product-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.return-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+
+.approve-button,
+.reject-button {
+  padding: 8px 24px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.approve-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.reject-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.cancel-request-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #ff5722;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 8px;
+}
+
+.cancel-request-button:hover {
+  background-color: #f4511e;
+}
+
+.cancel-request-button i {
+  font-size: 14px;
+}
+
+.cancel-reason-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f44336;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 8px;
+}
+
+.cancel-reason-button:hover {
+  background-color: #d32f2f;
+}
+
+.cancel-reason-button i {
+  font-size: 14px;
+}
+
+.return-reason-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #ff9800;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 8px;
+}
+
+.return-reason-button:hover {
+  background-color: #f57c00;
+}
+
+.return-reason-button i {
+  font-size: 14px;
+}
+
+.status-badge.approved {
+  background-color: #4caf50;
+  color: white;
+}
+
+.status-badge.rejected {
+  background-color: #f44336;
+  color: white;
+}
+
+.status-badge.pending {
+  background-color: #ff9800;
+  color: white;
+}

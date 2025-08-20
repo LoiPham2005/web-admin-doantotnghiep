@@ -4,9 +4,15 @@ import { API_URL } from './config';
 import { getAuthHeader } from '../config/authHeader';
 
 export const statisticsService = {
-    getDashboardStats: async () => {
+    getDashboardStats: async (startDate, endDate) => {
         try {
-            const response = await axios.get(`${API_URL}/statistics/daily`, { headers: getAuthHeader() });
+            const response = await axios.get(`${API_URL}/statistics/daily`, {
+                params: {
+                    startDate: startDate?.toISOString(),
+                    endDate: endDate?.toISOString()
+                },
+                headers: getAuthHeader()
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching dashboard stats:', error);

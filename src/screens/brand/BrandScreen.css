@@ -63,6 +63,8 @@ body.dark-mode .brands-table td {
 
 .action-buttons {
   display: flex;
+  align-items: center;
+  justify-content: flex-start;
   gap: 8px;
 }
 

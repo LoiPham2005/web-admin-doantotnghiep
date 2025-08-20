@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import MainLayout from '../../layouts/MainLayout';
 import { orderListService } from '../../services/OrderListService';
 import './OrderListScreen.css';
+import Modal from './modal/Modal';
 
 function OrderListScreen() {
   const { t } = useTranslation();
@@ -18,30 +19,30 @@ function OrderListScreen() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchTimeout, setSearchTimeout] = useState(null);
 
+  // Thêm states
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // Thêm state mới
+  const [selectedReturnRequest, setSelectedReturnRequest] = useState(null);
+  const [showReturnRequestModal, setShowReturnRequestModal] = useState(false);
+
+  // Thêm state mới
+  const [selectedCancelRequest, setSelectedCancelRequest] = useState(null);
+  const [showCancelRequestModal, setShowCancelRequestModal] = useState(false);
+
   useEffect(() => {
     fetchOrders();
   }, []);
 
+  // Thêm log để debug
   const fetchOrders = async () => {
     try {
       setLoading(true);
       const response = await orderListService.getOrders();
+      console.log('Orders response:', response.data); // Debug log
       if (response.status === 200) {
-        // Map through orders to format data
-        const formattedOrders = response.data.orders.map(order => ({
-          _id: order._id,
-          username: order.user_id?.username || 'N/A',
-          email: order.user_id?.email || 'N/A',
-          total_price: order.total_price,
-          shipping_fee: order.shipping_fee,
-          discount: order.discount,
-          final_total: order.final_total,
-          payment_method: order.payment_method,
-          status: order.status,
-          address: order.address_id?.receiving_address || 'N/A',
-          created_at: new Date(order.createdAt).toLocaleDateString('vi-VN')
-        }));
-        setOrders(formattedOrders);
+        setOrders(response.data.orders);
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -100,15 +101,15 @@ function OrderListScreen() {
   const getStatusBadgeColor = (status) => {
     switch (status) {
       case 'pending': return '#FFA500';
-      case 'confirmed': return '#2196F3';
+      case 'processing': return '#2196F3';
       case 'shipping': return '#9C27B0';
       case 'delivered': return '#4CAF50';
       case 'cancelled': return '#F44336';
-      case 'return_requested': return '#FF9800';
-      case 'return_approved': return '#00BCD4';
-      case 'return_rejected': return '#FF5722';
+      // case 'return_requested': return '#FF9800';
+      // case 'return_approved': return '#00BCD4';
+      // case 'return_rejected': return '#FF5722';
       case 'returned': return '#795548';
-      case 'reviewed': return '#009688'; // Add this line
+      // case 'reviewed': return '#009688'; 
       default: return '#000000';
     }
   };
@@ -139,7 +140,7 @@ function OrderListScreen() {
           payment_method: order.payment_method,
           status: order.status,
           address: order.address_id?.receiving_address || 'N/A',
-          created_at: new Date(order.createdAt).toLocaleDateString('vi-VN')
+          created_at: new Date(order.created_at).toLocaleDateString('vi-VN')
         }));
         setOrders(formattedOrders);
         setCurrentPage(1); // Reset về trang 1
@@ -171,6 +172,352 @@ function OrderListScreen() {
     setSearchTimeout(timeoutId);
   };
 
+  // Thêm function xử lý hoàn tiền
+  const handleRefund = async (order) => {
+    if (!order.momo_trans_id) {
+      alert('Không tìm thấy mã giao dịch MoMo');
+      return;
+    }
+
+    if (window.confirm(t('orderList.confirmRefund'))) {
+      try {
+        const response = await orderListService.refundMomoPayment({
+          orderId: order._id,
+          amount: order.final_total,
+          transId: order.momo_trans_id,
+          description: `Hoàn tiền đơn hàng #${order._id.slice(-6)}`
+        });
+
+        if (response.status === 200) {
+          alert(t('orderList.refundSuccess'));
+          fetchOrders(); // Refresh danh sách
+        }
+      } catch (error) {
+        console.error('Error refunding payment:', error);
+        const errorMessage = error.response?.data?.message || t('common.error');
+        alert(errorMessage);
+      }
+    }
+  };
+
+  // Sửa lại hàm handleViewDetail
+  const handleViewDetail = async (orderId) => {
+    try {
+      setLoading(true);
+      const response = await orderListService.getOrderDetail(orderId);
+      console.log("Order detail response:", response); // Debug log
+
+      if (response.status === 200) {
+        setSelectedOrder(response.data); // Remove .data here
+        setShowDetailModal(true);
+      }
+    } catch (error) {
+      console.error('Error fetching order detail:', error);
+      alert(error?.response?.data?.message || t('common.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sửa lại OrderDetailModal component
+  const OrderDetailModal = ({ order, onClose }) => {
+    if (!order) return null;
+
+    return (
+      <Modal
+        isOpen={showDetailModal}
+        onClose={onClose}
+        title={t('orderList.orderDetail.title')}
+        size="lg"
+      >
+        <div className="order-detail">
+          <div className="order-info">
+            <h3>{t('orderList.orderDetail.orderInfo')}</h3>
+            <p><strong>{t('orderList.orderId')}:</strong> {order.order._id}</p>
+            <p><strong>{t('orderList.orderDate')}:</strong> {new Date(order.order.createdAt).toLocaleDateString('vi-VN')}</p>
+            <p><strong>{t('orderList.status.title')}:</strong> {t(`orderList.status.${order.order.status}`)}</p>
+            <p><strong>{t('orderList.paymentMethod')}:</strong> {order.order.payment_method}</p>
+          </div>
+
+          <div className="customer-info">
+            <h3>{t('orderList.orderDetail.customerInfo')}</h3>
+            <p><strong>{t('orderList.customer')}:</strong> {order.order.user.username}</p>
+            <p><strong>{t('orderList.email')}:</strong> {order.order.user.email}</p>
+            <p><strong>{t('orderList.shippingAddress')}:</strong> {`${order.order.full_name}, ${order.order.receiving_address}, ${order.order.commune}, ${order.order.district}, ${order.order.province}`}</p>
+          </div>
+
+          <div className="products-info">
+            <h3>{t('orderList.orderDetail.products')}</h3>
+            <table className="detail-table">
+              <thead>
+                <tr>
+                  <th>{t('orderList.orderDetail.productName')}</th>
+                  <th>{t('orderList.orderDetail.variant')}</th>
+                  <th>{t('orderList.orderDetail.quantity')}</th>
+                  <th>{t('orderList.orderDetail.price')}</th>
+                  <th>{t('orderList.orderDetail.subtotal')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.orderDetails?.map((detail, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <img
+                          src={detail.image}
+                          alt={detail.productName}
+                          style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                        />
+                        {detail.productName}
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <div
+                          style={{
+                            width: '20px',
+                            height: '20px',
+                            backgroundColor: detail.color.hex,
+                            border: '1px solid #ddd',
+                            borderRadius: '4px'
+                          }}
+                        />
+                        {detail.color.name} - {detail.size}
+                      </div>
+                    </td>
+                    <td>{detail.quantity}</td>
+                    <td>{detail.price?.toLocaleString('vi-VN')}đ</td>
+                    <td>{(detail.quantity * detail.price)?.toLocaleString('vi-VN')}đ</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="order-summary">
+            <h3>{t('orderList.orderDetail.summary')}</h3>
+            <p><strong>{t('orderList.totalAmount')}:</strong> {order.order.total_price?.toLocaleString('vi-VN')}đ</p>
+            <p><strong>{t('orderList.shippingFee')}:</strong> {order.order.shipping_fee?.toLocaleString('vi-VN')}đ</p>
+            <p><strong>{t('orderList.discount')}:</strong> {order.order.discount?.toLocaleString('vi-VN')}đ</p>
+            <p className="final-total"><strong>{t('orderList.finalTotal')}:</strong> {order.order.final_total?.toLocaleString('vi-VN')}đ</p>
+          </div>
+        </div>
+      </Modal>
+    );
+  };
+
+  // Thêm hàm xử lý yêu cầu trả hàng
+  const handleViewReturnRequest = async (orderId) => {
+    try {
+      setLoading(true);
+      const response = await orderListService.getReturnRequest(orderId);
+      if (response.status === 200) {
+        setSelectedReturnRequest(response.data);
+        setShowReturnRequestModal(true);
+
+      }
+    } catch (error) {
+      console.error('Error fetching return request:', error);
+      alert(error?.response?.data?.message || t('common.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Thêm hàm xử lý phê duyệt/từ chối
+  const handleReturnRequestAction = async (requestId, status) => {
+    try {
+      const response = await orderListService.updateReturnRequestStatus(requestId, { status });
+      if (response.status === 200) {
+        alert(t('orderList.returnRequest.updateSuccess'));
+        setShowReturnRequestModal(false);
+        fetchOrders();
+      }
+    } catch (error) {
+      console.error('Error updating return request:', error);
+      alert(error?.response?.data?.message || t('common.error'));
+    }
+  };
+
+  // Thêm component modal xem chi tiết yêu cầu trả hàng
+  const ReturnRequestModal = ({ request, onClose }) => {
+    if (!request) return null;
+
+    console.log("Return request data:", request); // Debug log
+
+    return (
+      <Modal
+        isOpen={showReturnRequestModal}
+        onClose={onClose}
+        title={t('orderList.returnRequest.title')}
+        size="lg"
+      >
+        <div className="return-request-detail">
+          <div className="request-info">
+            <h3>{t('orderList.returnRequest.requestInfo')}</h3>
+            <p><strong>{t('orderList.orderId')}:</strong> {request.order_id}</p>
+            <p>
+              <strong>{t('orderList.returnRequest.customer')}:</strong>
+              {request.user?.username || 'N/A'}
+            </p>
+            <p>
+              <strong>{t('orderList.returnRequest.email')}:</strong>
+              {request.user?.email || 'N/A'}
+            </p>
+            <p><strong>{t('orderList.returnRequest.reason')}:</strong> {request.reason}</p>
+            <p><strong>{t('orderList.returnRequest.quantity')}:</strong> {request.quality}</p>
+            <p>
+              <strong>{t('orderList.returnRequest.status.title')}:</strong>
+              <span className={`status-badge ${request.status}`}>
+                {t(`orderList.returnRequest.status.${request.status}`)}
+              </span>
+            </p>
+          </div>
+
+          {request.images && request.images.length > 0 && (
+            <div className="images-section">
+              <h3>{t('orderList.returnRequest.images')}</h3>
+              <div className="image-grid">
+                {request.images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image.url}
+                    alt={`Return request image ${index + 1}`}
+                    className="return-image"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {request.status === 'pending' && (
+            <div className="action-buttons">
+              <button
+                className="approve-button"
+                onClick={() => handleReturnRequestAction(request._id, 'approved')}
+              >
+                {t('orderList.returnRequest.approve')}
+              </button>
+              <button
+                className="reject-button"
+                onClick={() => handleReturnRequestAction(request._id, 'rejected')}
+              >
+                {t('orderList.returnRequest.reject')}
+              </button>
+            </div>
+          )}
+        </div>
+      </Modal>
+    );
+  };
+
+  // Thêm hàm xử lý yêu cầu hủy đơn
+  const handleViewCancelRequest = async (orderId) => {
+    try {
+      setLoading(true);
+      const response = await orderListService.getCancelRequest(orderId);
+      if (response.status === 200) {
+        setSelectedCancelRequest(response.data);
+        setShowCancelRequestModal(true);
+      }
+    } catch (error) {
+      console.error('Error fetching cancel request:', error);
+      if (error.response?.status === 404) {
+        alert(t('orderList.cancelRequest.noRequestFound'));
+      } else {
+        alert(error?.response?.data?.message || t('common.error'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Thêm hàm xử lý phê duyệt/từ chối hủy đơn
+  const handleCancelRequestAction = async (requestId, status) => {
+    try {
+      const response = await orderListService.updateCancelRequestStatus(requestId, { status });
+      if (response.status === 200) {
+        alert(t('orderList.cancelRequest.updateSuccess'));
+        setShowCancelRequestModal(false);
+        fetchOrders();
+      }
+    } catch (error) {
+      console.error('Error updating cancel request:', error);
+      alert(error?.response?.data?.message || t('common.error'));
+    }
+  };
+
+  // Thêm component modal xem chi tiết yêu cầu hủy đơn
+  const CancelRequestModal = ({ request, onClose }) => {
+    if (!request) return null;
+
+    return (
+      <Modal
+        isOpen={showCancelRequestModal}
+        onClose={onClose}
+        title={t('orderList.cancelRequest.title')}
+        size="lg"
+      >
+        <div className="cancel-request-detail">
+          <div className="request-info">
+            <h3>{t('orderList.cancelRequest.requestInfo')}</h3>
+            <p><strong>{t('orderList.orderId')}:</strong> {request.order_id}</p>
+            <p>
+              <strong>{t('orderList.cancelRequest.customer')}:</strong>
+              {request.user?.username || 'N/A'}
+            </p>
+            <p>
+              <strong>{t('orderList.cancelRequest.email')}:</strong>
+              {request.user?.email || 'N/A'}
+            </p>
+            <p><strong>{t('orderList.cancelRequest.reason')}:</strong> {request.reason}</p>
+            <p>
+              <strong>{t('orderList.cancelRequest.status')}:</strong>
+              <span className={`status-badge ${request.status}`}>
+                {t(`orderList.cancelRequest.status.${request.status}`)}
+              </span>
+            </p>
+          </div>
+
+          {request.images && request.images.length > 0 && (
+            <div className="images-section">
+              <h3>{t('orderList.cancelRequest.images')}</h3>
+              <div className="image-grid">
+                {request.images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image.url}
+                    alt={`Cancel request image ${index + 1}`}
+                    className="cancel-image"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {request.status === 'pending' && (
+            <div className="action-buttons">
+              <button
+                className="approve-button"
+                onClick={() => handleCancelRequestAction(request._id, 'approved')}
+              >
+                {t('orderList.cancelRequest.approve')}
+              </button>
+              <button
+                className="reject-button"
+                onClick={() => handleCancelRequestAction(request._id, 'rejected')}
+              >
+                {t('orderList.cancelRequest.reject')}
+              </button>
+            </div>
+          )}
+        </div>
+      </Modal>
+    );
+  };
+
+
+
   return (
     <MainLayout>
       <div className="order-list-container">
@@ -199,7 +546,7 @@ function OrderListScreen() {
             }}
             className="status-filter"
           >
-            <option value="all">{t('orderList.allOrders')}</option>
+            {/* <option value="all">{t('orderList.allOrders')}</option>
             <option value="pending">{t('orderList.status.pending')}</option>
             <option value="confirmed">{t('orderList.status.confirmed')}</option>
             <option value="shipping">{t('orderList.status.shipping')}</option>
@@ -209,7 +556,16 @@ function OrderListScreen() {
             <option value="return_approved">{t('orderList.status.return_accepted')}</option>
             <option value="return_rejected">{t('orderList.status.return_rejected')}</option>
             <option value="returned">{t('orderList.status.returned')}</option>
-            <option value="reviewed">{t('orderList.status.reviewed')}</option>
+            <option value="reviewed">{t('orderList.status.reviewed')}</option> */}
+
+            <option value="all">{t('orderList.allOrders')}</option>
+            <option value="pending">{t('orderList.status.pending')}</option>
+            <option value="processing">{t('orderList.status.processing')}</option>
+            <option value="shipping">{t('orderList.status.shipping')}</option>
+            <option value="delivered">{t('orderList.status.delivered')}</option>
+            <option value="returned">{t('orderList.status.returned')}</option>
+            <option value="cancelled">{t('orderList.status.cancelled')}</option>
+
           </select>
         </div>
 
@@ -255,24 +611,60 @@ function OrderListScreen() {
                   </span>
                 </td>
                 <td>
-                  <select
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order._id, e.target.value, order.user_id?._id)}
-                    className="status-select"
-                  >
-                    <option value="pending">{t('orderList.status.pending')}</option>
-                    <option value="confirmed">{t('orderList.status.confirmed')}</option>
-                    <option value="processing">{t('orderList.status.processing')}</option>
-                    <option value="shipping">{t('orderList.status.shipping')}</option>
-                    <option value="delivered">{t('orderList.status.delivered')}</option>
-                    <option value="received">{t('orderList.status.received')}</option>
-                    <option value="cancelled">{t('orderList.status.cancelled')}</option>
-                    <option value="return_requested">{t('orderList.status.return_requested')}</option>
-                    <option value="return_accepted">{t('orderList.status.return_accepted')}</option>
-                    <option value="return_rejected">{t('orderList.status.return_rejected')}</option>
-                    <option value="returned">{t('orderList.status.returned')}</option>
-                    <option value="refunded">{t('orderList.status.refunded')}</option>
-                  </select>
+                  <div className="action-buttons">
+                    <button
+                      className="view-button"
+                      onClick={() => handleViewDetail(order._id)}
+                      title={t('orderList.viewDetail')}
+                    >
+                      <i className="fas fa-eye"></i>
+                    </button>
+
+                    {/* Chỉ hiện nút xem yêu cầu trả hàng khi có return request */}
+                    {order.status === 'delivered' && order.has_return_request && (
+                      <button
+                        className="return-reason-button"
+                        onClick={() => handleViewReturnRequest(order._id)}
+                        title={t('orderList.returnRequest.viewReason')}
+                      >
+                        <i className="fas fa-undo"></i>
+                      </button>
+                    )}
+
+                    {/* Hiện nút xem lý do hủy với đơn đã hủy */}
+                    {order.status === 'cancelled' && (
+                      <button
+                        className="cancel-reason-button"
+                        onClick={() => handleViewCancelRequest(order._id)}
+                        title={t('orderList.cancelRequest.viewReason')}
+                      >
+                        <i className="fas fa-ban"></i>
+                      </button>
+                    )}
+
+                    <select
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                      className="status-select"
+                    >
+                      <option value="pending">{t('orderList.status.pending')}</option>
+                      <option value="processing">{t('orderList.status.processing')}</option>
+                      <option value="shipping">{t('orderList.status.shipping')}</option>
+                      <option value="delivered">{t('orderList.status.delivered')}</option>
+                      <option value="returned">{t('orderList.status.returned')}</option>
+                      <option value="cancelled">{t('orderList.status.cancelled')}</option>
+                    </select>
+
+                    {order.payment_method === 'momo' && order.status === 'returned' && (
+                      <button
+                        className="refund-button"
+                        onClick={() => handleRefund(order)}
+                        disabled={order.status === 'refunded'}
+                      >
+                        {t('orderList.refund')}
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -326,6 +718,39 @@ function OrderListScreen() {
           <div className="loading-overlay">
             <div className="loading-spinner" />
           </div>
+        )}
+
+        {/* Add Modal component */}
+        {selectedOrder && (
+          <OrderDetailModal
+            order={selectedOrder}
+            onClose={() => {
+              setShowDetailModal(false);
+              setSelectedOrder(null);
+            }}
+          />
+        )}
+
+        {/* Thêm modal yêu cầu trả hàng */}
+        {selectedReturnRequest && (
+          <ReturnRequestModal
+            request={selectedReturnRequest}
+            onClose={() => {
+              setShowReturnRequestModal(false);
+              setSelectedReturnRequest(null);
+            }}
+          />
+        )}
+
+        {/* Thêm modal yêu cầu hủy đơn */}
+        {selectedCancelRequest && (
+          <CancelRequestModal
+            request={selectedCancelRequest}
+            onClose={() => {
+              setShowCancelRequestModal(false);
+              setSelectedCancelRequest(null);
+            }}
+          />
         )}
       </div>
     </MainLayout>

@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import DatePicker from 'react-datepicker';
 import { statisticsService } from '../../services/StatisticsService';
 import { useTranslation } from 'react-i18next';
 import './TopProductsChart.css';
 import defaultAvatar from '../../assets/default-avatar.webp';
 
-const TopProductsChart = () => {
+const TopProductsChart = ({ dateRange }) => {
     const { t } = useTranslation();
-    const [dateRange, setDateRange] = useState({
-        startDate: new Date(new Date().setMonth(new Date().getMonth() - 1)),
-        endDate: new Date()
-    });
     const [topProducts, setTopProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -27,8 +22,10 @@ const TopProductsChart = () => {
             );
 
             if (response.status === 200 && response.data) {
-                setTopProducts(response.data.products); // Sửa lại ở đây
-                console.log('Fetched products:', response.data.products);
+                // Giới hạn số lượng sản phẩm hiển thị
+                const TOP_PRODUCTS_LIMIT = 10;
+                const products = response.data.products.slice(0, TOP_PRODUCTS_LIMIT);
+                setTopProducts(products);
             }
         } catch (error) {
             console.error('Error fetching top products:', error);
@@ -36,6 +33,23 @@ const TopProductsChart = () => {
             setLoading(false);
         }
     };
+
+    // Thêm cleanup function
+    useEffect(() => {
+        let isSubscribed = true;
+
+        const fetchData = async () => {
+            if (isSubscribed) {
+                await fetchTopProducts();
+            }
+        };
+
+        fetchData();
+
+        return () => {
+            isSubscribed = false;
+        };
+    }, [dateRange]);
 
     const formatPrice = (price) => {
         if (!price) return "0 đ";
@@ -53,30 +67,6 @@ const TopProductsChart = () => {
     return (
         <div className="top-products-container">
             <h2 className="top-products-title">{t('statistics.topProducts.title')}</h2>
-            <div className="date-picker-container">
-                <DatePicker
-                    selected={dateRange.startDate}
-                    onChange={date => setDateRange(prev => ({ ...prev, startDate: date }))}
-                    selectsStart
-                    startDate={dateRange.startDate}
-                    endDate={dateRange.endDate}
-                    dateFormat="dd/MM/yyyy"
-                    className="date-picker"
-                    placeholderText={t('statistics.salesChart.from')}
-                />
-                <span>{t('statistics.salesChart.to')}</span>
-                <DatePicker
-                    selected={dateRange.endDate}
-                    onChange={date => setDateRange(prev => ({ ...prev, endDate: date }))}
-                    selectsEnd
-                    startDate={dateRange.startDate}
-                    endDate={dateRange.endDate}
-                    minDate={dateRange.startDate}
-                    dateFormat="dd/MM/yyyy"
-                    className="date-picker"
-                    placeholderText={t('statistics.salesChart.to')}
-                />
-            </div>
 
             {loading ? (
                 <div className="loading">Đang tải...</div>

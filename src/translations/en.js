@@ -296,7 +296,10 @@ export const en = {
       actions: "Actions",
       confirmStatusChange: "Confirm order status change?",
       statusUpdateSuccess: "Status updated successfully",
-      searchPlaceholder: "Search by order ID, customer or status..."
+      searchPlaceholder: "Search by order ID, customer or status...",
+      confirmRefund: "Xác nhận hoàn tiền cho đơn hàng này?",
+      refundSuccess: "Hoàn tiền thành công",
+      refund: "Hoàn tiền",
     },
 
     notifications: {

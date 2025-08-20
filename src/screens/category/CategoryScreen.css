@@ -130,6 +130,10 @@ body.dark-mode .form-group input::placeholder {
 .action-buttons {
   display: flex;
   gap: 8px;
+  justify-content: flex-start;
+  /* Căn giữa theo chiều ngang */
+  align-items: center;
+  /* Căn giữa theo chiều dọc */
 }
 
 .edit-button,

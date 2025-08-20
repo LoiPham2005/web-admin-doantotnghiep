@@ -33,11 +33,19 @@ body.dark-mode .page-header h1 {
   gap: 8px;
 }
 
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
 .vouchers-table {
   width: 100%;
   border-collapse: collapse;
   background: var(--background-color);
   box-shadow: 0 1px 3px var(--shadow-color);
+  min-width: 1200px;
+  /* Đảm bảo bảng không bị vỡ */
 }
 
 .vouchers-table th,
@@ -105,6 +113,8 @@ body.dark-mode .modal-buttons button[type="button"]:hover {
 
 .action-buttons {
   display: flex;
+  align-items: center;
+  justify-content: flex-start;
   gap: 8px;
 }
 
@@ -191,18 +201,7 @@ body.dark-mode .modal-buttons button[type="button"]:hover {
   color: white;
 }
 
-/* Form validation styles */
-.form-group input:invalid,
-.form-group select:invalid {
-  border-color: #f44336;
-}
-
-.form-group .error-message {
-  color: #f44336;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
+/* Style cho radio buttons */
 .radio-group {
   display: flex;
   gap: 20px;
@@ -214,6 +213,36 @@ body.dark-mode .modal-buttons button[type="button"]:hover {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+}
+
+/* Thêm style cho type badge */
+.type-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.type-badge.order {
+  background-color: #2196F3;
+  color: white;
+}
+
+.type-badge.shipping {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Form validation styles */
+.form-group input:invalid,
+.form-group select:invalid {
+  border-color: #f44336;
+}
+
+.form-group .error-message {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 .user-select {
@@ -402,4 +431,20 @@ body.dark-mode .search-input {
 
 body.dark-mode .search-icon {
   color: #666;
+}
+
+.fixed-discount-text {
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Dark mode */
+body.dark-mode .fixed-discount-text {
+  background-color: #2d2d2d;
+  border-color: #444;
+  color: #999;
 }

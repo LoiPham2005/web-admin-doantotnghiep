@@ -66,9 +66,24 @@ body.dark-mode .payment-table td {
     color: #856404;
 }
 
+.status.processing {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.status.shipping {
+    background-color: #ede7f6;
+    color: #7b1fa2;
+}
+
+.status.returned {
+    background-color: #fce4ec;
+    color: #c2185b;
+}
+
 .status.completed {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: #e8f5e9;
+    color: #2e7d32;
 }
 
 .status.cancelled {
