@@ -46,9 +46,22 @@
 .status-badge {
   padding: 4px 8px;
   border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.status-badge.approved {
+  background-color: #4CAF50;
   color: white;
-  font-size: 12px;
-  font-weight: 500;
+}
+
+.status-badge.rejected {
+  background-color: #f44336;
+  color: white;
+}
+
+.status-badge.pending {
+  background-color: #FFA500;
+  color: white;
 }
 
 .status-select {
@@ -385,54 +398,113 @@ body.dark-mode .detail-table th {
 }
 
 .cancel-reason-button {
-  padding: 6px 12px;
+  padding: 6px;
   border: none;
   border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 8px;
+  color: white;
+}
+
+.cancel-reason-button {
   background-color: #f44336;
   color: white;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-right: 8px;
 }
 
 .cancel-reason-button:hover {
-  background-color: #d32f2f;
+  opacity: 0.8;
 }
 
 .cancel-reason-button i {
   font-size: 14px;
 }
 
-.return-reason-button {
-  padding: 6px 12px;
+.return-request-button {
+  padding: 6px;
   border: none;
   border-radius: 4px;
   background-color: #ff9800;
   color: white;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s;
   margin-right: 8px;
 }
 
-.return-reason-button:hover {
-  background-color: #f57c00;
-}
-
-.return-reason-button i {
-  font-size: 14px;
-}
-
-.status-badge.approved {
-  background-color: #4caf50;
+.return-reason-button {
+  padding: 6px;
+  border: none;
+  border-radius: 4px;
+  background-color: #2196F3;
   color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 8px;
 }
 
-.status-badge.rejected {
+.return-request-button:hover,
+.return-reason-button:hover {
+  opacity: 0.8;
+}
+
+.cancel-button {
+  padding: 6px;
+  border: none;
+  border-radius: 4px;
   background-color: #f44336;
   color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 8px;
 }
 
-.status-badge.pending {
-  background-color: #ff9800;
+.cancel-button:hover {
+  opacity: 0.8;
+}
+
+.cancel-order-modal {
+  padding: 20px;
+}
+
+.cancel-order-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.cancel-order-modal label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.cancel-order-modal textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-danger {
+  background-color: #dc3545;
   color: white;
 }

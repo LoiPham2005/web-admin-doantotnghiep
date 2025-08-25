@@ -117,5 +117,36 @@ export const orderListService = {
       console.error("Error updating cancel request status:", error);
       throw error;
     }
+  },
+
+  // Create cancel request
+  createCancelRequest: async (data) => {
+    try {
+      console.log("Creating cancel request with data:", data);
+
+      const response = await axiosInstance.post('/cancel-requests/add', data, {
+        headers: getAuthHeader()
+      });
+
+      console.log("Cancel request response:", response.data);
+      return response.data;
+
+    } catch (error) {
+      console.error("Error creating cancel request:", error.response?.data || error);
+      throw error;
+    }
+  },
+
+  // Get product reviews
+  getProductReviews: async (productId) => {
+    try {
+      const response = await axiosInstance.get(`/reviews/product/${productId}`, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching product reviews:", error);
+      throw error;
+    }
   }
 };

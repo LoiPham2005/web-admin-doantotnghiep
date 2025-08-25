@@ -83,48 +83,147 @@ const PaymentHistoryScreen = () => {
         }
     };
 
-    const exportToExcel = () => {
-        const data = payments.map((payment, index) => ({
-            'STT': index + 1,
-            'Mã đơn hàng': payment.order_id?._id?.slice(-6) || 'N/A',
-            'Người dùng': payment.user_id?.username || 'N/A',
-            'Email': payment.user_id?.email || 'N/A',
-            'Số tiền': payment.amount?.toLocaleString('vi-VN') + 'đ',
-            'Thời gian': formatDate(payment.createdAt),
-            'Phương thức': payment.order_id?.payment_method === 'COD' ? 'Tiền mặt' : 'Chuyển khoản',
-            'Trạng thái': convertStatus(payment.order_id?.status)
-        }));
+    // Sửa lại các hàm export
+    const exportToExcel = async () => {
+        try {
+            // Lấy toàn bộ dữ liệu từ API
+            const response = await PaymentHistoryService.getAllPayments(1, Number.MAX_SAFE_INTEGER);
+            const allPayments = response.data.payments;
 
-        const ws = XLSX.utils.json_to_sheet(data);
+            const data = allPayments.map((payment, index) => ({
+                'STT': index + 1,
+                'Mã đơn hàng': payment.order_id?._id?.slice(-6) || 'N/A',
+                'Người dùng': payment.user_id?.username || 'N/A',
+                'Email': payment.user_id?.email || 'N/A',
+                'Số tiền': payment.amount?.toLocaleString('vi-VN') + 'đ',
+                'Thời gian': formatDate(payment.createdAt),
+                'Phương thức': payment.order_id?.payment_method === 'COD' ? 'Tiền mặt' : 'Chuyển khoản',
+                'Trạng thái': convertStatus(payment.order_id?.status)
+            }));
 
-        // Set cột width cho STT
-        ws['!cols'] = [
-            { width: 5 },  // STT
-            { width: 15 }, // Mã đơn hàng
-            { width: 20 }, // Người dùng
-            { width: 10 }, // Người dùng
-            { width: 15 }, // Số tiền
-            { width: 20 }, // Thời gian
-            { width: 15 }, // Phương thức
-            { width: 15 }, // Trạng thái
-        ];
+            const ws = XLSX.utils.json_to_sheet(data);
 
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Lịch sử thanh toán");
-        XLSX.writeFile(wb, "lich_su_thanh_toan.xlsx");
+            // Set cột width
+            ws['!cols'] = [
+                { width: 5 },  // STT
+                { width: 15 }, // Mã đơn hàng
+                { width: 20 }, // Người dùng 
+                { width: 25 }, // Email
+                { width: 15 }, // Số tiền
+                { width: 20 }, // Thời gian
+                { width: 15 }, // Phương thức
+                { width: 15 }, // Trạng thái
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Lịch sử thanh toán");
+            XLSX.writeFile(wb, "lich_su_thanh_toan.xlsx");
+
+        } catch (error) {
+            console.error('Error exporting to Excel:', error);
+            alert('Có lỗi xảy ra khi xuất Excel');
+        }
     };
 
-    const exportToPDF = () => {
-        const element = document.getElementById('payment-table-container');
-        const opt = {
-            margin: 1,
-            filename: 'lich_su_thanh_toan.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
-        };
+    const exportToPDF = async () => {
+        try {
+            // Lấy toàn bộ dữ liệu
+            const response = await PaymentHistoryService.getAllPayments(1, Number.MAX_SAFE_INTEGER);
+            const allPayments = response.data.payments;
 
-        html2pdf().set(opt).from(element).save();
+            // Tạo HTML template với styles
+            const htmlContent = `
+                <html>
+                    <head>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            h2 { color: #333; text-align: center; margin-bottom: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                            th, td { 
+                                border: 1px solid #ddd; 
+                                padding: 8px;
+                                font-size: 12px;
+                            }
+                            th { 
+                                background-color: #f4f4f4; 
+                                font-weight: bold;
+                                color: #333;
+                            }
+                            tr:nth-child(even) { background-color: #f9f9f9; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Lịch sử thanh toán</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã đơn hàng</th>
+                                    <th>Người dùng</th>
+                                    <th>Email</th>
+                                    <th>Số tiền</th>
+                                    <th>Thời gian</th>
+                                    <th>Phương thức</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${allPayments.map((payment, index) => `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${payment.order_id?._id?.slice(-6) || 'N/A'}</td>
+                                        <td>${payment.user_id?.username || 'N/A'}</td>
+                                        <td>${payment.user_id?.email || 'N/A'}</td>
+                                        <td>${payment.amount?.toLocaleString('vi-VN')}đ</td>
+                                        <td>${formatDate(payment.createdAt)}</td>
+                                        <td>${payment.order_id?.payment_method === 'COD' ? 'Tiền mặt' : 'Chuyển khoản'}</td>
+                                        <td>${convertStatus(payment.order_id?.status)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </body>
+                </html>
+            `;
+
+            const opt = {
+                margin: 10,
+                filename: 'lich_su_thanh_toan.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    logging: true,
+                    useCORS: true
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'landscape'
+                }
+            };
+
+            // Tạo element tạm thời
+            const element = document.createElement('div');
+            element.innerHTML = htmlContent;
+            document.body.appendChild(element);
+
+            // Generate PDF
+            html2pdf()
+                .set(opt)
+                .from(element)
+                .save()
+                .then(() => {
+                    document.body.removeChild(element);
+                })
+                .catch(err => {
+                    console.error('PDF generation error:', err);
+                    alert('Có lỗi khi tạo PDF');
+                });
+
+        } catch (error) {
+            console.error('Error exporting to PDF:', error);
+            alert('Có lỗi xảy ra khi xuất PDF');
+        }
     };
 
     // Add search handler

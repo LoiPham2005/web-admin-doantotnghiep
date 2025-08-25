@@ -291,6 +291,8 @@ export const vi = {
         title: "Chi tiết sản phẩm",
         variants: "Danh sách biến thể",
         inStock: "Tồn kho",
+        reviews: 'Đánh giá sản phẩm',
+        noReviews: 'Chưa có đánh giá nào',
       }
     },
 
@@ -565,7 +567,9 @@ export const vi = {
         deleteSuccess: "Xóa banner thành công",
         updateSuccess: "Cập nhật banner thành công",
         addSuccess: "Thêm banner thành công",
-        maxBanners: "Chỉ cho phép tối đa 3 banner"
+        maxBanners: "Chỉ cho phép tối đa 3 banner",
+        pleaseSelectNewImage: "Vui lòng chọn ảnh mới để cập nhật",
+        pleaseSelectImage: "Vui lòng chọn ảnh"
       }
     }
   }
