@@ -76,9 +76,6 @@ function AddEditProductScreen() {
     { value: 'discontinued', label: t('products.modal.variantStatus.discontinued') }
   ];
 
-  // Thêm state cho danh mục theo brand
-  const [brandCategories, setBrandCategories] = useState([]);
-
   useEffect(() => {
     fetchInitialData();
     if (isEditing) {
@@ -86,29 +83,11 @@ function AddEditProductScreen() {
     }
   }, [id]);
 
-  useEffect(() => {
-    if (formData.brand_id) {
-      // Fetch categories cho brand được chọn
-      const fetchBrandCategories = async () => {
-        try {
-          const response = await categoryService.getCategoriesByBrand(formData.brand_id);
-          if (response.success) {
-            setBrandCategories(response.data);
-          }
-        } catch (error) {
-          console.error('Error fetching categories:', error);
-        }
-      };
-
-      fetchBrandCategories();
-    }
-  }, [formData.brand_id]);
-
   const fetchInitialData = async () => {
     try {
       setIsLoading(true);
       const [categoriesRes, brandsRes, colorsRes, sizesRes] = await Promise.all([
-        categoryService.getCategories(),
+        categoryService.getCategories(), // Lấy tất cả categories
         brandService.getBrands(),
         colorService.getColors(),
         sizesService.getSizes()
@@ -120,6 +99,7 @@ function AddEditProductScreen() {
       if (sizesRes.success) setSizes(sizesRes.data);
     } catch (error) {
       console.error('Error fetching initial data:', error);
+      alert(t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -178,29 +158,12 @@ function AddEditProductScreen() {
     }
   };
 
-  const handleInputChange = async (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-
-    // Nếu thay đổi brand, fetch categories tương ứng
-    if (name === 'brand_id' && value) {
-      try {
-        const result = await categoryService.getCategoriesByBrand(value);
-        if (result.success) {
-          setBrandCategories(result.data);
-          // Reset category selection
-          setFormData(prev => ({
-            ...prev,
-            category_id: ''
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching brand categories:', error);
-      }
-    }
   };
 
   const handleImageSelect = (e) => {
@@ -530,10 +493,10 @@ function AddEditProductScreen() {
                   value={formData.category_id}
                   onChange={handleInputChange}
                   required
-                  disabled={!formData.brand_id} // Disable nếu chưa chọn brand
+                  // disabled={!formData.brand_id} // Disable nếu chưa chọn brand
                 >
                   <option value="">{t('products.modal.selectCategory')}</option>
-                  {brandCategories.map(category => (
+                  {categories.map(category => (
                     <option key={category._id} value={category._id}>
                       {category.name}
                     </option>

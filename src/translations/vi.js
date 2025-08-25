@@ -35,7 +35,7 @@ export const vi = {
         inbox: "Tin nhắn",
         posts: "Bài viết",
         orderLists: "Danh sách đơn hàng",
-        productStock: "Kho hàng",
+        productStock: "Tồn kho",
         paymentHistory: "Quản lý thanh toán",
         settings: "Cài đặt",
         logout: "Đăng xuất"
@@ -116,7 +116,10 @@ export const vi = {
         active: "Còn hàng",
         out_of_stock: "Hết hàng",
         importing_goods: "Đang nhập hàng",
-        hidden: "Ẩn sản phẩm"  // Thêm translation cho hidden
+        hidden: "Ẩn sản phẩm",
+        available: "Có sẵn",
+        out_of_stock: "Hết hàng",
+        discontinued: "Ngừng kinh doanh"
       },
       messages: {
         confirmDelete: "Bạn có chắc chắn muốn xóa sản phẩm này?",
@@ -131,7 +134,7 @@ export const vi = {
         brand: "Thương hiệu",
         selectBrand: "Chọn thương hiệu",
         category: "Danh mục",
-        selectCategory: "Chọn danh mục (chọn thương hiệu trước)",
+        selectCategory: "Chọn danh mục",
         status: "Trạng thái",
         selectStatus: "Chọn trạng thái",
         media: "Hình ảnh & Video",
@@ -275,7 +278,7 @@ export const vi = {
 
     // Thêm section mới cho product stock
     productStock: {
-      title: "Kho hàng",
+      title: "Tồn kho",
       quantity: "Số lượng",
       status: "Trạng thái",
       lowStock: "Sắp hết hàng",
@@ -291,6 +294,8 @@ export const vi = {
         title: "Chi tiết sản phẩm",
         variants: "Danh sách biến thể",
         inStock: "Tồn kho",
+        reviews: 'Đánh giá sản phẩm',
+        noReviews: 'Chưa có đánh giá nào',
       }
     },
 
@@ -309,6 +314,7 @@ export const vi = {
       orderDate: "Ngày đặt",
       orderStatus: "Trạng thái đơn hàng",
       email: "Email",
+      cancelOrder: "Hủy đơn hàng",
       status: {
         title: "Trạng thái",
         pending: "Chờ xác nhận",
@@ -371,6 +377,7 @@ export const vi = {
         orderId: "Mã đơn hàng",
         customer: "Khách hàng",
         reason: "Lý do hủy",
+        reasonPlaceholder: "Nhập lý do hủy",
         viewReason: "Xem lý do hủy",
         noRequestFound: "Không tìm thấy thông tin hủy đơn cho đơn hàng này"
       }
@@ -565,7 +572,9 @@ export const vi = {
         deleteSuccess: "Xóa banner thành công",
         updateSuccess: "Cập nhật banner thành công",
         addSuccess: "Thêm banner thành công",
-        maxBanners: "Chỉ cho phép tối đa 3 banner"
+        maxBanners: "Chỉ cho phép tối đa 3 banner",
+        pleaseSelectNewImage: "Vui lòng chọn ảnh mới để cập nhật",
+        pleaseSelectImage: "Vui lòng chọn ảnh"
       }
     }
   }

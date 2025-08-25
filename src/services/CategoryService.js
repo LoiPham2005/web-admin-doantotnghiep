@@ -5,10 +5,9 @@ import { getAuthHeader } from '../config/authHeader';
 
 export const categoryService = {
   // Lấy danh sách danh mục
-  getCategories: async (isAdmin = false) => {
+  getCategories: async () => {
     try {
       const response = await axios.get(`${API_URL}/category/list`, {
-        params: { isAdmin },
         headers: getAuthHeader()
       });
       if (response.data.status === 200) {

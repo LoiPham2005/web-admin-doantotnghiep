@@ -147,9 +147,22 @@ export const productService = {
     } catch (error) {
       console.error("Error fetching product:", error);
       return {
-        success: false, 
+        success: false,
         message: error.response?.data?.message || 'Error fetching product'
       };
     }
   },
+
+  // Thêm method getProductReviews
+  getProductReviews: async (productId) => {
+    try {
+      const response = await axios.get(`${API_URL}/reviews/product/${productId}`, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching product reviews:", error);
+      throw error;
+    }
+  }
 };

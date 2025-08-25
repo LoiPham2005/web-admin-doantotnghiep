@@ -21,6 +21,13 @@ function ProductStockScreen() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
+  // Thêm state và function mới
+  const [reviews, setReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+
+  // Thêm state loading modal
+  const [loadingModal, setLoadingModal] = useState(false);
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -98,15 +105,43 @@ function ProductStockScreen() {
     setSearchTimeout(timeoutId);
   };
 
-  // Thêm hàm xử lý click vào sản phẩm
-  const handleViewDetail = (product) => {
-    setSelectedProduct(product);
-    setShowDetailModal(true);
+  // Sửa lại hàm handleViewDetail
+  const handleViewDetail = async (product) => {
+    try {
+      setLoadingModal(true); // Show loading trước khi fetch
+
+      // Fetch reviews
+      const response = await productService.getProductReviews(product._id);
+      console.log("Reviews response:", response);
+
+      if (response.status === 200) {
+        setReviews(response.data.reviews);
+        setSelectedProduct(product);
+        setShowDetailModal(true); // Chỉ show modal sau khi có data
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setReviews([]);
+    } finally {
+      setLoadingModal(false); // Hide loading
+    }
+  };
+
+  // Thêm hàm đóng modal
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedProduct(null);
+    setReviews([]); // Clear reviews khi đóng modal
+    setLoadingReviews(false); // Reset loading state
   };
 
   // Thêm component ProductDetailModal 
   const ProductDetailModal = ({ product, onClose }) => {
     if (!product) return null;
+
+    const getStarRating = (rating) => {
+      return "★".repeat(rating) + "☆".repeat(5 - rating);
+    };
 
     return (
       <div className="modal-overlay" onClick={onClose}>
@@ -116,6 +151,7 @@ function ProductStockScreen() {
             <button className="close-button" onClick={onClose}>&times;</button>
           </div>
           <div className="modal-body">
+            {/* Product details section */}
             <div className="product-detail">
               <div className="detail-image">
                 {product.media && product.media.length > 0 && (
@@ -170,6 +206,69 @@ function ProductStockScreen() {
                 </div>
               </div>
             </div>
+
+            {/* Add Reviews Section */}
+            <div className="reviews-section">
+              <h4>{t('productStock.detail.reviews')}</h4>
+              {loadingReviews ? (
+                <div className="loading-reviews">
+                  <div className="loading-spinner" />
+                  <p>Đang tải đánh giá...</p>
+                </div>
+              ) : reviews?.length > 0 ? (
+                <div className="reviews-list">
+                  {reviews.map((review) => (
+                    <div key={review._id} className="review-item">
+                      <div className="review-header">
+                        <div className="reviewer-info">
+                          <span className="reviewer-name">
+                            {review.user_id?.username}
+                            {review.user_id?.avatar && (
+                              <img
+                                src={review.user_id.avatar}
+                                alt="avatar"
+                                className="reviewer-avatar"
+                              />
+                            )}
+                          </span>
+                          <span className="review-date">
+                            {new Date(review.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="rating">
+                          <span className="stars">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                          <span className="rating-value">{review.rating}/5</span>
+                        </div>
+                      </div>
+                      <p className="review-comment">{review.comment}</p>
+                      {review.media && review.media.length > 0 && (
+                        <div className="review-media">
+                          {review.media.map((media, index) => (
+                            <div key={index} className="media-item">
+                              {media.url.includes('video') ? (
+                                <video
+                                  src={media.url}
+                                  controls
+                                  className="review-video"
+                                />
+                              ) : (
+                                <img
+                                  src={media.url}
+                                  alt={`Review ${index + 1}`}
+                                  className="review-image"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="no-reviews">Chưa có đánh giá nào</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -202,7 +301,7 @@ function ProductStockScreen() {
               <div
                 key={product._id}
                 className="stock-card"
-                onClick={() => handleViewDetail(product)} // Thêm handler
+                onClick={() => handleViewDetail(product)}
               >
                 <div className="stock-image">
                   {product.media && product.media.length > 0 && (
@@ -299,13 +398,21 @@ function ProductStockScreen() {
           </div>
         )}
 
-        {showDetailModal && selectedProduct && (
+        {/* Loading overlay */}
+        {loadingModal && (
+          <div className="loading-overlay">
+            <div className="loading-content">
+              <div className="loading-spinner" />
+              <p>Đang tải thông tin...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Chỉ show modal khi không còn loading */}
+        {!loadingModal && showDetailModal && selectedProduct && (
           <ProductDetailModal
             product={selectedProduct}
-            onClose={() => {
-              setShowDetailModal(false);
-              setSelectedProduct(null);
-            }}
+            onClose={handleCloseModal}
           />
         )}
       </div>

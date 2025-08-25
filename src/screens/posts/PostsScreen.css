@@ -365,3 +365,10 @@ body.dark-mode .search-input {
 body.dark-mode .search-icon {
     color: #666;
 }
+/* Style cho cột message để giới hạn 2 dòng với dấu ... */
+.posts-table td:nth-child(4) {
+    max-width: 300px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}

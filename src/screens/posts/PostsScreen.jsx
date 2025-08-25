@@ -272,7 +272,11 @@ export default function PostsScreen() {
                     )}
                   </td>
                   <td>{post.title}</td>
-                  <td>{post.message}</td>
+                  
+
+                   <td title={post.message.length > 100 ? post.message : undefined}>
+                    {post.message}
+                  </td>
                   <td>
                     <div className="action-buttons">
                       <button

@@ -31,6 +31,11 @@ function OrderListScreen() {
   const [selectedCancelRequest, setSelectedCancelRequest] = useState(null);
   const [showCancelRequestModal, setShowCancelRequestModal] = useState(false);
 
+  // Thêm state mới cho modal hủy đơn
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -324,14 +329,15 @@ function OrderListScreen() {
     }
   };
 
-  // Thêm hàm xử lý phê duyệt/từ chối
+  // Sửa lại hàm xử lý chấp nhận/từ chối trả hàng
   const handleReturnRequestAction = async (requestId, status) => {
     try {
       const response = await orderListService.updateReturnRequestStatus(requestId, { status });
+
       if (response.status === 200) {
         alert(t('orderList.returnRequest.updateSuccess'));
         setShowReturnRequestModal(false);
-        fetchOrders();
+        fetchOrders(); // Refresh danh sách đơn hàng
       }
     } catch (error) {
       console.error('Error updating return request:', error);
@@ -339,11 +345,9 @@ function OrderListScreen() {
     }
   };
 
-  // Thêm component modal xem chi tiết yêu cầu trả hàng
+  // Sửa lại modal xem chi tiết yêu cầu trả hàng
   const ReturnRequestModal = ({ request, onClose }) => {
     if (!request) return null;
-
-    console.log("Return request data:", request); // Debug log
 
     return (
       <Modal
@@ -355,23 +359,16 @@ function OrderListScreen() {
         <div className="return-request-detail">
           <div className="request-info">
             <h3>{t('orderList.returnRequest.requestInfo')}</h3>
-            <p><strong>{t('orderList.orderId')}:</strong> {request.order_id}</p>
-            <p>
-              <strong>{t('orderList.returnRequest.customer')}:</strong>
-              {request.user?.username || 'N/A'}
-            </p>
-            <p>
-              <strong>{t('orderList.returnRequest.email')}:</strong>
-              {request.user?.email || 'N/A'}
-            </p>
+            <p><strong>{t('orderList.returnRequest.orderId')}:</strong> #{request.order_id.slice(-6)}</p>
             <p><strong>{t('orderList.returnRequest.reason')}:</strong> {request.reason}</p>
-            <p><strong>{t('orderList.returnRequest.quantity')}:</strong> {request.quality}</p>
-            <p>
-              <strong>{t('orderList.returnRequest.status.title')}:</strong>
+            <p><strong>{t('orderList.returnRequest.status.title')}:</strong>
               <span className={`status-badge ${request.status}`}>
                 {t(`orderList.returnRequest.status.${request.status}`)}
               </span>
             </p>
+            {request.status !== 'pending' && (
+              <p><strong>Thời gian xử lý:</strong> {new Date(request.updatedAt).toLocaleString()}</p>
+            )}
           </div>
 
           {request.images && request.images.length > 0 && (
@@ -382,7 +379,7 @@ function OrderListScreen() {
                   <img
                     key={index}
                     src={image.url}
-                    alt={`Return request image ${index + 1}`}
+                    alt={`Return request ${index + 1}`}
                     className="return-image"
                   />
                 ))}
@@ -390,6 +387,7 @@ function OrderListScreen() {
             </div>
           )}
 
+          {/* Chỉ hiện nút khi đang ở trạng thái chờ xử lý */}
           {request.status === 'pending' && (
             <div className="action-buttons">
               <button
@@ -516,7 +514,119 @@ function OrderListScreen() {
     );
   };
 
+  // Thêm hàm xử lý hiển thị modal hủy đơn
+  const handleShowCancelModal = (orderId) => {
+    setSelectedOrderId(orderId);
+    setShowCancelModal(true);
+    setCancelReason('');
+  };
 
+  // Thêm hàm xử lý hủy đơn
+  const handleCancelOrder = async () => {
+    try {
+      if (!cancelReason.trim()) {
+        alert('Vui lòng nhập lý do hủy đơn');
+        return;
+      }
+
+      console.log("Submitting cancel request:", {
+        order_id: selectedOrderId,
+        user_id: 'admin',
+        reason: cancelReason,
+        is_admin_cancel: true
+      });
+
+      const response = await orderListService.createCancelRequest({
+        order_id: selectedOrderId,
+        user_id: 'admin',
+        reason: cancelReason,
+        is_admin_cancel: true
+      });
+
+      if (response.status === 200) {
+        alert(t('orderList.cancelSuccess'));
+        setShowCancelModal(false);
+        setCancelReason('');
+        fetchOrders(); // Refresh danh sách đơn hàng
+      }
+    } catch (error) {
+      console.error('Error canceling order:', error);
+      alert(error?.response?.data?.message || t('common.error'));
+    }
+  };
+
+  const renderActionButtons = (order) => {
+    return (
+      <div className="action-buttons">
+        <button
+          className="view-button"
+          onClick={() => handleViewDetail(order._id)}
+          title={t('orderList.viewDetail')}
+        >
+          <i className="fas fa-eye"></i>
+        </button>
+
+        {/* Thêm nút hủy đơn cho trạng thái pending và processing */}
+        {['pending', 'processing'].includes(order.status) && (
+          <button
+            className="cancel-button"
+            onClick={() => handleShowCancelModal(order._id)}
+            title={t('orderList.cancelOrder')}
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        )}
+
+        {/* Thêm nút xem lý do hủy khi đơn đã hủy */}
+        {order.status === 'cancelled' && (
+          <button
+            className="cancel-reason-button"
+            onClick={() => handleViewCancelRequest(order._id)}
+            title={t('orderList.cancelRequest.viewReason')}
+          >
+            <i className="fas fa-ban"></i>
+          </button>
+        )}
+
+        {/* Hiển thị nút xem yêu cầu trả với đơn đã giao có yêu cầu trả pending */}
+        {order.status === 'delivered' && order.has_return_request && (
+          <button
+            className="return-request-button"
+            onClick={() => handleViewReturnRequest(order._id)}
+            title={t('orderList.returnRequest.viewRequest')}
+          >
+            <i className="fas fa-undo"></i>
+          </button>
+        )}
+
+        {/* Hiển thị nút xem lý do trả với đơn đã trả hoặc đã từ chối trả */}
+        {(order.status === 'returned' ||
+          (order.status === 'delivered')) && (
+            <button
+              className="return-reason-button"
+              onClick={() => handleViewReturnRequest(order._id)}
+              title={t('orderList.returnRequest.viewReason')}
+            >
+              <i className="fas fa-info-circle"></i>
+            </button>
+          )}
+
+        <select
+          value={order.status}
+          onChange={(e) => handleStatusChange(order._id, e.target.value)}
+          className="status-select"
+          disabled={order.status === 'delivered' || order.status === 'returned' || order.status === 'cancelled'}
+        >
+          <option value="pending">{t('orderList.status.pending')}</option>
+          <option value="processing">{t('orderList.status.processing')}</option>
+          <option value="shipping">{t('orderList.status.shipping')}</option>
+          <option value="delivered">{t('orderList.status.delivered')}</option>
+          <option value="returned">{t('orderList.status.returned')}</option>
+          <option value="cancelled">{t('orderList.status.cancelled')}</option>
+        </select>
+      </div>
+    );
+  };
 
   return (
     <MainLayout>
@@ -576,7 +686,7 @@ function OrderListScreen() {
               <th>{t('orderList.orderId')}</th>
               <th>{t('orderList.customer')}</th>
               <th>{t('orderList.totalAmount')}</th>
-              <th>{t('orderList.shippingFee')}</th>
+              {/* <th>{t('orderList.shippingFee')}</th> */}
               <th>{t('orderList.discount')}</th>
               <th>{t('orderList.finalTotal')}</th>
               <th>{t('orderList.paymentMethod')}</th>
@@ -596,7 +706,7 @@ function OrderListScreen() {
                   <div className="email">{order.email}</div>
                 </td>
                 <td>{order.total_price.toLocaleString('vi-VN')}đ</td>
-                <td>{order.shipping_fee.toLocaleString('vi-VN')}đ</td>
+                {/* <td>{order.shipping_fee.toLocaleString('vi-VN')}đ</td> */}
                 <td>{order.discount.toLocaleString('vi-VN')}đ</td>
                 <td>{order.final_total.toLocaleString('vi-VN')}đ</td>
                 <td>{order.payment_method}</td>
@@ -605,66 +715,13 @@ function OrderListScreen() {
                 <td>
                   <span
                     className="status-badge"
-                    style={{ backgroundColor: getStatusBadgeColor(order.status) }}
+                    style={{ backgroundColor: getStatusBadgeColor(order.status), color: 'white' }}
                   >
                     {t(`orderList.status.${order.status}`)}
                   </span>
                 </td>
                 <td>
-                  <div className="action-buttons">
-                    <button
-                      className="view-button"
-                      onClick={() => handleViewDetail(order._id)}
-                      title={t('orderList.viewDetail')}
-                    >
-                      <i className="fas fa-eye"></i>
-                    </button>
-
-                    {/* Chỉ hiện nút xem yêu cầu trả hàng khi có return request */}
-                    {order.status === 'delivered' && order.has_return_request && (
-                      <button
-                        className="return-reason-button"
-                        onClick={() => handleViewReturnRequest(order._id)}
-                        title={t('orderList.returnRequest.viewReason')}
-                      >
-                        <i className="fas fa-undo"></i>
-                      </button>
-                    )}
-
-                    {/* Hiện nút xem lý do hủy với đơn đã hủy */}
-                    {order.status === 'cancelled' && (
-                      <button
-                        className="cancel-reason-button"
-                        onClick={() => handleViewCancelRequest(order._id)}
-                        title={t('orderList.cancelRequest.viewReason')}
-                      >
-                        <i className="fas fa-ban"></i>
-                      </button>
-                    )}
-
-                    <select
-                      value={order.status}
-                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                      className="status-select"
-                    >
-                      <option value="pending">{t('orderList.status.pending')}</option>
-                      <option value="processing">{t('orderList.status.processing')}</option>
-                      <option value="shipping">{t('orderList.status.shipping')}</option>
-                      <option value="delivered">{t('orderList.status.delivered')}</option>
-                      <option value="returned">{t('orderList.status.returned')}</option>
-                      <option value="cancelled">{t('orderList.status.cancelled')}</option>
-                    </select>
-
-                    {order.payment_method === 'momo' && order.status === 'returned' && (
-                      <button
-                        className="refund-button"
-                        onClick={() => handleRefund(order)}
-                        disabled={order.status === 'refunded'}
-                      >
-                        {t('orderList.refund')}
-                      </button>
-                    )}
-                  </div>
+                  {renderActionButtons(order)}
                 </td>
               </tr>
             ))}
@@ -751,6 +808,43 @@ function OrderListScreen() {
               setSelectedCancelRequest(null);
             }}
           />
+        )}
+
+        {/* Thêm Modal hủy đơn */}
+        {showCancelModal && (
+          <Modal
+            isOpen={showCancelModal}
+            onClose={() => setShowCancelModal(false)}
+            title={t('orderList.cancelOrder')}
+            size="md"
+          >
+            <div className="cancel-order-modal">
+              <div className="form-group">
+                {/* <label>{t('orderList.cancelRequest.reason')}</label> */}
+                <textarea
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder={t('orderList.cancelRequest.reasonPlaceholder')}
+                  rows={4}
+                  className="form-control"
+                />
+              </div>
+              <div className="modal-actions">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowCancelModal(false)}
+                >
+                  {t('common.cancel')}
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={handleCancelOrder}
+                >
+                  {t('orderList.cancelOrder')}
+                </button>
+              </div>
+            </div>
+          </Modal>
         )}
       </div>
     </MainLayout>

@@ -58,8 +58,8 @@ function ProductsScreen() {
 
   const statusOptions = [
     { value: 'active', label: t('products.status.active') },
-    { value: 'out of stock', label: t('products.status.out of stock') },
-    { value: 'importing goods', label: t('products.status.importing goods') },
+    { value: 'out_of_stock', label: t('products.status.out_of_stock') },
+    { value: 'importing_goods', label: t('products.status.importing_goods') },
     { value: 'hidden', label: t('products.status.hidden') } // Thêm option hidden
   ];
 
@@ -540,7 +540,7 @@ function ProductsScreen() {
           <h1>{t('products.title')}</h1>
           <div className="header-actions">
             <button className="stock-button" onClick={handleProductStockScreen}>
-              <i className="fas fa-warehouse"></i>
+              <i style={{marginRight: 5}} className="fas fa-warehouse"></i>
               {t('common.nav.productStock')}
             </button>
             <div className="search-box">
