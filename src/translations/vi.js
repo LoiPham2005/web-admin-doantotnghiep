@@ -239,7 +239,8 @@ export const vi = {
         selectUser: "Chọn người dùng để thêm",
         type: "Loại voucher",
         typeOrder: "Giảm giá đơn hàng",
-        typeShipping: "Giảm phí vận chuyển"
+        typeShipping: "Giảm phí vận chuyển",
+        noUsers: "Không ai" // Thêm dòng này
       },
       status: {
         active: "Đang hoạt động",

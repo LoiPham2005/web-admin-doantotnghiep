@@ -39,6 +39,9 @@ function VoucherScreen() {
   // Thêm state để theo dõi loại voucher được chọn
   const [selectedType, setSelectedType] = useState(formData.type || 'order');
 
+  // Thêm state mới để phân biệt với all users
+  const [selectedVoucherTarget, setSelectedVoucherTarget] = useState('none'); // 'none' hoặc 'specific'
+
   useEffect(() => {
     fetchVouchers();
   }, []);
@@ -205,62 +208,38 @@ function VoucherScreen() {
       let response;
       if (editingVoucher) {
         response = await voucherService.updateVoucher(editingVoucher._id, voucherData);
-        // if (response.status === 200) {
-        //   // Handle user vouchers
-        //   await userVoucherService.removeAllUserVouchers(editingVoucher._id);
-
-        //   if (voucherType === 'all') {
-        //     const allUsers = await userService.getAllUsers();
-        //     await Promise.all(allUsers.map(user =>
-        //       userVoucherService.saveVoucherToUser({
-        //         user_id: user._id,
-        //         voucher_id: editingVoucher._id
-        //       })
-        //     ));
-        //   } else if (voucherType === 'specific' && selectedUsers.length > 0) {
-        //     await Promise.all(selectedUsers.map(user =>
-        //       userVoucherService.saveVoucherToUser({
-        //         user_id: user._id,
-        //         voucher_id: editingVoucher._id
-        //       })
-        //     ));
-        //   }
-        // }
+        
+        // Chỉ gọi API user voucher khi chọn specific users
+        if (response.status === 200 && selectedVoucherTarget === 'specific') {
+          await userVoucherService.removeAllUserVouchers(editingVoucher._id);
+          if (selectedUsers.length > 0) {
+            await Promise.all(selectedUsers.map(user =>
+              userVoucherService.saveVoucherToUser({
+                user_id: user._id,
+                voucher_id: editingVoucher._id
+              })
+            ));
+          }
+        }
       } else {
-        // Adding a new voucher
+        // Adding new voucher
         response = await voucherService.addVoucher(voucherData);
-        // if (response.status === 200) {
-        //   const voucherId = response.data._id || response.data.data._id;
-
-        //   if (voucherType === 'all') {
-        //     // Fetch all users and add the voucher to each
-        //     const allUsers = await userService.getAllUsers();
-        //     await Promise.all(allUsers.map(user =>
-        //       userVoucherService.saveVoucherToUser({
-        //         user_id: user._id,
-        //         voucher_id: voucherId
-        //       })
-        //     ));
-        //   } else if (voucherType === 'specific' && selectedUsers.length > 0) {
-        //     await Promise.all(selectedUsers.map(user =>
-        //       userVoucherService.saveVoucherToUser({
-        //         user_id: user._id,
-        //         voucher_id: voucherId
-        //       })
-        //     ));
-        //   }
-        // }
+        
+        // Chỉ gọi API user voucher khi chọn specific users và có users được chọn
+        if (response.status === 200 && selectedVoucherTarget === 'specific' && selectedUsers.length > 0) {
+          const voucherId = response.data._id || response.data.data._id;
+          await Promise.all(selectedUsers.map(user =>
+            userVoucherService.saveVoucherToUser({
+              user_id: user._id,
+              voucher_id: voucherId
+            })
+          ));
+        }
       }
 
-      // alert(t(editingVoucher ? 'vouchers.messages.updateSuccess' : 'vouchers.messages.addSuccess'));
-      // resetForm();
-      // fetchVouchers();
-
-      if (response.status === 200) {
-        alert(t(editingVoucher ? 'vouchers.messages.updateSuccess' : 'vouchers.messages.addSuccess'));
-        resetForm();
-        fetchVouchers();
-      }
+      alert(t(editingVoucher ? 'vouchers.messages.updateSuccess' : 'vouchers.messages.addSuccess'));
+      resetForm();
+      fetchVouchers();
 
     } catch (error) {
       console.error('Submit error:', error);
@@ -659,33 +638,35 @@ function VoucherScreen() {
                   </div>
                 )}
 
-                {/* <div className="form-group">
+                {/* Sửa lại phần form radio group */}
+                <div className="form-group">
                   <label>{t('vouchers.form.voucherType')}</label>
                   <div className="radio-group">
                     <label className="radio-label">
                       <input
                         type="radio"
                         name="voucherType"
-                        value="all"
-                        checked={voucherType === 'all'}
-                        onChange={(e) => setVoucherType(e.target.value)}
+                        value="none"
+                        checked={selectedVoucherTarget === 'none'}
+                        onChange={(e) => setSelectedVoucherTarget(e.target.value)}
                       />
-                      {t('vouchers.form.allUsers')}
+                      {t('vouchers.form.noUsers')} {/* Thêm translation mới */}
                     </label>
                     <label className="radio-label">
                       <input
                         type="radio"
                         name="voucherType"
                         value="specific"
-                        checked={voucherType === 'specific'}
-                        onChange={(e) => setVoucherType(e.target.value)}
+                        checked={selectedVoucherTarget === 'specific'}
+                        onChange={(e) => setSelectedVoucherTarget(e.target.value)}
                       />
                       {t('vouchers.form.specificUsers')}
                     </label>
                   </div>
-                </div> */}
+                </div>
 
-                {/* {voucherType === 'specific' && (
+                {/* Chỉ hiển thị select users khi chọn specific */}
+                {selectedVoucherTarget === 'specific' && (
                   <div className="form-group">
                     <label>{t('vouchers.form.selectUsers')}</label>
                     <select
@@ -733,7 +714,7 @@ function VoucherScreen() {
                       </div>
                     )}
                   </div>
-                )} */}
+                )}
 
                 <div className="modal-buttons">
                   <button

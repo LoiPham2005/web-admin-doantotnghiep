@@ -112,7 +112,7 @@ const Login = () => {
 
           <div className="form-group">
             <label htmlFor="password">{t('login.password')}</label>
-            <a href="#" className="forgot-password">{t('login.forgotPassword')}</a>
+            {/* <a href="#" className="forgot-password">{t('login.forgotPassword')}</a> */}
             <div className="password-input-container">
               <input
                 type={showPassword ? "text" : "password"}
@@ -133,7 +133,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="form-checkbox">
+          {/* <div className="form-checkbox">
             <input
               type="checkbox"
               id="rememberPassword"
@@ -142,7 +142,7 @@ const Login = () => {
               onChange={handleChange}
             />
             <label htmlFor="rememberPassword">{t('login.rememberMe')}</label>
-          </div>
+          </div> */}
 
           <button
             type="submit"
