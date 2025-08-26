@@ -1000,3 +1000,33 @@ body.dark-mode .form-group select:disabled {
     line-height: 1.4;
     word-wrap: break-word;
 }
+
+/* Light mode */
+.stock-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 16px;
+    transition: all 0.3s ease;
+}
+
+.stock-button:hover {
+    background-color: #45a049;
+}
+
+/* Dark mode */
+body.dark-mode .stock-button {
+    background-color: #2d3748;
+    color: white;
+    border: 1px solid #4a5568;
+}
+
+body.dark-mode .stock-button:hover {
+    background-color: #4a5568;
+}
