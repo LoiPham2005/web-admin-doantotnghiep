@@ -315,6 +315,7 @@ export const vi = {
       orderStatus: "Trạng thái đơn hàng",
       email: "Email",
       cancelOrder: "Hủy đơn hàng",
+      cancelSuccess: "Hủy đơn hàng thành công",
       status: {
         title: "Trạng thái",
         pending: "Chờ xác nhận",
@@ -372,6 +373,7 @@ export const vi = {
         noRequestFound: "Không tìm thấy yêu cầu trả hàng cho đơn hàng này"
       },
       cancelRequest: {
+        email: "Email",
         title: "Chi tiết hủy đơn hàng",
         requestInfo: "Thông tin yêu cầu",
         orderId: "Mã đơn hàng",
@@ -379,7 +381,14 @@ export const vi = {
         reason: "Lý do hủy",
         reasonPlaceholder: "Nhập lý do hủy",
         viewReason: "Xem lý do hủy",
-        noRequestFound: "Không tìm thấy thông tin hủy đơn cho đơn hàng này"
+        noRequestFound: "Không tìm thấy thông tin hủy đơn cho đơn hàng này",
+        status: {
+          title : "Trạng thái",
+          approved : "Chấp nhận",
+          pending: "Chờ xử lí",
+          rejected: "Từ chối"
+        }
+
       }
     },
 

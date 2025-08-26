@@ -360,6 +360,7 @@ function OrderListScreen() {
           <div className="request-info">
             <h3>{t('orderList.returnRequest.requestInfo')}</h3>
             <p><strong>{t('orderList.returnRequest.orderId')}:</strong> #{request.order_id.slice(-6)}</p>
+            {/* <p><strong>{t('orderList.returnRequest.orderId')}:</strong> #{request.user.u}</p> */}
             <p><strong>{t('orderList.returnRequest.reason')}:</strong> {request.reason}</p>
             <p><strong>{t('orderList.returnRequest.status.title')}:</strong>
               <span className={`status-badge ${request.status}`}>
@@ -449,6 +450,9 @@ function OrderListScreen() {
   const CancelRequestModal = ({ request, onClose }) => {
     if (!request) return null;
 
+    // Debug log để kiểm tra dữ liệu  
+    console.log('Cancel request data:', request);
+
     return (
       <Modal
         isOpen={showCancelRequestModal}
@@ -459,22 +463,25 @@ function OrderListScreen() {
         <div className="cancel-request-detail">
           <div className="request-info">
             <h3>{t('orderList.cancelRequest.requestInfo')}</h3>
-            <p><strong>{t('orderList.orderId')}:</strong> {request.order_id}</p>
-            <p>
+            <p><strong>{t('orderList.orderId')}:</strong> #{request.order_id}</p>
+            {/* <p>
               <strong>{t('orderList.cancelRequest.customer')}:</strong>
-              {request.user?.username || 'N/A'}
+              {request.user && request.user.username} 
             </p>
             <p>
               <strong>{t('orderList.cancelRequest.email')}:</strong>
-              {request.user?.email || 'N/A'}
-            </p>
+              {request.user && request.user.email} 
+            </p> */}
             <p><strong>{t('orderList.cancelRequest.reason')}:</strong> {request.reason}</p>
-            <p>
-              <strong>{t('orderList.cancelRequest.status')}:</strong>
+            {/* <p>
+              <strong>{t('orderList.cancelRequest.status.title')}:</strong>
               <span className={`status-badge ${request.status}`}>
                 {t(`orderList.cancelRequest.status.${request.status}`)}
               </span>
-            </p>
+            </p> */}
+            {request.status !== 'pending' && (
+              <p><strong>Thời gian xử lý:</strong> {new Date(request.updatedAt).toLocaleString()}</p>
+            )}
           </div>
 
           {request.images && request.images.length > 0 && (
@@ -601,7 +608,9 @@ function OrderListScreen() {
 
         {/* Hiển thị nút xem lý do trả với đơn đã trả hoặc đã từ chối trả */}
         {(order.status === 'returned' ||
-          (order.status === 'delivered')) && (
+          (order.status === 'delivered'
+            // && order.has_return_request !== null
+          )) && (
             <button
               className="return-reason-button"
               onClick={() => handleViewReturnRequest(order._id)}

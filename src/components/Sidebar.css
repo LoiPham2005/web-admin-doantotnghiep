@@ -2,29 +2,30 @@
 :root {
   --sidebar-bg: #ffffff;
   --text-color: #333333;
-  --hover-bg: #f5f8ff;
-  --active-bg: #4285f4;
+  --hover-bg: #fee6cc;
+  --active-bg: #ec8832;
+  --hover-text: #ec8832;
+  /* Thêm màu text khi hover */
   --active-text: #ffffff;
   --shadow-color: rgba(0, 0, 0, 0.1);
   --border-color: #eee;
-  --logo-secondary: #333;
+  --logo-secondary: #ec8832;
+  --accent-color: #ec8832;
+  /* Thêm màu chủ đạo */
 }
 
 /* Dark mode */
 body.dark-mode {
   --sidebar-bg: #1a1a1a;
-  /* Màu nền đen nhạt cho sidebar */
   --text-color: #ffffff;
-  /* Text màu trắng */
   --hover-bg: #2d2d2d;
-  /* Màu hover hơi sáng hơn */
-  --active-bg: #2563eb;
-  /* Màu active vẫn giữ xanh */
+  --active-bg: #ec8832;
+  --hover-text: #ec8832;
   --active-text: #ffffff;
-  /* Text khi active màu trắng */
   --shadow-color: rgba(0, 0, 0, 0.3);
   --border-color: #2d2d2d;
   --logo-secondary: #ffffff;
+  --accent-color: #ec8832;
 }
 
 .sidebar {
@@ -107,8 +108,8 @@ body.dark-mode {
 }
 
 .logo-text-primary {
-  color: #4285f4;
-  /* color: #ffa726; */
+  color: #ec8832;
+  /* Đổi màu logo từ xanh sang cam */
 }
 
 .logo-text-secondary {
@@ -147,7 +148,8 @@ body.dark-mode {
 
 .nav-link:hover {
   background-color: var(--hover-bg);
-  color: #4285f4;
+  color: var(--hover-text);
+  /* Sử dụng màu hover text */
 }
 
 .nav-link.active {
@@ -164,7 +166,8 @@ body.dark-mode {
   top: 0;
   height: 100%;
   width: 4px;
-  background-color: #2563eb;
+  background-color: #ec8832;
+  /* Đổi màu border active từ xanh sang cam */
 }
 
 .nav-link i {
@@ -215,4 +218,20 @@ body.dark-mode {
   white-space: nowrap;
   z-index: 1000;
   margin-left: 10px;
+}
+
+/* Sửa tooltip */
+.sidebar.collapsed .nav-link:hover::after {
+  background: rgba(236, 136, 50, 0.9);
+  /* Đổi màu nền tooltip sang cam nhạt */
+}
+
+/* Sửa màu icon khi hover */
+.nav-link:hover .nav-icon {
+  color: var(--accent-color);
+}
+
+/* Sửa màu icon khi active */
+.nav-link.active .nav-icon {
+  color: var(--active-text);
 }
