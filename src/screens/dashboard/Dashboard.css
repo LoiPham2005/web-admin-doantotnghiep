@@ -449,3 +449,23 @@ body.dark-mode .period-selector i {
     transform: rotate(360deg);
   }
 }
+
+/* Dark mode for stat cards */
+body.dark-mode .stat-card {
+  background: #2d2d2d; /* Darker background for stat cards */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adjust shadow for dark mode */
+}
+body.dark-mode .stat-card h3 {
+  color: #ccc; /* Lighter text for card titles */
+}
+
+body.dark-mode .pagination button {
+  background: #2d2d2d; /* Darker background */
+  color: #ec8832;
+  border-color: #ec8832;
+}
+body.dark-mode .pagination button.active,
+body.dark-mode .pagination button:hover {
+  background: #ec8832;
+  color: white;
+}
