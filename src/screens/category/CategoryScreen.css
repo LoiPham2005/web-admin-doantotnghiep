@@ -303,9 +303,9 @@ body.dark-mode .remove-media {
 
 .pagination button {
   padding: 6px 12px;
-  border: 1px solid #2196F3;
+  border: 1px solid #ec8832;
   background: white;
-  color: #2196F3;
+  color: #ec8832;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
@@ -314,7 +314,7 @@ body.dark-mode .remove-media {
 
 .pagination button.active,
 .pagination button:hover {
-  background: #2196F3;
+  background: #ec8832;
   color: white;
 }
 
