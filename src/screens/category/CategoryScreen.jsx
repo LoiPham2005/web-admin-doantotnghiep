@@ -264,13 +264,13 @@ function CategoryScreen() {
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
             >
-              First
+               {t('common.pagination.First')}
             </button>
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              Previous
+              {t('common.pagination.Previous')}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter(page =>
@@ -291,13 +291,13 @@ function CategoryScreen() {
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
-              Next
+              {t('common.pagination.Next')}
             </button>
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
             >
-              Last
+              {t('common.pagination.Last')}
             </button>
           </div>
 

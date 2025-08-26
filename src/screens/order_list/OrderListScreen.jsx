@@ -464,14 +464,14 @@ function OrderListScreen() {
           <div className="request-info">
             <h3>{t('orderList.cancelRequest.requestInfo')}</h3>
             <p><strong>{t('orderList.orderId')}:</strong> #{request.order_id}</p>
-            {/* <p>
+            <p>
               <strong>{t('orderList.cancelRequest.customer')}:</strong>
               {request.user && request.user.username} 
             </p>
             <p>
               <strong>{t('orderList.cancelRequest.email')}:</strong>
               {request.user && request.user.email} 
-            </p> */}
+            </p>
             <p><strong>{t('orderList.cancelRequest.reason')}:</strong> {request.reason}</p>
             {/* <p>
               <strong>{t('orderList.cancelRequest.status.title')}:</strong>
@@ -609,7 +609,8 @@ function OrderListScreen() {
         {/* Hiển thị nút xem lý do trả với đơn đã trả hoặc đã từ chối trả */}
         {(order.status === 'returned' ||
           (order.status === 'delivered'
-            // && order.has_return_request !== null
+            && order.has_return_request !== null
+            // && return_request.status !== 'pending'
           )) && (
             <button
               className="return-reason-button"
@@ -743,13 +744,13 @@ function OrderListScreen() {
             onClick={() => setCurrentPage(1)}
             disabled={currentPage === 1}
           >
-            First
+             {t('common.pagination.First')}
           </button>
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
           >
-            Previous
+            {t('common.pagination.Previous')}
           </button>
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter(page =>
@@ -770,13 +771,13 @@ function OrderListScreen() {
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
           >
-            Next
+            {t('common.pagination.Next')}
           </button>
           <button
             onClick={() => setCurrentPage(totalPages)}
             disabled={currentPage === totalPages}
           >
-            Last
+            {t('common.pagination.Last')}
           </button>
         </div>
 

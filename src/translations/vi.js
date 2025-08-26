@@ -52,6 +52,13 @@ export const vi = {
         uiElements: "Giao diện",
         team: "Nhóm",
         table: "Bảng"
+      },
+
+      pagination:{
+        First: "Đầu",
+        Last: "Cuối",
+        Next: "Tiếp theo",
+        Previous: "Trước đó"
       }
     },
 

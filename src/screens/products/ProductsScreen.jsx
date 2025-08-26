@@ -577,48 +577,6 @@ function ProductsScreen() {
                   <th>{t('common.actions')}</th>
                 </tr>
               </thead>
-              {/* <tbody>
-                {paginatedProducts.map((product, index) => (
-                  <tr key={product._id}>
-                    <td>{(currentPage - 1) * pageSize + index + 1}</td> 
-                    <td>
-                      {product.media && product.media.length > 0 ? (
-                        <img
-                          src={product.media[0].url}
-                          alt={product.name}
-                          className="product-image"
-                        />
-                      ) : (
-                        <div className="no-image">No Image</div>
-                      )}
-                    </td>
-                    <td>{product.name}</td>
-                    <td className="clamp-description">{product.description}</td>
-                    <td>{product.brand_id?.name || 'N/A'}</td>
-                    <td>{product.category_id?.name || 'N/A'}</td>
-                    <td>
-                      {statusOptions.find(option => option.value === product.status)?.label || product.status}
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="edit-button"
-                          onClick={() => handleEditScreen(product)}
-                        >
-                          <i className="fas fa-edit"></i>
-                        </button>
-                        <button
-                          className="delete-button"
-                          onClick={() => handleDelete(product._id)}
-                        >
-                          <i className="fas fa-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody> */}
-
               <tbody>
                 {paginatedProducts.map((product, index) => (
                   <tr key={product._id}>
@@ -675,13 +633,14 @@ function ProductsScreen() {
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
               >
-                First
+                {t('common.pagination.First')}
               </button>
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
-                Previous
+                 {t('common.pagination.Previous')}
+                
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(page =>
@@ -702,13 +661,15 @@ function ProductsScreen() {
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                 {t('common.pagination.Next')}
+                
               </button>
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
               >
-                Last
+                 {t('common.pagination.Last')}
+                
               </button>
             </div>
           </>
