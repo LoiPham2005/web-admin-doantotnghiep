@@ -240,7 +240,7 @@ export const vi = {
         type: "Loại voucher",
         typeOrder: "Giảm giá đơn hàng",
         typeShipping: "Giảm phí vận chuyển",
-        noUsers: "Không ai" // Thêm dòng này
+        noUsers: "Chơi game nhận voucher" // Thêm dòng này
       },
       status: {
         active: "Đang hoạt động",
