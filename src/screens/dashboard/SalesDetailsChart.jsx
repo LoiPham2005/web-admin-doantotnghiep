@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
-import { statisticsService } from '../../services/StatisticsService';
 import './SalesDetailsChart.css';
 import {
   Chart as ChartJS,
@@ -26,78 +25,61 @@ ChartJS.register(
   Legend
 );
 
-const SalesDetailsChart = ({ dateRange }) => {
+const SalesDetailsChart = ({ dateRange, data }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState({
     labels: [],
     values: []
   });
+  // Thêm state loading
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchChartData();
-  }, [dateRange]);
-
-  const fetchChartData = async () => {
-    try {
+    if (data) {
+      // Set loading khi bắt đầu format data
       setLoading(true);
-      const response = await statisticsService.getRevenueByDateRange(
-        dateRange.startDate,
-        dateRange.endDate
+      try {
+        formatChartData();
+      } catch (error) {
+        console.error('Error formatting chart data:', error);
+      } finally {
+        // Set loading false sau khi hoàn thành
+        setLoading(false);
+      }
+    }
+  }, [data, dateRange]);
+
+  const formatChartData = () => {
+    // Format dữ liệu để hiển thị tất cả các ngày trong khoảng
+    const startDate = new Date(dateRange.startDate);
+    const endDate = new Date(dateRange.endDate);
+    const dates = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      dates.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    const chartData = dates.map(date => {
+      const dateStr = date.toISOString().split('T')[0];
+      const dataPoint = data.find(item =>
+        item.date.split('T')[0] === dateStr
       );
 
-      if (response.status === 200 && response.data) {
-        // Giới hạn số điểm dữ liệu hiển thị
-        const MAX_DATA_POINTS = 50;
-        const data = response.data;
-        const dataPoints = data.length;
+      return {
+        date: date.toLocaleDateString('vi-VN'),
+        value: dataPoint ? dataPoint.totalRevenue : 0
+      };
+    });
 
-        // Nếu có quá nhiều điểm dữ liệu, lấy mẫu để giảm số lượng
-        if (dataPoints > MAX_DATA_POINTS) {
-          const step = Math.ceil(dataPoints / MAX_DATA_POINTS);
-          const sampledData = data.filter((_, index) => index % step === 0);
-          setChartData({
-            labels: sampledData.map(item => new Date(item.date).toLocaleDateString('vi-VN')),
-            values: sampledData.map(item => item.totalRevenue),
-            xAxisLabels: sampledData.map(item => new Date(item.date).toLocaleDateString('vi-VN'))
-          });
-        } else {
-          setChartData({
-            labels: data.map(item => new Date(item.date).toLocaleDateString('vi-VN')),
-            values: data.map(item => item.totalRevenue),
-            xAxisLabels: data.map(item => new Date(item.date).toLocaleDateString('vi-VN'))
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching revenue data:', error);
-    } finally {
-      setLoading(false);
-    }
+    setChartData({
+      labels: chartData.map(item => item.date),
+      values: chartData.map(item => item.value)
+    });
   };
 
-  // Thêm cleanup function trong useEffect
-  useEffect(() => {
-    let isSubscribed = true;
-
-    const fetchData = async () => {
-      try {
-        await fetchChartData();
-      } catch (error) {
-        console.error('Error in useEffect:', error);
-      }
-    };
-
-    if (isSubscribed) {
-      fetchData();
-    }
-
-    return () => {
-      isSubscribed = false;
-    };
-  }, [dateRange]);
-
-  // Tối ưu options
+  // Cập nhật options để hiển thị label tốt hơn
   const options = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -108,7 +90,19 @@ const SalesDetailsChart = ({ dateRange }) => {
       tooltip: {
         enabled: true,
         mode: 'index',
-        intersect: false
+        intersect: false,
+        callbacks: {
+          label: function (context) {
+            let label = 'Doanh thu: ';
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+              }).format(context.parsed.y);
+            }
+            return label;
+          }
+        }
       }
     },
     scales: {
@@ -116,8 +110,11 @@ const SalesDetailsChart = ({ dateRange }) => {
         ticks: {
           maxRotation: 45,
           minRotation: 45,
-          autoSkip: true,
-          maxTicksLimit: 20
+          autoSkip: false, // Hiển thị tất cả các label
+          maxTicksLimit: 31 // Giới hạn số label tối đa
+        },
+        grid: {
+          display: false
         }
       },
       y: {
@@ -132,6 +129,9 @@ const SalesDetailsChart = ({ dateRange }) => {
             }
             return value.toLocaleString('vi-VN');
           }
+        },
+        grid: {
+          color: '#E2E8F0'
         }
       }
     }

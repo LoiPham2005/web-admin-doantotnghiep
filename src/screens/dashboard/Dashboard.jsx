@@ -25,32 +25,43 @@ function Dashboard() {
     ordersChange: 0
   });
   const [loading, setLoading] = useState(true);
+  const [revenueData, setRevenueData] = useState(null);
+  const [topProducts, setTopProducts] = useState(null);
+  const [topCustomers, setTopCustomers] = useState(null);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [startDate, endDate]);
-
-  const fetchDashboardData = async () => {
+  const fetchAllDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await statisticsService.getDashboardStats(startDate, endDate);
+      const [statsResponse, revenueResponse] = await Promise.all([
+        statisticsService.getDashboardStats(startDate, endDate),
+        statisticsService.getRevenueByDateRange(startDate, endDate)
+      ]);
 
-      if (response.status === 200) {
+      if (statsResponse.status === 200) {
         setStats({
-          totalUsers: response.data.totalUsers || 0,
-          totalOrders: response.data.totalOrders || 0,
-          totalRevenue: response.data.totalRevenue || 0,
-          pendingOrders: response.data.pendingOrders || 0,
-          revenueChange: response.data.revenueChange || 0,
-          ordersChange: response.data.ordersChange || 0
+          totalUsers: statsResponse.data.totalUsers || 0,
+          totalOrders: statsResponse.data.totalOrders || 0,
+          totalRevenue: statsResponse.data.totalRevenue || 0,
+          pendingOrders: statsResponse.data.pendingOrders || 0,
+          revenueChange: statsResponse.data.revenueChange || 0,
+          ordersChange: statsResponse.data.ordersChange || 0
         });
       }
+
+      if (revenueResponse.status === 200) {
+        setRevenueData(revenueResponse.data);
+      }
+
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAllDashboardData();
+  }, [startDate, endDate]);
 
   function formatCurrencyShortVND(amount) {
     if (amount >= 1_000_000_000) {
@@ -127,66 +138,73 @@ function Dashboard() {
 
   return (
     <MainLayout>
-      <div className={`dashboard-content ${isDarkMode ? 'dark' : 'light'}`}>
-        <div className="dashboard-header">
-          <h1 className="page-title">{t('dashboard.title')}</h1>
-          <div className="date-range-picker">
-            <div className="date-picker-wrapper">
-              <label>{t('dashboard.startDate')}</label>
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                selectsStart
-                startDate={startDate}
-                endDate={endDate}
-                dateFormat="dd/MM/yyyy"
-                className="date-picker"
-                maxDate={endDate}
-              />
-            </div>
-            <div className="date-picker-wrapper">
-              <label>{t('dashboard.endDate')}</label>  
-              <DatePicker
-                selected={endDate}
-                onChange={(date) => setEndDate(date)}
-                selectsEnd
-                startDate={startDate}
-                endDate={endDate}
-                dateFormat="dd/MM/yyyy" 
-                className="date-picker"
-                minDate={startDate}
-                maxDate={new Date()}
-              />
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className={`dashboard-content ${isDarkMode ? 'dark' : 'light'}`}>
+          <div className="dashboard-header">
+            <h1 className="page-title">{t('dashboard.title')}</h1>
+            <div className="date-range-picker">
+              <div className="date-picker-wrapper">
+                <label>{t('dashboard.startDate')}</label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  selectsStart
+                  startDate={startDate}
+                  endDate={endDate}
+                  dateFormat="dd/MM/yyyy"
+                  className="date-picker"
+                  maxDate={endDate}
+                />
+              </div>
+              <div className="date-picker-wrapper">
+                <label>{t('dashboard.endDate')}</label>  
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  selectsEnd
+                  startDate={startDate}
+                  endDate={endDate}
+                  dateFormat="dd/MM/yyyy" 
+                  className="date-picker"
+                  minDate={startDate}
+                  maxDate={new Date()}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="stat-cards">
-          {statCardsData.map((card, index) => (
-            <div key={index} className="stat-card">
-              <div className="stat-header">
-                <h3>{card.title}</h3>
-                <div className="stat-icon" style={{ backgroundColor: card.iconBgColor }}>
-                  <i className={`fas fa-${card.icon}`} style={{ color: card.iconColor }}></i>
+          <div className="stat-cards">
+            {statCardsData.map((card, index) => (
+              <div key={index} className="stat-card">
+                <div className="stat-header">
+                  <h3>{card.title}</h3>
+                  <div className="stat-icon" style={{ backgroundColor: card.iconBgColor }}>
+                    <i className={`fas fa-${card.icon}`} style={{ color: card.iconColor }}></i>
+                  </div>
                 </div>
+                <div className="stat-value">{card.value}</div>
               </div>
-              <div className="stat-value">{card.value}</div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="sales-chart">
-          <SalesDetailsChart dateRange={{ startDate, endDate }} />
-        </div>
+          <div className="sales-chart">
+            <SalesDetailsChart 
+              dateRange={{ startDate, endDate }} 
+              data={revenueData}
+            />
+          </div>
 
-        <div className="section-header" style={{ marginTop: '150px' }}>
-          <TopProductsChart dateRange={{ startDate, endDate }} />
-        </div>
+          <div className="section-header" style={{ marginTop: '150px' }}>
+            <TopProductsChart dateRange={{ startDate, endDate }} />
+          </div>
 
-        <div>
-          <TopCustomersChart dateRange={{ startDate, endDate }} />
+          <div>
+            <TopCustomersChart dateRange={{ startDate, endDate }} />
+          </div>
         </div>
-      </div>
+      )}
     </MainLayout>
   );
 }

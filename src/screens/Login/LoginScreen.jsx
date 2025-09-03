@@ -19,6 +19,19 @@ const Login = () => {
     password: '',
     rememberPassword: false
   });
+  const [validation, setValidation] = useState({
+    email: '',
+    password: ''
+  });
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 6;
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -26,6 +39,19 @@ const Login = () => {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
     });
+
+    // Validate khi người dùng nhập
+    if (name === 'email') {
+      setValidation(prev => ({
+        ...prev,
+        email: validateEmail(value) ? 'valid' : 'invalid'
+      }));
+    } else if (name === 'password') {
+      setValidation(prev => ({
+        ...prev,
+        password: validatePassword(value) ? 'valid' : 'invalid'
+      }));
+    }
   };
 
   const handleLogin = async (e) => {
@@ -103,6 +129,7 @@ const Login = () => {
               type="email"
               id="email"
               name="email"
+              className={validation.email ? `input-${validation.email}` : ''}
               value={formData.email}
               onChange={handleChange}
               placeholder={t('login.emailPlaceholder')}
@@ -118,6 +145,7 @@ const Login = () => {
                 type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
+                className={validation.password ? `input-${validation.password}` : ''}
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••"

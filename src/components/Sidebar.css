@@ -10,7 +10,7 @@
   --shadow-color: rgba(0, 0, 0, 0.1);
   --border-color: #eee;
   --logo-secondary: #ec8832;
-  --accent-color: #ec8832;
+  --accent-color: #ec8832; 
   /* Thêm màu chủ đạo */
 }
 
@@ -24,7 +24,7 @@ body.dark-mode {
   --active-text: #ffffff;
   --shadow-color: rgba(0, 0, 0, 0.3);
   --border-color: #2d2d2d;
-  --logo-secondary: #ffffff;
+  --logo-secondary: #ec8832;
   --accent-color: #ec8832;
 }
 

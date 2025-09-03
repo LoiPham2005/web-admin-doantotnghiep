@@ -3,35 +3,58 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f49e53;
-    background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+    background: linear-gradient(135deg, #f49e53 0%, #ec8832 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .auth-form {
     width: 100%;
-    max-width: 480px;
+    max-width: 500px;
     padding: 40px;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
 }
 
 .auth-form h1 {
     text-align: center;
-    font-size: 24px;
-    margin-bottom: 10px;
-    color: #333;
+    font-size: 28px;
+    margin-bottom: 16px;
+    color: #333333;
+    font-weight: 600;
 }
 
 .auth-form p {
     text-align: center;
-    color: #666;
-    margin-bottom: 30px;
-    font-size: 14px;
+    color: #666666;
+    margin-bottom: 32px;
+    font-size: 15px;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     position: relative;
 }
 
@@ -39,112 +62,211 @@
     display: block;
     margin-bottom: 8px;
     font-size: 14px;
-    color: #333;
+    color: #333333;
+    font-weight: 500;
 }
 
 .form-group input {
     width: 100%;
-    padding: 12px 15px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f7f7f7;
+    padding: 12px 16px;
+    font-size: 15px;
+    border: 2px solid #333333;
+    /* Border màu đen mặc định */
+    border-radius: 8px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
 }
 
+/* Valid state */
+.form-group input.input-valid {
+    border-color: #4CAF50;
+    /* Border màu xanh khi hợp lệ */
+    background-color: #f8fff8;
+}
+
+/* Invalid state */
+.form-group input.input-invalid {
+    border-color: #f44336;
+    /* border-color: #8536f4; */
+    /* Border màu đỏ khi không hợp lệ */
+    background-color: #fff8f8;
+}
+
+/* Focus states */
 .form-group input:focus {
     outline: none;
-    border-color: #ec8832;
-    background-color: #fff;
 }
 
-.forgot-password {
-    position: absolute;
-    right: 0;
-    top: 0;
-    font-size: 12px;
-    color: #4285f4;
-    text-decoration: none;
+.form-group input.input-valid:focus {
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
-.form-checkbox {
-    display: flex;
-    align-items: center;
-    margin-bottom: 25px;
+.form-group input.input-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
 }
 
-.form-checkbox input {
-    margin-right: 10px;
+/* Add validation icons */
+.form-group {
+    position: relative;
 }
 
-.form-checkbox label {
-    font-size: 14px;
-    color: #666;
+.form-group input.input-valid {
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234CAF50'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+}
+
+.form-group input.input-invalid {
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f44336'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+}
+
+/* Dark mode support */
+body.dark-mode .form-group input.input-valid {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+body.dark-mode .form-group input.input-invalid {
+    background-color: rgba(244, 67, 54, 0.1);
 }
 
 .btn-submit {
     width: 100%;
-    padding: 12px;
-    background-color: #ec8832;
+    padding: 14px;
+    background: linear-gradient(135deg, #ec8832 0%, #f49e53 100%);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    margin-top: 8px;
 }
 
 .btn-submit:hover {
-    background-color: #eeab70;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(236, 136, 50, 0.2);
 }
 
-.auth-footer {
-    margin-top: 20px;
-    text-align: center;
+.btn-submit:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.error-message {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
     font-size: 14px;
-    color: #666;
 }
 
-.auth-footer a {
-    color: #4285f4;
-    text-decoration: none;
+/* Override dark mode styles to always keep light theme */
+body.dark-mode .auth-container,
+body.dark-mode .auth-form,
+body.dark-mode .form-group input,
+body.dark-mode .auth-form h1,
+body.dark-mode .auth-form p,
+body.dark-mode .form-group label {
+    background-color: #ffffff;
+    color: #333333;
 }
 
-.auth-footer a:hover {
-    text-decoration: underline;
+body.dark-mode .form-group input {
+    background-color: #ffffff;
+    border-color: #e0e0e0;
+    color: #333333;
 }
 
+body.dark-mode .btn-submit {
+    background: linear-gradient(135deg, #ec8832 0%, #f49e53 100%);
+    color: white;
+}
+
+body.dark-mode .error-message {
+    background-color: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+/* Password input container */
 .password-input-container {
     position: relative;
     display: flex;
     align-items: center;
 }
 
+/* Password toggle button */
 .password-toggle {
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
+    padding: 8px;
     cursor: pointer;
-    padding: 0;
     color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
 }
 
 .password-toggle:hover {
     color: #333;
 }
 
-.link-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    text-decoration: underline;
+/* Input clear button (X) */
+.form-group input[type="email"]::-webkit-search-cancel-button,
+.form-group input[type="email"]::-webkit-clear-button,
+.form-group input[type="password"]::-webkit-search-cancel-button,
+.form-group input[type="password"]::-webkit-clear-button {
+    display: none;
 }
 
-.link-button:hover {
-    color: #0056b3;
+/* Override validation icons position */
+.form-group input.input-valid,
+.form-group input.input-invalid {
+    padding-right: 40px;
+}
+
+.form-group input.input-valid+.password-toggle,
+.form-group input.input-invalid+.password-toggle {
+    right: 40px;
+    /* Move eye icon left when validation icon is present */
+}
+
+/* Custom clear button */
+.input-clear-button {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #666;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.input-clear-button:hover {
+    color: #333;
+}
+
+.form-group input:not(:placeholder-shown)~.input-clear-button {
+    display: flex;
 }

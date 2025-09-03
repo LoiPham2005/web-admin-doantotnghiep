@@ -488,6 +488,31 @@ export const en = {
         addSuccess: "Banner added successfully",
         maxBanners: "Maximum 3 banners allowed"
       }
+    },
+
+    shipping: {
+      title: "Shipping Management",
+      addRate: "Add Shipping Rate",
+      editRate: "Edit Shipping Rate",
+      deleteRate: "Delete Shipping Rate",
+      form: {
+        minDistance: "Minimum Distance (km)",
+        maxDistance: "Maximum Distance (km)",
+        price: "Shipping Fee (VND)",
+        status: "Status"
+      },
+      messages: {
+        confirmDelete: "Are you sure you want to delete this shipping rate?",
+        deleteSuccess: "Shipping rate deleted successfully",
+        updateSuccess: "Shipping rate updated successfully",
+        addSuccess: "Shipping rate added successfully",
+        activated: "Shipping rate activated successfully",
+        deactivated: "Shipping rate deactivated successfully"
+      },
+      status: {
+        active: "Active",
+        inactive: "Inactive"
+      }
     }
   }
 };

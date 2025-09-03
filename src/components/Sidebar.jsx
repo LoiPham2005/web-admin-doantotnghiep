@@ -20,7 +20,8 @@ import {
   FaMoneyBillWave,
   FaCog,
   FaPowerOff,
-  FaImage
+  FaImage,
+  FaShippingFast
 } from 'react-icons/fa';
 
 import logoApp from '../assets/logo_icon.png';
@@ -121,6 +122,12 @@ function Sidebar({ isCollapsed }) {
             <Link to="/posts" className={`nav-link ${location.pathname === '/posts' ? 'active' : ''}`}>
               <FaPen className="nav-icon" />
               {!isCollapsed && <span>{t('common.nav.posts')}</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/shipping" className={`nav-link ${location.pathname === '/shipping' ? 'active' : ''}`}>
+              <FaShippingFast className="nav-icon" />
+              {!isCollapsed && <span>{t('common.nav.shipping')}</span>}
             </Link>
           </li>
           <li>

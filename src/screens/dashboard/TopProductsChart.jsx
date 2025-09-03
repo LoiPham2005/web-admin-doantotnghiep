@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import './TopProductsChart.css';
 import defaultAvatar from '../../assets/default-avatar.webp';
 
-const TopProductsChart = ({ dateRange }) => {
+const TopProductsChart = ({ dateRange, data }) => {
     const { t } = useTranslation();
     const [topProducts, setTopProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -21,47 +21,15 @@ const TopProductsChart = ({ dateRange }) => {
                 dateRange.endDate
             );
 
-            if (response.status === 200 && response.data) {
-                // Giới hạn số lượng sản phẩm hiển thị
+            if (response.status === 200 && response.data?.products) {
                 const TOP_PRODUCTS_LIMIT = 10;
-                const products = response.data.products.slice(0, TOP_PRODUCTS_LIMIT);
-                setTopProducts(products);
+                setTopProducts(response.data.products.slice(0, TOP_PRODUCTS_LIMIT));
             }
         } catch (error) {
             console.error('Error fetching top products:', error);
         } finally {
             setLoading(false);
         }
-    };
-
-    // Thêm cleanup function
-    useEffect(() => {
-        let isSubscribed = true;
-
-        const fetchData = async () => {
-            if (isSubscribed) {
-                await fetchTopProducts();
-            }
-        };
-
-        fetchData();
-
-        return () => {
-            isSubscribed = false;
-        };
-    }, [dateRange]);
-
-    const formatPrice = (price) => {
-        if (!price) return "0 đ";
-        return price.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        });
-    };
-
-    const calculateMinPrice = (variants) => {
-        if (!variants || variants.length === 0) return 0;
-        return Math.min(...variants.map(v => v.price));
     };
 
     return (
@@ -80,13 +48,12 @@ const TopProductsChart = ({ dateRange }) => {
                                 <th>{t('statistics.topProducts.name')}</th>
                                 <th>{t('statistics.topProducts.brand')}</th>
                                 <th>{t('statistics.topProducts.category')}</th>
-                                {/* <th>{t('statistics.topProducts.price')}</th> */}
                                 <th>{t('statistics.topProducts.quantity')}</th>
                                 <th>{t('statistics.topProducts.revenue')}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {Array.isArray(topProducts) && topProducts.map((product, index) => (
+                            {topProducts.map((product, index) => (
                                 <tr key={product._id} className="product-row">
                                     <td className="rank-cell">{index + 1}</td>
                                     <td className="image-cell">
@@ -99,9 +66,6 @@ const TopProductsChart = ({ dateRange }) => {
                                     <td className="title-cell">{product.name}</td>
                                     <td className="brand-cell">{product.brand_id?.name}</td>
                                     <td className="category-cell">{product.category_id?.name}</td>
-                                    {/* <td className="price-cell">
-                                        {formatPrice(calculateMinPrice(product.variants))}
-                                    </td> */}
                                     <td className="quantity-cell">{product.totalSold}</td>
                                     <td className="revenue-cell">
                                         {product.totalRevenue?.toLocaleString('vi-VN')}đ

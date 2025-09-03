@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import './TopCustomersChart.css';
 import defaultAvatar from '../../assets/default-avatar.webp';
 
-const TopCustomersChart = ({ dateRange }) => {
+const TopCustomersChart = ({ dateRange, data }) => {
     const { t } = useTranslation();
     const [topCustomers, setTopCustomers] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -70,6 +70,33 @@ const TopCustomersChart = ({ dateRange }) => {
         }
     };
 
+    // Thêm hàm format ngày giờ
+    const formatDateTime = (dateTimeStr) => {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            const date = new Date(dateTimeStr);
+            if (isNaN(date.getTime())) return 'N/A';
+
+            return date.toLocaleString('vi-VN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (error) {
+            console.error('Error formatting date time:', error);
+            return 'N/A';
+        }
+    };
+
+    useEffect(() => {
+        if (data?.products) {
+            const TOP_PRODUCTS_LIMIT = 10;
+            setTopCustomers(data.products.slice(0, TOP_PRODUCTS_LIMIT));
+        }
+    }, [data]);
+
     return (
         <div className="top-customers-container">
             <h2 className="top-customers-title">{t('statistics.topCustomers.title')}</h2>
@@ -119,7 +146,7 @@ const TopCustomersChart = ({ dateRange }) => {
                                         {customer.totalSpent.toLocaleString('vi-VN')}đ
                                     </td>
                                     <td className="last-purchase-cell">
-                                        {customer.lastPurchase}
+                                        {formatDateTime(customer.lastPurchase)}
                                     </td>
                                 </tr>
                             ))}

@@ -82,6 +82,12 @@
     font-weight: 500;
 }
 
+.last-purchase-cell {
+    min-width: 150px;
+    text-align: center;
+    color: #666;
+}
+
 /* Dark mode styles */
 .dark-mode .top-customers-container {
     background: #1a1a1a;
@@ -109,4 +115,8 @@ body.dark-mode .birth-date-cell {
 
 body.dark-mode .price-cell {
     color: #ffb74d;
+}
+
+body.dark-mode .last-purchase-cell {
+    color: #aaa;
 }

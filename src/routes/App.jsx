@@ -19,6 +19,7 @@ import SettingsScreen from '../screens/settings/SettingsScreen';
 import PaymentHistoryScreen from '../screens/payment_history/PaymentHistoryScreen';
 import BannerScreen from '../screens/banner/BannerScreen';
 import AddEditProductScreen from '../screens/products/AddEditProductScreen';
+import ShippingScreen from '../screens/shipping/ShippingScreen';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, loading } = useAuth();
@@ -158,6 +159,12 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <AddEditProductScreen />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/shipping"
+        element={
+          isAuthenticated ? <ShippingScreen /> : <Navigate to="/login" />
         }
       />
     </Routes>

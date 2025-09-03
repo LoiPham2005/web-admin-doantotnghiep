@@ -20,6 +20,7 @@ export const vi = {
       confirmLogout: "Bạn có chắc chắn muốn đăng xuất không?",
       active: "Đang hoạt động",
       inactive: "Đã vô hiệu hóa",
+      noData: "Không có dữ liệu",
 
 
       // Sidebar navigation
@@ -38,7 +39,8 @@ export const vi = {
         productStock: "Tồn kho",
         paymentHistory: "Quản lý thanh toán",
         settings: "Cài đặt",
-        logout: "Đăng xuất"
+        logout: "Đăng xuất",
+        shipping: "Vận chuyển"
       },
 
       // Pages section
@@ -54,7 +56,7 @@ export const vi = {
         table: "Bảng"
       },
 
-      pagination:{
+      pagination: {
         First: "Đầu",
         Last: "Cuối",
         Next: "Tiếp theo",
@@ -391,8 +393,8 @@ export const vi = {
         viewReason: "Xem lý do hủy",
         noRequestFound: "Không tìm thấy thông tin hủy đơn cho đơn hàng này",
         status: {
-          title : "Trạng thái",
-          approved : "Chấp nhận",
+          title: "Trạng thái",
+          approved: "Chấp nhận",
           pending: "Chờ xử lí",
           rejected: "Từ chối"
         }
@@ -592,6 +594,34 @@ export const vi = {
         maxBanners: "Chỉ cho phép tối đa 3 banner",
         pleaseSelectNewImage: "Vui lòng chọn ảnh mới để cập nhật",
         pleaseSelectImage: "Vui lòng chọn ảnh"
+      }
+    },
+
+    // Thêm section mới cho shipping
+    shipping: {
+      title: "Quản lý phí vận chuyển",
+      addRate: "Thêm phí vận chuyển", 
+      editRate: "Sửa phí vận chuyển",
+      deleteRate: "Xóa phí vận chuyển",
+      form: {
+        minDistance: "Khoảng cách tối thiểu (km)",
+        maxDistance: "Khoảng cách tối đa (km)",
+        price: "Phí vận chuyển (VNĐ)", 
+        status: "Trạng thái"
+      },
+      messages: {
+        fetchError: "Lỗi khi tải dữ liệu phí vận chuyển",
+        confirmDelete: "Bạn có chắc chắn muốn xóa mức phí này?",
+        deleteSuccess: "Xóa mức phí thành công",
+        updateSuccess: "Cập nhật mức phí thành công",
+        addSuccess: "Thêm mức phí thành công",
+        invalidDistance: "Khoảng cách tối đa phải lớn hơn khoảng cách tối thiểu",
+        activated: "Đã kích hoạt mức phí thành công",
+        deactivated: "Đã vô hiệu hóa mức phí thành công"
+      },
+      status: {
+        active: "Đang hoạt động",
+        inactive: "Đã tắt"
       }
     }
   }
