@@ -615,12 +615,12 @@ function ProductsScreen() {
                         >
                           <i className="fas fa-edit"></i>
                         </button>
-                        <button
+                        {/* <button
                           className="delete-button"
                           onClick={() => handleDelete(product._id)}
                         >
                           <i className="fas fa-trash"></i>
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>

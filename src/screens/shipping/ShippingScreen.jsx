@@ -181,14 +181,14 @@ export default function ShippingScreen() {
                                         >
                                             <i className="fas fa-edit"></i>
                                         </button>
-                                        <button
+                                        {/* <button
                                             className="action-button delete-button"
                                             onClick={() => handleDelete(rate._id)}
                                             disabled={loading}
                                             title={t('common.delete')}
                                         >
                                             <i className="fas fa-trash"></i>
-                                        </button>
+                                        </button> */}
                                         <button
                                             className={`action-button toggle-button ${!rate.isActive ? 'inactive' : ''}`}
                                             onClick={() => handleToggleActive(rate._id, rate.isActive)}

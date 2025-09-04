@@ -410,9 +410,9 @@ function VoucherScreen() {
                       <button className="edit-button" onClick={() => handleEdit(voucher)}>
                         <i className="fas fa-edit"></i>
                       </button>
-                      <button className="delete-button" onClick={() => handleDelete(voucher._id)}>
+                      {/* <button className="delete-button" onClick={() => handleDelete(voucher._id)}>
                         <i className="fas fa-trash"></i>
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>

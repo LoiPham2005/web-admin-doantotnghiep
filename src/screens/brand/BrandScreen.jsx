@@ -243,12 +243,12 @@ function BrandScreen() {
                       >
                         <i className="fas fa-edit"></i>
                       </button>
-                      <button
+                      {/* <button
                         className="delete-button"
                         onClick={() => handleDelete(brand._id)}
                       >
                         <i className="fas fa-trash"></i>
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>

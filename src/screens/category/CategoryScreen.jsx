@@ -245,12 +245,12 @@ function CategoryScreen() {
                       >
                         <i className="fas fa-edit"></i>
                       </button>
-                      <button
+                      {/* <button
                         className="delete-button"
                         onClick={() => handleDelete(category._id)}
                       >
                         <i className="fas fa-trash"></i>
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>

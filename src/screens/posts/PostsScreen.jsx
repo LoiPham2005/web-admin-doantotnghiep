@@ -286,13 +286,12 @@ export default function PostsScreen() {
                         {/* <FaEdit /> */}
                         <i className="fas fa-edit"></i>
                       </button>
-                      <button
+                      {/* <button
                         className="delete-button"
                         onClick={() => handleDelete(post._id)}
                       >
-                        {/* <FaTrash /> */}
                         <i className="fas fa-trash"></i>
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>

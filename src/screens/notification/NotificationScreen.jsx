@@ -329,13 +329,12 @@ export default function NotificationScreen() {
                           {/* <FaEdit size={20}/> */}
                           <i className="fas fa-edit"></i>
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => handleDelete(notification._id)}
                           className="delete-button"
                         >
-                          {/* <FaTrash /> */}
                           <i className="fas fa-trash"></i>
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))}
