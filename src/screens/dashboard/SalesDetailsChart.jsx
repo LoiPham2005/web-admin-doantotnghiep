@@ -50,25 +50,36 @@ const SalesDetailsChart = ({ dateRange, data }) => {
   }, [data, dateRange]);
 
   const formatChartData = () => {
-    // Format dữ liệu để hiển thị tất cả các ngày trong khoảng
+    // Chuyển đổi UTC về múi giờ Việt Nam (+7 GMT)
+    const convertUTCToVN = (utcDate) => {
+      const date = new Date(utcDate);
+      // Chuyển về múi giờ Việt Nam (+7 giờ)
+      const vnTime = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+      return vnTime.toISOString().split('T')[0]; // Trả về format YYYY-MM-DD
+    };
+
+    // Tạo danh sách tất cả các ngày trong khoảng thời gian
     const startDate = new Date(dateRange.startDate);
     const endDate = new Date(dateRange.endDate);
     const dates = [];
     const currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
-      dates.push(new Date(currentDate));
+      const vnDateStr = convertUTCToVN(currentDate);
+      dates.push(vnDateStr);
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    const chartData = dates.map(date => {
-      const dateStr = date.toISOString().split('T')[0];
-      const dataPoint = data.find(item =>
-        item.date.split('T')[0] === dateStr
-      );
+    // Map dữ liệu với các ngày đã tạo
+    const chartData = dates.map(dateStr => {
+      // Tìm dữ liệu tương ứng với ngày này
+      const dataPoint = data.find(item => item.date === dateStr);
+
+      // Format ngày để hiển thị (dd/mm/yyyy)
+      const displayDate = new Date(dateStr + 'T00:00:00').toLocaleDateString('vi-VN');
 
       return {
-        date: date.toLocaleDateString('vi-VN'),
+        date: displayDate,
         value: dataPoint ? dataPoint.totalRevenue : 0
       };
     });

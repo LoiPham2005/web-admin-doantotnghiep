@@ -13,9 +13,9 @@ import Loading from '../../components/LoadingPage';
 function Dashboard() {
   const { t } = useTranslation();
   const { isDarkMode } = useTheme();
-  const [startDate, setStartDate] = useState(new Date(new Date().setHours(0,0,0,0))); // Start of today
-  const [endDate, setEndDate] = useState(new Date());
-  
+  const [startDate, setStartDate] = useState(new Date(new Date().setHours(0, 0, 0, 0))); // Start of today
+  const [endDate, setEndDate] = useState(new Date(new Date().setHours(23, 59, 59, 999))); // End of today
+
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalOrders: 0,
@@ -159,14 +159,14 @@ function Dashboard() {
                 />
               </div>
               <div className="date-picker-wrapper">
-                <label>{t('dashboard.endDate')}</label>  
+                <label>{t('dashboard.endDate')}</label>
                 <DatePicker
                   selected={endDate}
                   onChange={(date) => setEndDate(date)}
                   selectsEnd
                   startDate={startDate}
                   endDate={endDate}
-                  dateFormat="dd/MM/yyyy" 
+                  dateFormat="dd/MM/yyyy"
                   className="date-picker"
                   minDate={startDate}
                   maxDate={new Date()}
@@ -190,8 +190,8 @@ function Dashboard() {
           </div>
 
           <div className="sales-chart">
-            <SalesDetailsChart 
-              dateRange={{ startDate, endDate }} 
+            <SalesDetailsChart
+              dateRange={{ startDate, endDate }}
               data={revenueData}
             />
           </div>
